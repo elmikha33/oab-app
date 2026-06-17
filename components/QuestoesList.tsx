@@ -50,7 +50,6 @@ export default function QuestoesList() {
     setTimeout(() => setMensagem(null), 2000);
   };
 
-  // Tipagem explícita para evitar erro de build
   const stats = questoes.reduce((acc: { acertos: number, erros: number }, q: any) => {
     if (userChoices[q.id] !== undefined) {
       const isCorrect = userChoices[q.id] === Number(q.gabarito);
@@ -71,8 +70,6 @@ export default function QuestoesList() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-8">
-      
-      {/* PAINEL DE ESTATÍSTICAS */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-emerald-900/20 border border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between">
           <div><p className="text-emerald-400 text-xs uppercase font-bold">Acertos</p><p className="text-2xl font-bold text-white">{stats.acertos}</p></div>
@@ -88,7 +85,6 @@ export default function QuestoesList() {
         </div>
       </div>
 
-      {/* SUMÁRIO */}
       <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700">
         <h3 className="text-slate-400 font-bold mb-4 uppercase text-xs tracking-widest flex justify-between items-center">
           <span>Sumário</span>
@@ -101,11 +97,7 @@ export default function QuestoesList() {
               <button onClick={() => setFiltroMateria(materia)} className={`text-sm ${filtroMateria === materia ? 'text-indigo-400 font-bold' : 'text-slate-300'}`}>
                 {materia} ({Number(count)})
               </button>
-              <button 
-                onClick={() => resetarMateria(materia)} 
-                title="Resetar Questões desta matéria"
-                className="text-slate-500 hover:text-slate-200 transition-all duration-200 hover:rotate-180"
-              >
+              <button onClick={() => resetarMateria(materia)} title="Resetar Questões desta matéria" className="text-slate-500 hover:text-slate-200 transition-all duration-200 hover:rotate-180">
                 <RefreshCcw size={12} />
               </button>
             </div>
@@ -113,7 +105,6 @@ export default function QuestoesList() {
         </div>
       </div>
 
-      {/* LISTA */}
       {questoesExibidas.map((q: any) => {
         const hasAnswered = userChoices[q.id] !== undefined;
         const selectedIndex = userChoices[q.id];
@@ -141,3 +132,13 @@ export default function QuestoesList() {
               <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300">
                 <p className={`font-bold mb-2 ${selectedIndex === correctIndex ? "text-emerald-400" : "text-red-400"}`}>
                    {selectedIndex === correctIndex ? "✅ Correto!" : "❌ Incorreto."}
+                </p>
+                <p className="text-sm">{q.comentario}</p>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
