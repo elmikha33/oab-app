@@ -3,85 +3,69 @@
 import React from 'react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { useGameState } from '../context/GameStateContext';
-import { getProgressionInfo } from '../lib/progression';
-import { Flame, BookOpen, ChevronRight, Zap } from 'lucide-react';
+import { useGameState } from '@/context/GameStateContext';
+import { Flame, BookOpen, ChevronRight, BarChart3 } from 'lucide-react';
+
+const QUOTES = [
+  { text: "O direito não socorre aos que dormem.", author: "Autor Anônimo" },
+  { text: "A persistência é o caminho do êxito.", author: "Charlie Chaplin" },
+  { text: "A lei é a razão livre da paixão.", author: "Filósofo Aristóteles" }
+];
 
 export default function Dashboard() {
   const { user } = useGameState();
-  
-  if (!user) return <div className="p-6 text-white">Carregando...</div>;
+  const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
 
-  const info = getProgressionInfo(user.streak || 0);
-  const streakLabel = (user.streak === 1) ? 'dia' : 'dias';
+  if (!user) return <div className="p-8 text-white min-h-screen bg-slate-950">Carregando...</div>;
 
-  const triggerConfetti = () => {
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#eab308', '#ffffff', '#3b82f6'] });
-  };
+  const totalAcertos = user.acertos ?? 0;
+
+  const triggerConfetti = () => confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#eab308', '#ffffff', '#3b82f6'] });
 
   return (
     <div className="flex-1 p-4 md:p-8 bg-slate-950 min-h-screen text-white">
-      <h1 className="font-heading font-extrabold text-2xl mb-6 tracking-tight">Dashboard</h1>
+      <h1 className="font-heading font-extrabold text-2xl mb-6">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        {/* Card Ofensiva */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-inner">
-          <div className="p-3 bg-slate-950 rounded-xl text-orange-500 border border-slate-800 shadow-xl flex items-center justify-center">
-            <Flame size={28} className="drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]" />
+      <div className="bg-slate-900 border-l-4 border-yellow-500 p-4 rounded-xl mb-8 shadow-lg">
+        <p className="italic text-slate-200">"{quote.text}"</p>
+        <p className="mt-2 text-sm font-bold text-slate-400">— {quote.author}</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <Flame className="text-orange-500" size={20} />
+            <p className="text-[11px] uppercase font-bold text-slate-500">Ofensiva</p>
           </div>
-          <div>
-            <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Ofensiva</p>
-            <p className="font-bold text-xl">{user.streak} {streakLabel} <span className="text-sm font-medium text-slate-400">de ofensiva</span></p>
-          </div>
+          <p className="font-bold text-xl">{user.streak || 0} dias</p>
         </div>
-
-        {/* Card Status - Raio Azul Vibrante */}
-        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-inner relative overflow-hidden">
-          <div className="absolute -left-4 -top-4 w-16 h-16 bg-blue-500/10 rounded-full blur-2xl"></div>
-          
-          <div className="p-3 bg-slate-950 rounded-xl border border-blue-900/50 shadow-xl relative z-10 flex items-center justify-center">
-            <Zap size={28} className="text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
+        
+        <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col justify-between">
+          <div className="flex items-center gap-2 mb-2">
+            <BarChart3 className="text-blue-500" size={20} />
+            <p className="text-[11px] uppercase font-bold text-slate-500">Acertos</p>
           </div>
-          
-          <div className="relative z-10">
-            <p className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Status Atual</p>
-            <p className="font-extrabold text-xl tracking-tight text-white">
-              {info.title}
-            </p>
-          </div>
+          <p className="font-bold text-xl">{totalAcertos}</p>
         </div>
       </div>
 
-      {/* Card "Estudar Agora" com Brilho e Efeitos */}
       <Link 
         href="/play" 
         onClick={triggerConfetti}
-        // Adicionadas classes group-hover para efeito de luz ao passar o mouse
-        className="group relative block p-[2px] rounded-3xl overflow-hidden h-[130px] w-full mb-8 hover:scale-[1.01] transition-all duration-500 shadow-2xl hover:shadow-brand-500/50"
+        className="group relative block p-[2px] rounded-3xl overflow-hidden h-[120px] w-full mb-8 shadow-2xl transition-all duration-300 hover:scale-[1.01]"
       >
-        {/* Efeito de brilho de fundo (mobile e desktop hover) */}
-        <div className="absolute inset-0 bg-brand-600/30 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-        {/* Animação de rotação */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] aspect-square animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_60%,#eab308)] opacity-60 group-hover:opacity-100 transition-opacity"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] aspect-square animate-[spin_5s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_60%,#eab308)] opacity-70"></div>
+        <div className="absolute inset-[3px] bg-slate-900 rounded-[21px] z-10 transition-colors duration-300 group-hover:bg-slate-800"></div>
         
-        {/* Fundo interno */}
-        <div className="absolute inset-[3px] bg-slate-900 rounded-[21px]"></div>
-        
-        {/* Conteúdo do card */}
-        <div className="relative h-full w-full rounded-[21px] flex justify-between items-center px-8 z-10">
+        <div className="relative h-full w-full rounded-[21px] flex justify-between items-center px-8 z-20">
           <div className="flex items-center gap-5">
-            {/* Ícone com brilho no hover */}
-            <div className="p-4 bg-slate-800 rounded-2xl text-emerald-400 border border-slate-700 shadow-2xl group-hover:text-emerald-300 group-hover:shadow-emerald-500/30 group-hover:border-emerald-700 transition-all">
-              <BookOpen size={28} />
-            </div>
+            <div className="p-4 bg-slate-800 rounded-2xl text-emerald-400 border border-slate-700 shadow-xl"><BookOpen size={28} /></div>
             <div>
-              <h3 className="font-extrabold text-2xl tracking-tight text-white">Estudar Agora</h3>
-              <p className="text-slate-400 text-base">Continue sua preparação para a OAB.</p>
+              <h3 className="font-extrabold text-xl text-white">Estudar Agora</h3>
+              <p className="text-slate-400 text-sm">Prepare-se para a OAB.</p>
             </div>
           </div>
-          {/* Botão lateral com brilho e cor no hover */}
-          <div className="bg-slate-800 p-3 rounded-xl text-white border border-slate-700 group-hover:bg-brand-600 group-hover:shadow-brand-500/50 group-hover:border-brand-500 transition-all">
+          <div className="bg-slate-800 p-3 rounded-xl text-white border border-slate-700 group-hover:bg-yellow-600 transition-colors">
             <ChevronRight size={24} />
           </div>
         </div>
