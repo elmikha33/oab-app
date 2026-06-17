@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { supabase } from "@/lib/supabase";
-import { RefreshCcw, ArrowLeft, Star, Loader2 } from 'lucide-react';
+import { RefreshCcw, ArrowLeft, Star, Loader2, X } from 'lucide-react';
 
 const CATEGORIES = {
   PRIORIDADE: { label: 'Prioridade', color: 'bg-amber-500', textColor: 'text-black', subjects: ['Ética Profissional'] },
@@ -38,7 +38,20 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
     load();
   }, []);
 
-  // Filtra sem reordenar
+  // Lógica de reset
+  const resetar = (e: React.MouseEvent, materia: string | null) => {
+    e.stopPropagation();
+    if (!materia) {
+      setUserChoices({});
+    } else {
+      const next = { ...userChoices };
+      questoes.forEach(q => {
+        if ((q.materia || "").trim() === materia) delete next[q.id];
+      });
+      setUserChoices(next);
+    }
+  };
+
   const exibidas = useMemo(() => {
     return filtroMateria 
       ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) 
@@ -47,27 +60,30 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
 
   return (
     <div className="w-full">
-      {/* HEADER STICKY (Fixa no topo do mobile e desktop) */}
-      <div className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 p-4">
-        <div className="max-w-3xl mx-auto flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 hover:text-white">
-            <ArrowLeft size={20} />
+      {/* HEADER STICKY E BLOCOS DE FILTRO */}
+      <div className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 p-4">
+        <div className="max-w-3xl mx-auto">
+          <Link href="/dashboard" className="flex items-center text-slate-400 hover:text-white mb-4">
+            <ArrowLeft size={16} className="mr-2" /> Voltar
           </Link>
           
-          <div className="flex-1 overflow-x-auto scrollbar-hide flex gap-2 pb-1">
+          <div className="grid grid-cols-2 gap-2">
             <button 
               onClick={() => setFiltroMateria(null)}
-              className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold ${!filtroMateria ? 'bg-purple-600 text-white' : 'bg-slate-900 text-slate-400'}`}
+              className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${!filtroMateria ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400'}`}
             >
-              Todas
+              <span>Todas ({questoes.length})</span>
+              <RefreshCcw size={14} onClick={(e) => resetar(e, null)} className="hover:rotate-180 transition-transform" />
             </button>
-            {Object.values(CATEGORIES).flatMap(c => c.subjects).map(sub => (
+
+            {Object.values(CATEGORIES).flatMap(c => c.subjects.map(s => ({name: s, color: c.color, text: c.textColor}))).map((item) => (
               <button
-                key={sub}
-                onClick={() => setFiltroMateria(sub)}
-                className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-bold ${filtroMateria === sub ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-slate-400'}`}
+                key={item.name}
+                onClick={() => setFiltroMateria(item.name)}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${filtroMateria === item.name ? `${item.color} ${item.text} ring-2 ring-white` : 'bg-slate-900 text-slate-400'} border border-slate-800`}
               >
-                {sub}
+                <span className="truncate">{item.name}</span>
+                <RefreshCcw size={12} onClick={(e) => resetar(e, item.name)} className="hover:rotate-180 transition-transform ml-2" />
               </button>
             ))}
           </div>
@@ -108,7 +124,7 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
                 </div>
                 
                 {answered && (
-                  <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300 animate-in fade-in slide-in-from-top-2">
+                  <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300">
                     <p className="font-bold mb-2">{selected === correct ? "✅ Correto!" : "❌ Incorreto."}</p>
                     <p className="text-sm italic">{q.comentario}</p>
                   </div>
