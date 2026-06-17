@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { supabase } from "@/lib/supabase"; 
-import { RefreshCcw, CheckCircle2, XCircle, Award } from 'lucide-react';
+import { RefreshCcw, CheckCircle2, XCircle, Award, ArrowLeft } from 'lucide-react';
 
 export default function QuestoesList() {
   const [questoes, setQuestoes] = useState<any[]>([]);
@@ -64,6 +65,16 @@ export default function QuestoesList() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6 space-y-8">
+      
+      {/* BOTÃO DE VOLTAR FIXO */}
+      <Link 
+        href="/dashboard" 
+        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4 bg-slate-900/50 w-fit px-4 py-2 rounded-xl border border-slate-800"
+      >
+        <ArrowLeft size={18} />
+        <span className="text-sm font-bold">Voltar ao Dashboard</span>
+      </Link>
+
       {/* PAINEL DE ESTATÍSTICAS */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
         {[
@@ -78,7 +89,7 @@ export default function QuestoesList() {
         ))}
       </div>
 
-      {/* SUMÁRIO COM DESTAQUE ATIVO */}
+      {/* SUMÁRIO */}
       <div className="bg-slate-800 p-4 md:p-6 rounded-2xl border border-slate-700">
         <h3 className="text-slate-400 font-bold mb-4 uppercase text-xs">Sumário {mensagem && <span className="text-emerald-400 ml-2 animate-pulse">{mensagem}</span>}</h3>
         <div className="flex flex-wrap gap-2">
@@ -100,7 +111,6 @@ export default function QuestoesList() {
         
         return (
           <div key={q.id} className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
-            {/* TEMA DA MATÉRIA */}
             <span className="inline-block bg-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md mb-3">
               {q.tema || 'Questão OAB'}
             </span>
