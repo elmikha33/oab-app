@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import confetti from 'canvas-confetti'; // Importação do efeito
 import { useGameState } from '../context/GameStateContext';
 import { getTituloPorNivel } from '../lib/mockData';
 import { 
@@ -34,11 +35,22 @@ export default function Sidebar() {
     }
   };
 
+  // Função para disparar o confete
+  const triggerConfetti = () => {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#10b981', '#facc15', '#ffffff'],
+    });
+  };
+
   if (!user) return null;
 
+  // Adicionado o onClick dinâmico nos links que precisam
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Responder Questões', href: '/play', icon: BookOpen },
+    { name: 'Responder Questões', href: '/play', icon: BookOpen, onClick: triggerConfetti },
     { name: 'Chefe do Dia', href: '/play/boss', icon: Swords },
     { name: 'Modo Revisão', href: '/review', icon: Calendar },
     { name: 'Classificação', href: '/ranking', icon: TrophyIcon },
@@ -119,11 +131,16 @@ export default function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1">
-        {links.map((link) => {
+        {links.map((link: any) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
           return (
-            <Link key={link.href} href={link.href} className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-brand-600/20 border border-brand-500/30 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'}`}>
+            <Link 
+              key={link.href} 
+              href={link.href} 
+              onClick={link.onClick} // Aplica a função de confete se existir
+              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-brand-600/20 border border-brand-500/30 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'}`}
+            >
               <div className="flex items-center gap-3">
                 <Icon className={`h-4.5 w-4.5 ${isActive ? 'text-brand-400' : 'text-slate-400'}`} />
                 <span>{link.name}</span>
