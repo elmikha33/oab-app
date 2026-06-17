@@ -1,46 +1,65 @@
 'use client';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const GameStateContext = createContext<any>(null);
 
-export function GameStateProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState({ nome: "Candidato", nivel: 1, moedas: 0, streak: 0, xp: 0 });
-  const [missoes, setMissoes] = useState<any[]>([]);
+export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<any>(null);
 
-  // Carregar dados e calcular Streak
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('gameState') || '{}');
-    const lastDate = localStorage.getItem('lastPlayDate');
-    const today = new Date().toDateString();
+    const savedUser = localStorage.getItem('user-game-data');
+    const today = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
 
-    // Lógica simples de Streak
-    let streak = saved.streak || 0;
-    if (lastDate && lastDate !== today) {
-       const diff = new Date(today).getTime() - new Date(lastDate).getTime();
-       if (diff > 86400000) streak = 0; // Reset se passou de 24h
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      const lastAccess = userData.lastAccess; // Data do último login
+
+      // Lógica de Streak
+      let newStreak = userData.streak || 0;
+      
+      // Criar data de ontem para comparar
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+      if (lastAccess !== today) {
+        if (lastAccess === yesterdayStr) {
+          // Estudou ontem, incrementa
+          newStreak += 1;
+        } else {
+          // Ficou mais de 24h sem entrar, reseta para 1
+          newStreak = 1;
+        }
+      }
+
+      // Atualiza usuário com a nova lógica
+      const updatedUser = {
+        ...userData,
+        streak: newStreak,
+        lastAccess: today
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user-game-data', JSON.stringify(updatedUser));
+    } else {
+      // Usuário novo
+      const newUser = {
+        nome: "Candidato",
+        streak: 1,
+        lastAccess: today,
+        isPremium: false,
+        isAdmin: false
+      };
+      setUser(newUser);
+      localStorage.setItem('user-game-data', JSON.stringify(newUser));
     }
-    setUser({ ...user, ...saved, streak });
   }, []);
 
-  const atualizarProgresso = (xpGanhos: number, moedasGanhas: number) => {
-    const novoXP = user.xp + xpGanhos;
-    const novoNivel = Math.floor(novoXP / 500) + 1; // Nível sobe a cada 500 XP
-    const novoEstado = { 
-        ...user, 
-        xp: novoXP, 
-        moedas: user.moedas + moedasGanhas, 
-        nivel: novoNivel 
-    };
-    setUser(novoEstado);
-    localStorage.setItem('gameState', JSON.stringify(novoEstado));
-    localStorage.setItem('lastPlayDate', new Date().toDateString());
-  };
-
   return (
-    <GameStateContext.Provider value={{ user, missoes, atualizarProgresso, setMissoes }}>
+    <GameStateContext.Provider value={{ user, setUser }}>
       {children}
     </GameStateContext.Provider>
   );
-}
+};
 
 export const useGameState = () => useContext(GameStateContext);

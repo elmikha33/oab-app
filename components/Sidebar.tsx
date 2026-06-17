@@ -3,9 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import confetti from 'canvas-confetti'; // Importação do efeito
+import confetti from 'canvas-confetti';
 import { useGameState } from '../context/GameStateContext';
-import { getTituloPorNivel } from '../lib/mockData';
 import { 
   LayoutDashboard, 
   BookOpen, 
@@ -16,9 +15,17 @@ import {
   Crown,
   LogOut,
   Flame,
-  Coins,
   Scale
 } from 'lucide-react';
+
+// Função que define a patente baseada na streak
+const getPatentePorStreak = (streak: number) => {
+  if (streak === 0) return "Iniciante";
+  if (streak < 5) return "Estudante";
+  if (streak < 10) return "Bacharelando";
+  if (streak < 20) return "Advogado em Ascensão";
+  return "Mestre da OAB";
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -35,7 +42,6 @@ export default function Sidebar() {
     }
   };
 
-  // Função para disparar o confete
   const triggerConfetti = () => {
     confetti({
       particleCount: 150,
@@ -47,7 +53,6 @@ export default function Sidebar() {
 
   if (!user) return null;
 
-  // Adicionado o onClick dinâmico nos links que precisam
   const links = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Responder Questões', href: '/play', icon: BookOpen, onClick: triggerConfetti },
@@ -74,10 +79,10 @@ export default function Sidebar() {
     );
   }
 
-  const xpPercent = Math.min(100, Math.round((user.xp / user.xpNecessario) * 100));
-
   return (
     <aside className="hidden md:flex flex-col w-64 bg-slate-900 border-r border-slate-800 p-4 min-h-screen text-slate-200">
+      
+      {/* Logo */}
       <Link href="/" className="flex items-center gap-2 px-2 py-4 mb-6 cursor-pointer hover:opacity-90 transition-all block">
         <div className="flex items-center gap-2">
           <div className="bg-brand-600 p-2 rounded-lg glow-purple">
@@ -92,41 +97,22 @@ export default function Sidebar() {
         </div>
       </Link>
 
-      <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-3 mb-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center font-heading font-bold text-white text-lg ring-2 ring-brand-500/50 shadow-lg shadow-brand-500/20">
-              {user.nome.charAt(0).toUpperCase()}
-            </div>
-            {user.isPremium && (
-              <span className="absolute -top-1 -right-1 bg-yellow-500 text-slate-950 p-0.5 rounded-full text-[9px] font-bold">👑</span>
-            )}
+      {/* Perfil Simplificado com Patente */}
+      <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-brand-500 flex items-center justify-center font-heading font-bold text-white text-lg ring-2 ring-brand-500/50 shadow-lg shadow-brand-500/20">
+            {user.nome.charAt(0).toUpperCase()}
           </div>
-          <div className="min-w-0">
+          <div className="overflow-hidden">
             <h4 className="font-semibold text-sm text-slate-200 truncate">{user.nome}</h4>
-            <span className="text-xs text-brand-400 font-medium block">{getTituloPorNivel(user.nivel)}</span>
+            <p className="text-xs text-brand-400 font-bold uppercase tracking-wider">{getPatentePorStreak(user.streak || 0)}</p>
           </div>
         </div>
 
-        <div className="space-y-1">
-          <div className="flex justify-between text-[10px] font-medium text-slate-400">
-            <span>Nível {user.nivel}</span>
-            <span>{user.xp} / {user.xpNecessario} XP</span>
-          </div>
-          <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-            <div className="bg-brand-500 h-full rounded-full transition-all duration-500" style={{ width: `${xpPercent}%` }} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-800/60 text-xs">
-          <div className="flex items-center gap-1.5 text-yellow-500 font-semibold">
-            <Coins className="h-4 w-4" />
-            <span>{user.moedas} Moedas</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-orange-500 font-semibold">
-            <Flame className="h-4 w-4 animate-pulse" />
-            <span>{user.streak} Dias</span>
-          </div>
+        {/* Ofensiva */}
+        <div className="flex items-center gap-2 text-orange-500 font-semibold bg-slate-900/50 py-2 px-3 rounded-lg border border-slate-800">
+          <Flame className="h-4 w-4" />
+          <span className="text-xs">{user.streak || 0} dias de ofensiva</span>
         </div>
       </div>
 
@@ -138,7 +124,7 @@ export default function Sidebar() {
             <Link 
               key={link.href} 
               href={link.href} 
-              onClick={link.onClick} // Aplica a função de confete se existir
+              onClick={link.onClick}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${isActive ? 'bg-brand-600/20 border border-brand-500/30 text-white font-semibold' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'}`}
             >
               <div className="flex items-center gap-3">
