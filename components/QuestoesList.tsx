@@ -3,24 +3,17 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { supabase } from "@/lib/supabase";
-import { RefreshCcw, ArrowLeft, Star, Loader2, X } from 'lucide-react';
+import { RefreshCcw, ArrowLeft, Loader2 } from 'lucide-react';
 
 const CATEGORIES = {
-  PRIORIDADE: { label: 'Prioridade', color: 'bg-amber-500', textColor: 'text-black', subjects: ['Ética Profissional'] },
-  PUBLICO: { label: 'Público', color: 'bg-blue-600', textColor: 'text-white', subjects: ['Direito Constitucional', 'Direito Administrativo', 'Direito Tributário', 'Direito Penal', 'Direito Processual Penal'] },
-  PRIVADO: { label: 'Privado', color: 'bg-emerald-600', textColor: 'text-white', subjects: ['Direito Civil', 'Direito Processual Civil', 'Direito Empresarial', 'Direito Internacional'] },
-  SOCIAL: { label: 'Social', color: 'bg-orange-600', textColor: 'text-white', subjects: ['Direito do Trabalho', 'Direito Processual do Trabalho', 'Direitos Humanos', 'Direito Ambiental', 'Direito do Consumidor', 'Direito Previdenciário'] },
-  BASE: { label: 'Base', color: 'bg-slate-600', textColor: 'text-white', subjects: ['Filosofia do Direito'] }
+  PRIORIDADE: { label: 'Prioridade', color: 'bg-amber-500', text: 'text-black', subjects: ['Ética Profissional'] },
+  PUBLICO: { label: 'Público', color: 'bg-blue-600', text: 'text-white', subjects: ['Direito Constitucional', 'Direito Administrativo', 'Direito Tributário', 'Direito Penal', 'Direito Processual Penal'] },
+  PRIVADO: { label: 'Privado', color: 'bg-emerald-600', text: 'text-white', subjects: ['Direito Civil', 'Direito Processual Civil', 'Direito Empresarial', 'Direito Internacional'] },
+  SOCIAL: { label: 'Social', color: 'bg-orange-600', text: 'text-white', subjects: ['Direito do Trabalho', 'Direito Processual do Trabalho', 'Direitos Humanos', 'Direito Ambiental', 'Direito do Consumidor', 'Direito Previdenciário'] },
+  BASE: { label: 'Base', color: 'bg-slate-600', text: 'text-white', subjects: ['Filosofia do Direito'] }
 };
 
-const getCategoryConfig = (materia: string) => {
-  const entry = Object.entries(CATEGORIES).find(([_, cat]) => cat.subjects.includes(materia));
-  return entry ? entry[1] : { color: 'bg-slate-600', textColor: 'text-white' };
-};
-
-interface QuestoesListProps {
-  onCorrectAnswer: () => void;
-}
+interface QuestoesListProps { onCorrectAnswer: () => void; }
 
 export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
   const [questoes, setQuestoes] = useState<any[]>([]);
@@ -38,52 +31,40 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
     load();
   }, []);
 
-  // Lógica de reset
   const resetar = (e: React.MouseEvent, materia: string | null) => {
     e.stopPropagation();
-    if (!materia) {
-      setUserChoices({});
-    } else {
+    if (!materia) setUserChoices({});
+    else {
       const next = { ...userChoices };
-      questoes.forEach(q => {
-        if ((q.materia || "").trim() === materia) delete next[q.id];
-      });
+      questoes.forEach(q => { if ((q.materia || "").trim() === materia) delete next[q.id]; });
       setUserChoices(next);
     }
   };
 
-  const exibidas = useMemo(() => {
-    return filtroMateria 
-      ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) 
-      : questoes;
-  }, [questoes, filtroMateria]);
+  const exibidas = useMemo(() => 
+    filtroMateria ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) : questoes, 
+    [questoes, filtroMateria]
+  );
 
   return (
     <div className="w-full">
-      {/* HEADER STICKY E BLOCOS DE FILTRO */}
-      <div className="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 p-4">
-        <div className="max-w-3xl mx-auto">
-          <Link href="/dashboard" className="flex items-center text-slate-400 hover:text-white mb-4">
-            <ArrowLeft size={16} className="mr-2" /> Voltar
+      {/* HEADER COMPACTO E STICKY */}
+      <div className="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 p-2">
+        <div className="max-w-3xl mx-auto flex items-center gap-2">
+          <Link href="/dashboard" className="p-2 bg-slate-900 rounded-lg text-slate-400 border border-slate-800">
+            <ArrowLeft size={18} />
           </Link>
           
-          <div className="grid grid-cols-2 gap-2">
-            <button 
-              onClick={() => setFiltroMateria(null)}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${!filtroMateria ? 'bg-purple-600 text-white shadow-lg' : 'bg-slate-900 text-slate-400'}`}
-            >
-              <span>Todas ({questoes.length})</span>
-              <RefreshCcw size={14} onClick={(e) => resetar(e, null)} className="hover:rotate-180 transition-transform" />
+          <div className="flex-1 overflow-x-auto flex gap-2 pb-1 scrollbar-hide">
+            <button onClick={() => setFiltroMateria(null)} className={`flex items-center gap-1 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold ${!filtroMateria ? 'bg-purple-600 text-white' : 'bg-slate-900 text-slate-400'}`}>
+              Todas <RefreshCcw size={10} onClick={(e) => resetar(e, null)} />
             </button>
-
-            {Object.values(CATEGORIES).flatMap(c => c.subjects.map(s => ({name: s, color: c.color, text: c.textColor}))).map((item) => (
-              <button
-                key={item.name}
-                onClick={() => setFiltroMateria(item.name)}
-                className={`flex items-center justify-between px-4 py-3 rounded-xl font-bold text-xs transition-all ${filtroMateria === item.name ? `${item.color} ${item.text} ring-2 ring-white` : 'bg-slate-900 text-slate-400'} border border-slate-800`}
-              >
-                <span className="truncate">{item.name}</span>
-                <RefreshCcw size={12} onClick={(e) => resetar(e, item.name)} className="hover:rotate-180 transition-transform ml-2" />
+            
+            {Object.values(CATEGORIES).flatMap(c => c.subjects.map(s => ({name: s, color: c.color, text: c.text}))).map((item) => (
+              <button key={item.name} onClick={() => setFiltroMateria(item.name)} 
+                className={`flex items-center gap-1 whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-bold border ${filtroMateria === item.name ? `${item.color} ${item.text} border-transparent` : 'bg-slate-900 text-slate-400 border-slate-800'}`}>
+                {item.name}
+                <RefreshCcw size={10} onClick={(e) => resetar(e, item.name)} />
               </button>
             ))}
           </div>
@@ -91,7 +72,7 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
       </div>
 
       {/* LISTA DE QUESTÕES */}
-      <div className="max-w-3xl mx-auto p-4 space-y-6">
+      <div className="max-w-3xl mx-auto p-3 space-y-4">
         {isLoading ? (
           <div className="flex justify-center py-20"><Loader2 className="animate-spin text-slate-500" size={40} /></div>
         ) : (
@@ -99,36 +80,21 @@ export default function QuestoesList({ onCorrectAnswer }: QuestoesListProps) {
             const answered = userChoices[q.id] !== undefined;
             const selected = userChoices[q.id];
             const correct = Number(q.gabarito);
-            const catConfig = getCategoryConfig(q.materia || ''); 
             
             return (
-              <div key={q.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-                <span className={`inline-block ${catConfig.color} ${catConfig.textColor} text-[10px] uppercase font-bold px-2 py-1 rounded-md mb-4`}>
-                    {q.materia || 'Matéria'}
-                </span>
-                <h2 className="text-lg text-white mb-6 leading-relaxed">{q.enunciado}</h2>
-                <div className="space-y-3">
+              <div key={q.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg">
+                <span className="text-[9px] uppercase font-bold text-slate-500 mb-2 block">{q.materia}</span>
+                <h2 className="text-sm text-white mb-4 leading-relaxed">{q.enunciado}</h2>
+                <div className="space-y-2">
                   {q.alternativas.map((alt: string, i: number) => (
-                    <button 
-                      key={i} 
-                      disabled={answered} 
-                      onClick={() => {
-                          setUserChoices(prev => ({...prev, [q.id]: i}));
-                          if (i === correct) onCorrectAnswer();
-                      }} 
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${answered ? (i === correct ? 'bg-emerald-900/40 border-emerald-500' : i === selected ? 'bg-red-900/40 border-red-500' : 'opacity-40 border-slate-800') : 'bg-slate-950 border-slate-800 hover:border-slate-500'}`}
-                    >
+                    <button key={i} disabled={answered} onClick={() => {
+                        setUserChoices(prev => ({...prev, [q.id]: i}));
+                        if (i === correct) onCorrectAnswer();
+                    }} className={`w-full text-left p-3 rounded-lg border text-xs transition-all ${answered ? (i === correct ? 'bg-emerald-900/40 border-emerald-500' : i === selected ? 'bg-red-900/40 border-red-500' : 'opacity-40 border-slate-800') : 'bg-slate-950 border-slate-800 hover:border-slate-500'}`}>
                       {alt}
                     </button>
                   ))}
                 </div>
-                
-                {answered && (
-                  <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300">
-                    <p className="font-bold mb-2">{selected === correct ? "✅ Correto!" : "❌ Incorreto."}</p>
-                    <p className="text-sm italic">{q.comentario}</p>
-                  </div>
-                )}
               </div>
             );
           })
