@@ -99,7 +99,9 @@ export default function QuestoesList() {
         <div className="flex flex-wrap gap-2">
           
           <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${!filtroMateria ? 'bg-indigo-600 border-indigo-400 shadow-lg' : 'bg-slate-900 border-slate-700'}`}>
-            <button onClick={() => setFiltroMateria(null)} className={`text-sm ${!filtroMateria ? 'text-white font-bold' : 'text-slate-400'}`}>Todas</button>
+            <button onClick={() => setFiltroMateria(null)} className={`text-sm ${!filtroMateria ? 'text-white font-bold' : 'text-slate-400'}`}>
+              Todas ({questoes.length})
+            </button>
             <button onClick={() => { if(confirm("Resetar todo o progresso?")) setUserChoices({}); }} className="text-slate-500 hover:text-white"><RefreshCcw size={12}/></button>
           </div>
 
