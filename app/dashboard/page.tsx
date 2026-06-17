@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { supabase } from "@/lib/supabase"; // Certifique-se que este caminho está correto para seu projeto
 import { useGameState } from '@/context/GameStateContext';
 import { 
   Flame, 
@@ -17,9 +18,30 @@ import {
 export default function Dashboard() {
   const { user, missoes } = useGameState();
   const [mounted, setMounted] = useState(false);
+  const [stats, setStats] = useState<Record<string, { acertos: number, total: number }>>({});
 
   useEffect(() => {
     setMounted(true);
+    
+    async function carregarEstatisticas() {
+      const { data } = await supabase.from("questoes_oab").select("id, materia, gabarito");
+      const choices = JSON.parse(localStorage.getItem('userChoices') || '{}');
+      
+      const calculo: Record<string, { acertos: number, total: number }> = {};
+
+      data?.forEach((q: any) => {
+        if (!calculo[q.materia]) calculo[q.materia] = { acertos: 0, total: 0 };
+        
+        if (choices[q.id] !== undefined) {
+          calculo[q.materia].total += 1;
+          if (choices[q.id] === Number(q.gabarito)) {
+            calculo[q.materia].acertos += 1;
+          }
+        }
+      });
+      setStats(calculo);
+    }
+    carregarEstatisticas();
   }, []);
 
   if (!mounted || !user) return null;
@@ -106,25 +128,20 @@ export default function Dashboard() {
                     </h3>
                     
                     <div className="space-y-4">
-                        <div className="text-sm text-slate-400">
-                            <div className="flex justify-between mb-1">
-                                <span>Direito Civil</span>
-                                <span className="text-white font-bold">75%</span>
-                            </div>
-                            <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 w-[75%]" />
-                            </div>
-                        </div>
-                        
-                        <div className="text-sm text-slate-400">
-                            <div className="flex justify-between mb-1">
-                                <span>Processo Civil</span>
-                                <span className="text-white font-bold">40%</span>
-                            </div>
-                            <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                <div className="h-full bg-brand-500 w-[40%]" />
-                            </div>
-                        </div>
+                        {Object.entries(stats).length > 0 ? Object.entries(stats).map(([materia, data]) => {
+                            const percent = data.total > 0 ? Math.round((data.acertos / data.total) * 100) : 0;
+                            return (
+                                <div key={materia} className="text-sm text-slate-400">
+                                    <div className="flex justify-between mb-1">
+                                        <span>{materia}</span>
+                                        <span className="text-white font-bold">{percent}%</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-emerald-500" style={{ width: `${percent}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        }) : <p className="text-slate-500 text-sm">Responda questões para ver seu desempenho.</p>}
                     </div>
                 </div>
             </div>
