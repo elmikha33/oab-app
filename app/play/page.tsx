@@ -1,6 +1,9 @@
-// app/play/page.tsx
-import QuestoesList from "@/components/QuestoesList";
+import QuestoesList from '@/components/QuestoesList';
 
-export default function Page() {
-  return <QuestoesList />;
+export default function PlayPage() {
+  return (
+    <main>
+      <QuestoesList />
+    </main>
+  );
 }
