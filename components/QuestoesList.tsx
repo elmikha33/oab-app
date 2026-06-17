@@ -21,8 +21,8 @@ export default function QuestoesList() {
     async function carregarDados() {
       const { data } = await supabase.from("questoes_oab").select("*");
       
-      const sortedData = (data || []).sort((a, b) => {
-        const saved = savedChoices ? JSON.parse(savedChoices) : {};
+      const saved = savedChoices ? JSON.parse(savedChoices) : {};
+      const sortedData = (data || []).sort((a: any, b: any) => {
         const aResp = saved[a.id] !== undefined;
         const bResp = saved[b.id] !== undefined;
         if (aResp === bResp) return 0;
@@ -42,15 +42,6 @@ export default function QuestoesList() {
     }
   }, [userChoices, filtroMateria, isLoaded]);
 
-  // Estatísticas
-  const stats = questoes.reduce((acc, q) => {
-    if (userChoices[q.id] !== undefined) {
-      const isCorrect = userChoices[q.id] === Number(q.gabarito);
-      isCorrect ? acc.acertos++ : acc.erros++;
-    }
-    return acc;
-  }, { acertos: 0, erros: 0 });
-
   const resetarMateria = (materia: string) => {
     const novasEscolhas = { ...userChoices };
     questoes.forEach(q => { if (q.materia === materia) delete novasEscolhas[q.id]; });
@@ -59,10 +50,20 @@ export default function QuestoesList() {
     setTimeout(() => setMensagem(null), 2000);
   };
 
-  const summary = questoes.reduce((acc, q) => {
-    acc[q.materia] = (acc[q.materia] || 0) + 1;
+  // Tipagem explícita para evitar erro de build
+  const stats = questoes.reduce((acc: { acertos: number, erros: number }, q: any) => {
+    if (userChoices[q.id] !== undefined) {
+      const isCorrect = userChoices[q.id] === Number(q.gabarito);
+      isCorrect ? acc.acertos++ : acc.erros++;
+    }
     return acc;
-  }, {} as Record<string, number>);
+  }, { acertos: 0, erros: 0 });
+
+  const summary: Record<string, number> = questoes.reduce((acc: Record<string, number>, q: any) => {
+    const mat = q.materia || "Outros";
+    acc[mat] = (acc[mat] || 0) + 1;
+    return acc;
+  }, {});
 
   const questoesExibidas = filtroMateria 
     ? questoes.filter(q => q.materia === filtroMateria) 
@@ -98,9 +99,13 @@ export default function QuestoesList() {
           {Object.entries(summary).map(([materia, count]) => (
             <div key={materia} className="flex items-center gap-1 bg-slate-900 px-2 py-1 rounded-lg border border-slate-700">
               <button onClick={() => setFiltroMateria(materia)} className={`text-sm ${filtroMateria === materia ? 'text-indigo-400 font-bold' : 'text-slate-300'}`}>
-                {materia} ({count})
+                {materia} ({Number(count)})
               </button>
-              <button onClick={() => resetarMateria(materia)} title="Resetar Questões desta matéria" className="text-slate-500 hover:text-slate-200 transition-all duration-200 hover:rotate-180">
+              <button 
+                onClick={() => resetarMateria(materia)} 
+                title="Resetar Questões desta matéria"
+                className="text-slate-500 hover:text-slate-200 transition-all duration-200 hover:rotate-180"
+              >
                 <RefreshCcw size={12} />
               </button>
             </div>
@@ -109,7 +114,7 @@ export default function QuestoesList() {
       </div>
 
       {/* LISTA */}
-      {questoesExibidas.map((q) => {
+      {questoesExibidas.map((q: any) => {
         const hasAnswered = userChoices[q.id] !== undefined;
         const selectedIndex = userChoices[q.id];
         const correctIndex = Number(q.gabarito);
@@ -136,13 +141,3 @@ export default function QuestoesList() {
               <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300">
                 <p className={`font-bold mb-2 ${selectedIndex === correctIndex ? "text-emerald-400" : "text-red-400"}`}>
                    {selectedIndex === correctIndex ? "✅ Correto!" : "❌ Incorreto."}
-                </p>
-                <p className="text-sm">{q.comentario}</p>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
