@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useGameState } from '@/context/GameStateContext';
 import { 
   Flame, 
   Coins, 
   Trophy, 
-  Swords, 
   Target, 
   ChevronRight,
   TrendingUp,
-  Award
+  Award,
+  BookOpen
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -54,20 +55,23 @@ export default function Dashboard() {
         {/* Conteúdo Principal */}
         <div className="grid md:grid-cols-3 gap-6">
             
-            {/* Coluna Principal: Missões e Boss */}
+            {/* Coluna Principal: Missões e Estudo */}
             <div className="md:col-span-2 space-y-6">
                 
-                {/* Boss do Dia (Highlight) */}
-                <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 rounded-2xl p-6 flex justify-between items-center">
+                {/* Bloco de Estudo (FUNCIONAL) */}
+                <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 flex justify-between items-center">
                     <div>
                         <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                            <Swords className="text-purple-400" /> Chefe do Dia
+                            <BookOpen className="text-emerald-400" /> Estudar Agora
                         </h3>
-                        <p className="text-indigo-200 text-sm">Desafio diário: 10 questões de Processo Civil</p>
+                        <p className="text-slate-400 text-sm">Continue de onde você parou hoje.</p>
                     </div>
-                    <button className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition-all">
-                        Atacar <ChevronRight size={16} />
-                    </button>
+                    <Link 
+                        href="/play" 
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition-all active:scale-95 shadow-lg shadow-emerald-900/20"
+                    >
+                        Acessar <ChevronRight size={16} />
+                    </Link>
                 </div>
 
                 {/* Lista de Missões */}
@@ -101,7 +105,6 @@ export default function Dashboard() {
                         <TrendingUp className="text-emerald-500" /> Desempenho
                     </h3>
                     
-                    {/* Visualizador de Performance Simples */}
                     <div className="space-y-4">
                         <div className="text-sm text-slate-400">
                             <div className="flex justify-between mb-1">
