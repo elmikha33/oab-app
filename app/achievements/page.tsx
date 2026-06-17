@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGameState } from '@/context/GameStateContext';
 import { Award, Lock } from 'lucide-react';
 
-// Definindo a interface para evitar o erro de 'any' implícito
 interface Conquista {
   id: string;
   titulo: string;
@@ -14,23 +13,29 @@ interface Conquista {
 
 export default function AchievementsPage() {
   const { user, conquistas } = useGameState();
+  const [mounted, setMounted] = useState(false);
 
-  // Mapeamento de ícones (ajuste conforme seus ícones importados)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Se não estiver montado no navegador, ou se os dados não existirem, não renderiza
+  if (!mounted || !user || !conquistas) {
+    return <div className="p-8 text-white min-h-screen bg-slate-950">Carregando conquistas...</div>;
+  }
+
   const mapaIcones: Record<string, any> = {
     'award': Award,
     'lock': Lock
   };
 
-  if (!user) return null;
-
   return (
     <div className="flex-1 p-6 md:p-8 bg-slate-950 min-h-screen text-white">
       <h1 className="text-3xl font-bold mb-8">Suas Conquistas</h1>
       
-      {/* Grid de Medalhas */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {conquistas.map((badge: Conquista) => {
-          const desbloqueado = user.conquistasDesbloqueadas?.includes(badge.id);
+          const desbloqueado = user.conquistasDesbloqueadas?.includes(badge.id) || false;
           const IconeComp = mapaIcones[badge.icone] || Award;
 
           return (
