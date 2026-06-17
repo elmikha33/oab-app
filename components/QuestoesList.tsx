@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from "@/lib/supabase"; 
-import { RefreshCcw, CheckCircle2, XCircle, Award, ArrowLeft } from 'lucide-react';
+import { RefreshCcw, ArrowLeft } from 'lucide-react';
 
 export default function QuestoesList() {
   const [questoes, setQuestoes] = useState<any[]>([]);
@@ -66,7 +66,7 @@ export default function QuestoesList() {
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6 space-y-8">
       
-      {/* BOTÃO DE VOLTAR FIXO */}
+      {/* NAVEGAÇÃO */}
       <Link 
         href="/dashboard" 
         className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-4 bg-slate-900/50 w-fit px-4 py-2 rounded-xl border border-slate-800"
@@ -91,9 +91,19 @@ export default function QuestoesList() {
 
       {/* SUMÁRIO */}
       <div className="bg-slate-800 p-4 md:p-6 rounded-2xl border border-slate-700">
-        <h3 className="text-slate-400 font-bold mb-4 uppercase text-xs">Sumário {mensagem && <span className="text-emerald-400 ml-2 animate-pulse">{mensagem}</span>}</h3>
+        <h3 className="text-slate-400 font-bold mb-4 uppercase text-xs flex justify-between">
+          <span>Sumário</span>
+          {mensagem && <span className="text-emerald-400 animate-pulse">{mensagem}</span>}
+        </h3>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => setFiltroMateria(null)} className={`px-4 py-2 rounded-xl text-sm transition-all ${!filtroMateria ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50 scale-105 border border-indigo-400' : 'bg-slate-900 text-slate-400 border border-slate-700'}`}>Todas</button>
+          
+          {/* BOTÃO TODAS */}
+          <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${!filtroMateria ? 'bg-indigo-600 border-indigo-400 shadow-lg' : 'bg-slate-900 border-slate-700'}`}>
+            <button onClick={() => setFiltroMateria(null)} className={`text-sm ${!filtroMateria ? 'text-white font-bold' : 'text-slate-400'}`}>Todas</button>
+            <button onClick={() => { if(confirm("Resetar todo o progresso?")) setUserChoices({}); }} className="text-slate-500 hover:text-white"><RefreshCcw size={12}/></button>
+          </div>
+
+          {/* LISTA MATÉRIAS */}
           {Object.entries(summary).map(([m, c]) => (
             <div key={m} className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${filtroMateria === m ? 'bg-indigo-900/40 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'bg-slate-900 border-slate-700'}`}>
               <button onClick={() => setFiltroMateria(m)} className={`text-sm ${filtroMateria === m ? 'text-white font-bold' : 'text-slate-300'}`}>{m} ({c})</button>
