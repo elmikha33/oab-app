@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from "@/lib/supabase";
-import { RefreshCcw, ArrowLeft, Star, AlertCircle } from 'lucide-react';
+import { RefreshCcw, ArrowLeft, Star, AlertCircle, Loader2 } from 'lucide-react';
 
 const CATEGORIES = {
   PRIORIDADE: { 
@@ -50,24 +50,31 @@ export default function QuestoesList() {
   const [userChoices, setUserChoices] = useState<Record<string, number>>({});
   const [filtroMateria, setFiltroMateria] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const listaRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true); 
 
   useEffect(() => {
     const load = async () => {
+      setIsLoading(true);
       const { data } = await supabase.from("questoes_oab").select("*");
       if (data) setQuestoes(data);
+      setIsLoading(false);
     };
     load();
   }, []);
 
-  // SCROLL: Apenas quando muda a matéria ou inicia
+  const scrollToQuestions = () => {
+    listaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   useEffect(() => {
-    if (listaRef.current) {
-      setTimeout(() => {
-        listaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
     }
-  }, [filtroMateria, questoes]); // Removido userChoices para parar o pulo ao responder
+    scrollToQuestions();
+  }, [filtroMateria]); 
 
   const resetar = (materia: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -104,17 +111,14 @@ export default function QuestoesList() {
     return groups;
   }, [questoes]);
 
-  // ORDENAÇÃO: Travada para não pular enquanto você responde
   const sortedExibidas = useMemo(() => {
     const filtradas = filtroMateria ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) : questoes;
     
-    // A lógica de ordenação mantém o estado atual, sem "re-sorter" a cada clique em alternativa
     return [...filtradas].sort((a, b) => {
       const aAnswered = userChoices[a.id] !== undefined;
       const bAnswered = userChoices[b.id] !== undefined;
       return aAnswered === bAnswered ? 0 : aAnswered ? 1 : -1;
     });
-    // Omiti userChoices propositalmente para travar a ordem durante o uso
   }, [questoes, filtroMateria]); 
 
   return (
@@ -124,47 +128,69 @@ export default function QuestoesList() {
         <ArrowLeft size={16} /> Voltar
       </Link>
 
-      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl">
         <div className="flex justify-between items-center mb-6">
             <h3 className="text-white font-bold text-lg">Selecione a Matéria</h3>
             {mensagem && <span className="text-emerald-400 text-xs font-bold animate-pulse">{mensagem}</span>}
         </div>
         
-        <div className={`flex items-center gap-2 mb-8 p-3 rounded-xl border ${!filtroMateria ? 'bg-slate-800 border-indigo-500' : 'bg-slate-950 border-slate-800'}`}>
-            <button onClick={() => setFiltroMateria(null)} className="flex-1 text-left px-3 py-2 text-white font-bold text-sm">
+        <div className="flex items-center gap-2 mb-8 bg-purple-600 border border-purple-500 rounded-xl p-1 shadow-lg shadow-purple-900/30">
+            <button 
+                onClick={() => { setFiltroMateria(null); scrollToQuestions(); }} 
+                className="flex-1 text-left px-4 py-3 text-white font-bold text-sm hover:bg-purple-700 rounded-lg transition-all"
+            >
                 Todas as questões ({questoes.length})
             </button>
-            <button onClick={(e) => resetar(null, e)} className="p-2 text-slate-400 hover:text-white" title="Resetar tudo"><RefreshCcw size={16}/></button>
+            <button onClick={(e) => resetar(null, e)} className="p-3 text-white hover:bg-purple-700 rounded-lg transition-all" title="Resetar tudo">
+                <RefreshCcw size={18}/>
+            </button>
         </div>
 
-        <div className="space-y-8">
-          {Object.entries(CATEGORIES).map(([key, cat]) => (
-            groupedData[key] && (
-              <div key={key}>
-                <h4 className="text-slate-500 text-[10px] uppercase font-bold mb-3 tracking-widest">{cat.label}</h4>
-                <div className="flex flex-wrap gap-2">
-                  {groupedData[key].map((item: any) => (
-                    <div 
-                      key={item.name} 
-                      className={`flex items-center gap-1 rounded-lg text-sm border transition-all ${filtroMateria === item.name ? 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-105' : ''} ${cat.color} ${cat.textColor}`}
-                    >
-                      <button onClick={() => setFiltroMateria(item.name)} className="pl-3 py-2 font-bold flex items-center gap-2">
-                        {item.name === 'Ética Profissional' && <Star size={14} className="fill-black" />}
-                        {item.name} ({item.count})
-                      </button>
-                      <button onClick={(e) => resetar(item.name, e)} className="pr-3 opacity-70 hover:opacity-100"><RefreshCcw size={12}/></button>
+        {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+                <Loader2 className="animate-spin mb-3" size={40} />
+                <p className="text-sm font-medium animate-pulse">Carregando matérias...</p>
+            </div>
+        ) : (
+            <div className="space-y-8">
+            {Object.entries(CATEGORIES).map(([key, cat]) => (
+                groupedData[key] && (
+                <div key={key}>
+                    <h4 className="text-slate-500 text-xs uppercase font-bold mb-3 tracking-widest">{cat.label}</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {groupedData[key].map((item: any) => (
+                        <div 
+                          key={item.name} 
+                          onClick={() => setFiltroMateria(item.name)}
+                          className={`group flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all duration-300 ${
+                            filtroMateria === item.name 
+                            ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-900/50' 
+                            : `${cat.color} ${cat.textColor} hover:bg-emerald-600 hover:border-emerald-500 hover:text-white border-transparent`
+                          }`}
+                        >
+                            <span className="font-bold text-sm flex items-center gap-2">
+                                {item.name === 'Ética Profissional' && <Star size={14} className="fill-current" />}
+                                {item.name} ({item.count})
+                            </span>
+                            <button 
+                                onClick={(e) => resetar(item.name, e)} 
+                                className="opacity-0 group-hover:opacity-100 p-2 hover:bg-white/20 rounded-full transition-opacity"
+                            >
+                                <RefreshCcw size={14}/>
+                            </button>
+                        </div>
+                    ))}
                     </div>
-                  ))}
+                    {key === 'PRIORIDADE' && (
+                        <div className="mt-3 flex items-center gap-2 text-amber-500 text-xs font-bold animate-pulse">
+                            <AlertCircle size={14} /> Ética Profissional é decisiva para sua aprovação. Foque aqui!
+                        </div>
+                    )}
                 </div>
-                {key === 'PRIORIDADE' && (
-                    <div className="mt-2 flex items-center gap-2 text-amber-500 text-[10px] font-bold animate-pulse">
-                        <AlertCircle size={12} /> Ética Profissional é decisiva para sua aprovação. Foque aqui!
-                    </div>
-                )}
-              </div>
-            )
-          ))}
-        </div>
+                )
+            ))}
+            </div>
+        )}
       </div>
 
       <div ref={listaRef} className="space-y-6 pt-4">

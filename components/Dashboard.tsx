@@ -43,15 +43,25 @@ export default function Dashboard() {
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 flex justify-between items-center">
-            <div>
-              <h3 className="text-white font-bold text-lg flex items-center gap-2"><BookOpen className="text-emerald-400" /> Estudar Agora</h3>
-              <p className="text-slate-400 text-sm">Continue de onde parou.</p>
+          
+          {/* --- BLOCO ESTUDAR AGORA MELHORADO --- */}
+          <Link href="/play" className="block group">
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex justify-between items-center transition-all duration-300 ease-in-out group-hover:border-emerald-500 group-hover:shadow-[0_0_20px_-5px_rgba(16,185,129,0.2)] group-hover:bg-slate-800/80">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-slate-800 rounded-xl text-emerald-400 transition-colors group-hover:bg-emerald-600 group-hover:text-white">
+                  <BookOpen size={24} />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Estudar Agora</h3>
+                  <p className="text-slate-400 text-sm group-hover:text-slate-300">Continue de onde parou.</p>
+                </div>
+              </div>
+              <div className="bg-slate-800 group-hover:bg-emerald-600 text-white p-3 rounded-lg transition-colors">
+                <ChevronRight size={20} />
+              </div>
             </div>
-            <Link href="/play" className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 transition-all active:scale-95">
-              Acessar <ChevronRight size={16} />
-            </Link>
-          </div>
+          </Link>
+          {/* --- FIM DO BLOCO --- */}
 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
             <h3 className="text-white font-bold mb-4 flex items-center gap-2"><Target className="text-brand-500" /> Suas Metas</h3>
