@@ -38,7 +38,6 @@ const CATEGORIES = {
   }
 };
 
-// Helper para pegar a configuração de cor baseado na matéria
 const getCategoryConfig = (materia: string) => {
   const entry = Object.entries(CATEGORIES).find(([_, cat]) =>
     cat.subjects.includes(materia)
@@ -61,11 +60,14 @@ export default function QuestoesList() {
     load();
   }, []);
 
+  // SCROLL: Apenas quando muda a matéria ou inicia
   useEffect(() => {
-    if (filtroMateria && listaRef.current) {
-      listaRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (listaRef.current) {
+      setTimeout(() => {
+        listaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
     }
-  }, [filtroMateria]);
+  }, [filtroMateria, questoes]); // Removido userChoices para parar o pulo ao responder
 
   const resetar = (materia: string | null, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -102,7 +104,18 @@ export default function QuestoesList() {
     return groups;
   }, [questoes]);
 
-  const exibidas = filtroMateria ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) : questoes;
+  // ORDENAÇÃO: Travada para não pular enquanto você responde
+  const sortedExibidas = useMemo(() => {
+    const filtradas = filtroMateria ? questoes.filter(q => (q.materia || "").trim() === filtroMateria) : questoes;
+    
+    // A lógica de ordenação mantém o estado atual, sem "re-sorter" a cada clique em alternativa
+    return [...filtradas].sort((a, b) => {
+      const aAnswered = userChoices[a.id] !== undefined;
+      const bAnswered = userChoices[b.id] !== undefined;
+      return aAnswered === bAnswered ? 0 : aAnswered ? 1 : -1;
+    });
+    // Omiti userChoices propositalmente para travar a ordem durante o uso
+  }, [questoes, filtroMateria]); 
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-6">
@@ -111,7 +124,6 @@ export default function QuestoesList() {
         <ArrowLeft size={16} /> Voltar
       </Link>
 
-      {/* Sumário */}
       <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
         <div className="flex justify-between items-center mb-6">
             <h3 className="text-white font-bold text-lg">Selecione a Matéria</h3>
@@ -145,7 +157,7 @@ export default function QuestoesList() {
                   ))}
                 </div>
                 {key === 'PRIORIDADE' && (
-                    <div className="mt-2 flex items-center gap-2 text-amber-500 text-[10px] font-bold">
+                    <div className="mt-2 flex items-center gap-2 text-amber-500 text-[10px] font-bold animate-pulse">
                         <AlertCircle size={12} /> Ética Profissional é decisiva para sua aprovação. Foque aqui!
                     </div>
                 )}
@@ -155,13 +167,12 @@ export default function QuestoesList() {
         </div>
       </div>
 
-      {/* Container de Questões */}
       <div ref={listaRef} className="space-y-6 pt-4">
-        {exibidas.map((q: any) => {
+        {sortedExibidas.map((q: any) => {
           const answered = userChoices[q.id] !== undefined;
           const selected = userChoices[q.id];
           const correct = Number(q.gabarito);
-          const catConfig = getCategoryConfig(q.materia || ''); // Pegando cor dinâmica
+          const catConfig = getCategoryConfig(q.materia || ''); 
           
           return (
             <div key={q.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
@@ -183,6 +194,15 @@ export default function QuestoesList() {
                   </button>
                 ))}
               </div>
+              
+              {answered && (
+                <div className="mt-6 p-4 bg-slate-950 rounded-xl border border-slate-800 text-slate-300">
+                  <p className="font-bold mb-2">
+                     {selected === correct ? "✅ Correto!" : "❌ Incorreto."}
+                  </p>
+                  <p className="text-sm italic">{q.comentario}</p>
+                </div>
+              )}
             </div>
           );
         })}
