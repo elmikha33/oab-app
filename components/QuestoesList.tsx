@@ -98,13 +98,11 @@ export default function QuestoesList() {
         </h3>
         <div className="flex flex-wrap gap-2">
           
-          {/* BOTÃO TODAS */}
           <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${!filtroMateria ? 'bg-indigo-600 border-indigo-400 shadow-lg' : 'bg-slate-900 border-slate-700'}`}>
             <button onClick={() => setFiltroMateria(null)} className={`text-sm ${!filtroMateria ? 'text-white font-bold' : 'text-slate-400'}`}>Todas</button>
             <button onClick={() => { if(confirm("Resetar todo o progresso?")) setUserChoices({}); }} className="text-slate-500 hover:text-white"><RefreshCcw size={12}/></button>
           </div>
 
-          {/* LISTA MATÉRIAS */}
           {Object.entries(summary).map(([m, c]) => (
             <div key={m} className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all ${filtroMateria === m ? 'bg-indigo-900/40 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'bg-slate-900 border-slate-700'}`}>
               <button onClick={() => setFiltroMateria(m)} className={`text-sm ${filtroMateria === m ? 'text-white font-bold' : 'text-slate-300'}`}>{m} ({c})</button>
@@ -122,10 +120,18 @@ export default function QuestoesList() {
         
         return (
           <div key={q.id} className="bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
-            <span className="inline-block bg-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md mb-3">
-              {q.tema || 'Questão OAB'}
-            </span>
+            {/* BADGES: Matéria + Tema */}
+            <div className="flex gap-2 mb-3">
+              <span className="inline-block bg-indigo-900/40 text-indigo-400 text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md border border-indigo-900/50">
+                {q.materia || 'Matéria'}
+              </span>
+              <span className="inline-block bg-slate-800 text-slate-400 text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md">
+                {q.tema || 'Questão OAB'}
+              </span>
+            </div>
+
             <h2 className="text-lg text-white mb-6 leading-relaxed">{q.enunciado}</h2>
+            
             <div className="space-y-3">
               {q.alternativas.map((alt: string, i: number) => (
                 <button 
