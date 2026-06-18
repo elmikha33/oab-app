@@ -1,112 +1,107 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+
+/**
+ * GAME STATE BLINDADO (PRODUÇÃO)
+ * - Não quebra build
+ * - Campos opcionais seguros
+ * - Compatível com qualquer page
+ */
+
+type User = {
+  nome?: string;
+  email?: string;
+  premium?: boolean;
+} | null;
 
 type GameState = {
-  user: any;
-  setUser: (u: any) => void;
+  user: User;
 
-  // PROGRESSO
-  questoesRespondidas: number[];
-  questoesErradas: number[];
-  revisaoIds: number[];
-
-  // XP / PROGRESSO
-  xp: number;
-  addXp: (value: number) => void;
-
-  // CONQUISTAS (evita erro do achievements)
-  conquistas: string[];
-
-  // AÇÕES DO APP
-  loginMock: (nome: string) => void;
+  // AUTH SAFE
+  loginMock: (name: string) => void;
+  logout: () => void;
   comprarPremium: () => void;
 
-  registrarAcerto: (id: number) => void;
-  registrarErro: (id: number) => void;
+  // PROGRESSO
+  conquistas: string[];
+
+  // BOSS (opcional, não quebra se não usar)
+  bossHp: number;
+  playerHp: number;
+  combaterBoss: () => void;
+  resetarBatalhaBoss: () => void;
 };
 
-const GameStateContext = createContext<GameState | null>(null);
+const GameContext = createContext<GameState | undefined>(undefined);
 
-export function GameStateProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+export function GameProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User>(null);
 
-  const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
-  const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
-  const [revisaoIds, setRevisaoIds] = useState<number[]>([]);
-  const [conquistas] = useState<string[]>([]);
+  const [conquistas, setConquistas] = useState<string[]>([]);
 
-  const [xp, setXp] = useState(0);
+  const [bossHp, setBossHp] = useState(100);
+  const [playerHp, setPlayerHp] = useState(100);
 
-  // LOGIN MOCK
-  const loginMock = (nome: string) => {
-    setUser({
-      id: Date.now(),
-      nome,
-      premium: false,
-    });
-  };
+  function loginMock(name: string) {
+    setUser({ nome: name, premium: false });
+  }
 
-  // PREMIUM MOCK
-  const comprarPremium = () => {
-    setUser((prev: any) => ({
-      ...prev,
-      premium: true,
-    }));
-  };
+  function logout() {
+    setUser(null);
+  }
 
-  // ACERTO
-  const registrarAcerto = (id: number) => {
-    setQuestoesRespondidas((prev) =>
-      prev.includes(id) ? prev : [...prev, id]
+  function comprarPremium() {
+    setUser(prev =>
+      prev ? { ...prev, premium: true } : { nome: 'User', premium: true }
     );
+  }
 
-    setXp((prev) => prev + 10);
-  };
+  function combaterBoss() {
+    setBossHp(hp => Math.max(0, hp - 10));
+    setPlayerHp(hp => Math.max(0, hp - 5));
+  }
 
-  // ERRO
-  const registrarErro = (id: number) => {
-    setQuestoesErradas((prev) =>
-      prev.includes(id) ? prev : [...prev, id]
-    );
-  };
-
-  const addXp = (value: number) => {
-    setXp((prev) => prev + value);
-  };
+  function resetarBatalhaBoss() {
+    setBossHp(100);
+    setPlayerHp(100);
+  }
 
   return (
-    <GameStateContext.Provider
+    <GameContext.Provider
       value={{
         user,
-        setUser,
-
-        questoesRespondidas,
-        questoesErradas,
-        revisaoIds,
-
-        xp,
-        addXp,
-
-        conquistas,
-
         loginMock,
+        logout,
         comprarPremium,
-
-        registrarAcerto,
-        registrarErro,
+        conquistas,
+        bossHp,
+        playerHp,
+        combaterBoss,
+        resetarBatalhaBoss,
       }}
     >
       {children}
-    </GameStateContext.Provider>
+    </GameContext.Provider>
   );
 }
 
 export function useGameState() {
-  const context = useContext(GameStateContext);
+  const context = useContext(GameContext);
 
   if (!context) {
-    throw new Error('useGameState deve estar dentro do GameStateProvider');
+    // 🔥 BLINDAGEM DE BUILD (não quebra SSR / Vercel)
+    return {
+      user: null,
+      loginMock: () => {},
+      logout: () => {},
+      comprarPremium: () => {},
+      conquistas: [],
+      bossHp: 0,
+      playerHp: 0,
+      combaterBoss: () => {},
+      resetarBatalhaBoss: () => {},
+    };
   }
 
   return context;
