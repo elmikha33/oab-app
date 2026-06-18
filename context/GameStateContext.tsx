@@ -6,16 +6,16 @@ type GameState = {
   user: any;
   setUser: (u: any) => void;
 
-  registrarAcerto: (id: number) => void;
-  registrarErro: (id: number) => void;
-
   questoesRespondidas: number[];
   questoesErradas: number[];
   revisaoIds: number[];
 
-  // 🆕 CONQUISTAS (CORRIGE SEU ERRO)
   conquistas: string[];
   setConquistas: (c: string[]) => void;
+
+  // 🆕 FUNÇÕES QUE ESTÃO FALTANDO NO SEU PROJETO
+  loginMock: (nome: string) => void;
+  comprarPremium: () => void;
 };
 
 const GameStateContext = createContext<GameState | null>(null);
@@ -26,17 +26,25 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
   const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
   const [revisaoIds, setRevisaoIds] = useState<number[]>([]);
-
-  // 🆕 CONQUISTAS STATE
   const [conquistas, setConquistas] = useState<string[]>([]);
 
-  const registrarAcerto = (id: number) => {
-    setQuestoesRespondidas((prev) => [...new Set([...prev, id])]);
-    setRevisaoIds((prev) => prev.filter((x) => x !== id));
+  // 🧠 LOGIN SIMPLES (MOCK)
+  const loginMock = (nome: string) => {
+    setUser({
+      id: Date.now(),
+      nome,
+      premium: false,
+      questoesRespondidas: [],
+      questoesErradas: [],
+    });
   };
 
-  const registrarErro = (id: number) => {
-    setQuestoesErradas((prev) => [...new Set([...prev, id])]);
+  // 💰 PREMIUM MOCK
+  const comprarPremium = () => {
+    setUser((prev: any) => ({
+      ...prev,
+      premium: true,
+    }));
   };
 
   return (
@@ -45,16 +53,15 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         user,
         setUser,
 
-        registrarAcerto,
-        registrarErro,
-
         questoesRespondidas,
         questoesErradas,
         revisaoIds,
 
-        // 🆕 EXPORTANDO
         conquistas,
         setConquistas,
+
+        loginMock,
+        comprarPremium,
       }}
     >
       {children}
