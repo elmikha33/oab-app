@@ -1,83 +1,61 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
-const GameStateContext = createContext<any>(null);
+type GameState = {
+  user: any;
+  setUser: (u: any) => void;
+  registrarAcerto: (id: number) => void;
+  registrarErro: (id: number) => void;
+  questoesRespondidas: number[];
+  questoesErradas: number[];
+  revisaoIds: number[];
+};
 
-export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
+const GameStateContext = createContext<GameState | null>(null);
+
+export function GameStateProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null);
+  const [questoesRespondidas, setRespondidas] = useState<number[]>([]);
+  const [questoesErradas, setErradas] = useState<number[]>([]);
+  const [revisaoIds, setRevisaoIds] = useState<number[]>([]);
 
-  // CARREGAR USER
   useEffect(() => {
-    const saved = localStorage.getItem('user-game-data');
-    const today = new Date().toISOString().split('T')[0];
+    // SSR safe init
+    if (typeof window === 'undefined') return;
 
+    const saved = localStorage.getItem('gameState');
     if (saved) {
       const parsed = JSON.parse(saved);
-
-      const updated = {
-        nome: parsed.nome || 'Candidato',
-        streak: parsed.streak || 1,
-        lastAccess: today,
-        acertos: parsed.acertos || 0,
-        questoesRespondidas: parsed.questoesRespondidas || [],
-        questoesErradas: parsed.questoesErradas || [],
-        isPremium: parsed.isPremium || false,
-      };
-
-      setUser(updated);
-    } else {
-      const fresh = {
-        nome: 'Candidato',
-        streak: 1,
-        lastAccess: today,
-        acertos: 0,
-        questoesRespondidas: [],
-        questoesErradas: [],
-        isPremium: false,
-      };
-
-      setUser(fresh);
+      setUser(parsed.user || null);
+      setRespondidas(parsed.questoesRespondidas || []);
+      setErradas(parsed.questoesErradas || []);
+      setRevisaoIds(parsed.revisaoIds || []);
     }
   }, []);
 
-  // SALVAR USER
   useEffect(() => {
-    if (!user) return;
-    localStorage.setItem('user-game-data', JSON.stringify(user));
-  }, [user]);
+    if (typeof window === 'undefined') return;
 
-  // ==============================
-  // AÇÕES (ROBUSTAS E SEM SET BUG)
-  // ==============================
+    localStorage.setItem(
+      'gameState',
+      JSON.stringify({
+        user,
+        questoesRespondidas,
+        questoesErradas,
+        revisaoIds,
+      })
+    );
+  }, [user, questoesRespondidas, questoesErradas, revisaoIds]);
 
   const registrarAcerto = (id: number) => {
-    setUser((prev: any) => ({
-      ...prev,
-      acertos: (prev.acertos || 0) + 1,
-
-      questoesRespondidas: Array.from(
-        new Set([...(prev.questoesRespondidas || []), id])
-      ),
-
-      questoesErradas: (prev.questoesErradas || []).filter(
-        (x: number) => x !== id
-      ),
-    }));
+    setRespondidas((prev) => [...new Set([...prev, id])]);
+    setRevisaoIds((prev) => prev.filter((x) => x !== id));
   };
 
   const registrarErro = (id: number) => {
-    setUser((prev: any) => ({
-      ...prev,
-
-      questoesRespondidas: Array.from(
-        new Set([...(prev.questoesRespondidas || []), id])
-      ),
-
-      questoesErradas: Array.from(
-        new Set([...(prev.questoesErradas || []), id])
-      ),
-    }));
+    setErradas((prev) => [...new Set([...prev, id])]);
+    setRevisaoIds((prev) => [...new Set([...prev, id])]);
   };
 
   return (
@@ -87,20 +65,31 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         setUser,
         registrarAcerto,
         registrarErro,
+        questoesRespondidas,
+        questoesErradas,
+        revisaoIds,
       }}
     >
       {children}
     </GameStateContext.Provider>
   );
-};
+}
 
-// HOOK SEGURO
-export const useGameState = () => {
-  const ctx = useContext(GameStateContext);
+export function useGameState() {
+  const context = useContext(GameStateContext);
 
-  if (!ctx) {
-    throw new Error('useGameState deve estar dentro do GameStateProvider');
+  // 🔥 BLINDAGEM SSR (não quebra build nunca)
+  if (!context) {
+    return {
+      user: null,
+      setUser: () => {},
+      registrarAcerto: () => {},
+      registrarErro: () => {},
+      questoesRespondidas: [],
+      questoesErradas: [],
+      revisaoIds: [],
+    };
   }
 
-  return ctx;
-};
+  return context;
+}
