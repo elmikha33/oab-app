@@ -4,6 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================
+   BASE GLOBAL
+========================= */
 @layer base {
   body {
     background-color: #020617;
@@ -15,6 +18,27 @@
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   }
+}
+
+/* =========================
+   DARK / LIGHT FIX REAL
+========================= */
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.dark body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 /* =========================
@@ -57,24 +81,13 @@
 /* =========================
    GLOWS
 ========================= */
-.glow-purple {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
-}
-
-.glow-gold {
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
-}
-
-.glow-green {
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-}
-
-.glow-red {
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-}
+.glow-purple { box-shadow: 0 0 15px rgba(139, 92, 246, 0.5); }
+.glow-gold { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5); }
+.glow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+.glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
 
 /* =========================
-   ANIMAÇÕES DE RESPOSTA
+   ANIMAÇÕES
 ========================= */
 @keyframes correctPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); border-color: rgba(16, 185, 129, 0.5); }
@@ -83,7 +96,6 @@
 
 .animate-correct-pulse {
   animation: correctPulse 1.5s ease-in-out 2;
-  border-color: rgba(16, 185, 129, 0.5) !important;
 }
 
 @keyframes incorrectShake {
@@ -99,66 +111,45 @@
 
 .animate-incorrect-shake {
   animation: incorrectShake 0.6s ease-in-out, incorrectPulse 1.5s ease-in-out 2;
-  border-color: rgba(239, 68, 68, 0.5) !important;
 }
 
 /* =========================
-   UI ANIMATIONS
+   SUMÁRIO COLORIDO (RESTORED)
 ========================= */
-@keyframes feedbackSlideIn {
-  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
-  60% { opacity: 1; transform: scale(1.05) translateY(-4px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+.question-summary-item {
+  transition: all 0.2s ease;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
-.animate-feedback-overlay {
-  animation: feedbackSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.question-summary-item:hover {
+  transform: translateX(4px);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
 }
 
-@keyframes confettiBurst {
-  0% { opacity: 1; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(2); }
+/* estados (colorido de verdade) */
+.question-summary-item.correct {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.5);
 }
 
-.animate-confetti {
-  animation: confettiBurst 1s ease-out forwards;
+.question-summary-item.wrong {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out forwards;
-}
-
-/* =========================
-   STATES
-========================= */
-.border-glow-correct {
-  border-color: rgba(16, 185, 129, 0.6) !important;
-  box-shadow: 0 0 20px 2px rgba(16, 185, 129, 0.15), inset 0 0 20px rgba(16, 185, 129, 0.03);
-}
-
-.border-glow-incorrect {
-  border-color: rgba(239, 68, 68, 0.6) !important;
-  box-shadow: 0 0 20px 2px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.03);
+.question-summary-item.pending {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 /* =========================
    UTILITÁRIOS
 ========================= */
-.question-summary-item {
-  transition: all 0.2s ease;
-}
-
-.question-summary-item:hover {
-  transform: translateX(4px);
-  background-color: rgba(139, 92, 246, 0.05);
-}
-
 @keyframes skipBounce {
   0%, 100% { transform: translateX(0); }
   50% { transform: translateX(3px); }
@@ -168,18 +159,8 @@
   animation: skipBounce 0.6s ease-in-out infinite;
 }
 
-/* Emoji safe rendering */
+/* Emoji safe */
 .emoji, [role="img"] {
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   font-style: normal;
-  font-variant-emoji: emoji;
-}
-
-/* Dark/light mode safety */
-html.light {
-  color-scheme: light;
-}
-
-html.dark {
-  color-scheme: dark;
 }
