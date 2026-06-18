@@ -5,25 +5,8 @@ import { useGameStore } from '@/store/gameStore';
 
 export default function PlayPage() {
   const user = useGameStore((s) => s.user);
-  const setUser = useGameStore((s) => s.setUser);
-
-  const handleCorrectAnswer = () => {
-    if (!user) return;
-
-    setUser({
-      ...user,
-      acertos: (user.acertos || 0) + 1,
-    });
-  };
-
-  const handleWrongAnswer = () => {
-    if (!user) return;
-
-    setUser({
-      ...user,
-      erros: (user.erros || 0) + 1,
-    });
-  };
+  const registrarAcerto = useGameStore((s) => s.registrarAcerto);
+  const registrarErro = useGameStore((s) => s.registrarErro);
 
   return (
     <div className="p-6 text-white">
@@ -35,14 +18,14 @@ export default function PlayPage() {
 
       <div className="mt-6 flex gap-4">
         <button
-          onClick={handleCorrectAnswer}
+          onClick={registrarAcerto}
           className="px-4 py-2 bg-green-600 rounded"
         >
           Acertar
         </button>
 
         <button
-          onClick={handleWrongAnswer}
+          onClick={registrarErro}
           className="px-4 py-2 bg-red-600 rounded"
         >
           Errar
