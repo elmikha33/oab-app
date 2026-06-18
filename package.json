@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/auth-helpers-nextjs": "^0.15.0",
@@ -30,8 +33,4 @@
     "postcss": "^8.4.38",
     "typescript": "5.9.3"
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 287bc4ad7e1c302163ff1f5fe459d04185da957e
