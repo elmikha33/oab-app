@@ -3,35 +3,32 @@ import { create } from 'zustand';
 type User = {
   nome: string;
   email?: string;
-  premium: boolean;
-  questoesRespondidas: number[];
+  premium?: boolean;
+  questoesRespondidas?: number[];
 };
 
-type GameStore = {
+type GameState = {
   user: User | null;
 
-  // estados principais
+  loginMock: (nome: string) => void;
+  comprarPremium: () => void;
+
   questoesRespondidas: number[];
   questoesErradas: number[];
 
-  // auth simples
-  loginMock: (nome: string) => void;
-  logout: () => void;
-  comprarPremium: () => void;
-
-  // lógica de questões
   registrarAcerto: (id: number) => void;
   registrarErro: (id: number) => void;
 
-  // util
-  reset: () => void;
+  setUser: (user: User | null) => void;
 };
 
-export const useGameStore = create<GameStore>((set, get) => ({
+export const useGameStore = create<GameState>((set, get) => ({
   user: null,
 
   questoesRespondidas: [],
   questoesErradas: [],
+
+  setUser: (user) => set({ user }),
 
   loginMock: (nome) =>
     set({
@@ -43,49 +40,42 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
     }),
 
-  logout: () =>
-    set({
-      user: null,
-      questoesRespondidas: [],
-      questoesErradas: [],
-    }),
-
   comprarPremium: () =>
     set((state) => ({
       user: state.user
         ? { ...state.user, premium: true }
-        : state.user,
+        : { nome: 'user', premium: true },
     })),
 
-  registrarAcerto: (id) =>
-    set((state) => {
-      if (state.questoesRespondidas.includes(id)) return state;
+  registrarAcerto: (id) => {
+    const state = get();
 
-      return {
+    if (!state.questoesRespondidas.includes(id)) {
+      set({
         questoesRespondidas: [...state.questoesRespondidas, id],
-        user: state.user
-          ? {
-              ...state.user,
-              questoesRespondidas: [
-                ...state.user.questoesRespondidas,
-                id,
-              ],
-            }
-          : state.user,
-      };
-    }),
+      });
+    }
 
-  registrarErro: (id) =>
-    set((state) => ({
-      questoesErradas: state.questoesErradas.includes(id)
-        ? state.questoesErradas
-        : [...state.questoesErradas, id],
-    })),
+    if (state.user) {
+      set({
+        user: {
+          ...state.user,
+          questoesRespondidas: [
+            ...(state.user.questoesRespondidas || []),
+            id,
+          ],
+        },
+      });
+    }
+  },
 
-  reset: () =>
-    set({
-      user: null,
-      questoesRespondidas: [],
-      questoesErradas: [],
-    }),
+  registrarErro: (id) => {
+    const state = get();
+
+    if (!state.questoesErradas.includes(id)) {
+      set({
+        questoesErradas: [...state.questoesErradas, id],
+      });
+    }
+  },
 }));
