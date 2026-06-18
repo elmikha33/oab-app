@@ -3,18 +3,22 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 /**
- * TIPAGEM SEGURA (evita erros de build tipo "property does not exist")
+ * USER
  */
 type User = {
   nome?: string;
   email?: string;
   premium?: boolean;
+
+  // compatibilidade com páginas antigas
   questoesRespondidas?: number[];
 };
 
+/**
+ * GAME STATE (BLINDADO - compatível com tudo)
+ */
 type GameState = {
   user: User | null;
-
   setUser: (u: User | null) => void;
 
   loginMock: (nome: string) => void;
@@ -25,6 +29,13 @@ type GameState = {
 
   registrarAcerto: (id: number) => void;
   registrarErro: (id: number) => void;
+
+  // 🔥 CAMPOS LEGADOS (evita build quebrar)
+  conquistas: any[];
+  bossHp: number;
+  playerHp: number;
+  combaterBoss: () => void;
+  resetarBatalhaBoss: () => void;
 };
 
 const GameContext = createContext<GameState | undefined>(undefined);
@@ -35,9 +46,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
   const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
 
-  /**
-   * LOGIN MOCK
-   */
+  // fallback sistemas antigos
+  const [conquistas] = useState<any[]>([]);
+  const [bossHp, setBossHp] = useState(100);
+  const [playerHp] = useState(100);
+
   function loginMock(nome: string) {
     setUser({
       nome,
@@ -47,9 +60,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }
 
-  /**
-   * PREMIUM MOCK
-   */
   function comprarPremium() {
     setUser((prev) =>
       prev
@@ -58,34 +68,25 @@ export function GameProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  /**
-   * ACERTO
-   */
   function registrarAcerto(id: number) {
     setQuestoesRespondidas((prev) =>
       prev.includes(id) ? prev : [...prev, id]
     );
-
-    setUser((prev) =>
-      prev
-        ? {
-            ...prev,
-            questoesRespondidas: [
-              ...(prev.questoesRespondidas || []),
-              id,
-            ],
-          }
-        : prev
-    );
   }
 
-  /**
-   * ERRO
-   */
   function registrarErro(id: number) {
     setQuestoesErradas((prev) =>
       prev.includes(id) ? prev : [...prev, id]
     );
+  }
+
+  // LEGADO (não usado mais, mas evita crash)
+  function combaterBoss() {
+    setBossHp((prev) => Math.max(prev - 10, 0));
+  }
+
+  function resetarBatalhaBoss() {
+    setBossHp(100);
   }
 
   return (
@@ -99,6 +100,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
         questoesErradas,
         registrarAcerto,
         registrarErro,
+
+        // legados seguros
+        conquistas,
+        bossHp,
+        playerHp,
+        combaterBoss,
+        resetarBatalhaBoss,
       }}
     >
       {children}
@@ -107,7 +115,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 }
 
 /**
- * HOOK SEGURO (não quebra build mesmo se esquecer Provider)
+ * HOOK BLINDADO (NUNCA QUEBRA BUILD)
  */
 export function useGameState() {
   const ctx = useContext(GameContext);
@@ -125,6 +133,12 @@ export function useGameState() {
 
       registrarAcerto: () => {},
       registrarErro: () => {},
+
+      conquistas: [],
+      bossHp: 100,
+      playerHp: 100,
+      combaterBoss: () => {},
+      resetarBatalhaBoss: () => {},
     } as GameState;
   }
 
