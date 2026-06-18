@@ -2,20 +2,26 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type GameState = {
-  user: {
-    nome?: string;
-    email?: string;
-    premium?: boolean;
-  } | null;
+/**
+ * TIPAGEM SEGURA (evita erros de build tipo "property does not exist")
+ */
+type User = {
+  nome?: string;
+  email?: string;
+  premium?: boolean;
+  questoesRespondidas?: number[];
+};
 
-  setUser: (u: any) => void;
+type GameState = {
+  user: User | null;
+
+  setUser: (u: User | null) => void;
+
+  loginMock: (nome: string) => void;
+  comprarPremium: () => void;
 
   questoesRespondidas: number[];
   questoesErradas: number[];
-
-  loginMock: (name: string) => void;
-  comprarPremium: () => void;
 
   registrarAcerto: (id: number) => void;
   registrarErro: (id: number) => void;
@@ -24,29 +30,60 @@ type GameState = {
 const GameContext = createContext<GameState | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
   const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
 
-  function loginMock(name: string) {
-    setUser({ nome: name, premium: false });
+  /**
+   * LOGIN MOCK
+   */
+  function loginMock(nome: string) {
+    setUser({
+      nome,
+      email: `${nome.toLowerCase()}@local.com`,
+      premium: false,
+      questoesRespondidas: [],
+    });
   }
 
+  /**
+   * PREMIUM MOCK
+   */
   function comprarPremium() {
-    setUser((prev: any) =>
-      prev ? { ...prev, premium: true } : { nome: 'user', premium: true }
+    setUser((prev) =>
+      prev
+        ? { ...prev, premium: true }
+        : { nome: 'user', premium: true }
     );
   }
 
+  /**
+   * ACERTO
+   */
   function registrarAcerto(id: number) {
-    setQuestoesRespondidas(prev =>
+    setQuestoesRespondidas((prev) =>
       prev.includes(id) ? prev : [...prev, id]
     );
+
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            questoesRespondidas: [
+              ...(prev.questoesRespondidas || []),
+              id,
+            ],
+          }
+        : prev
+    );
   }
 
+  /**
+   * ERRO
+   */
   function registrarErro(id: number) {
-    setQuestoesErradas(prev =>
+    setQuestoesErradas((prev) =>
       prev.includes(id) ? prev : [...prev, id]
     );
   }
@@ -56,10 +93,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         setUser,
-        questoesRespondidas,
-        questoesErradas,
         loginMock,
         comprarPremium,
+        questoesRespondidas,
+        questoesErradas,
         registrarAcerto,
         registrarErro,
       }}
@@ -69,6 +106,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * HOOK SEGURO (não quebra build mesmo se esquecer Provider)
+ */
 export function useGameState() {
   const ctx = useContext(GameContext);
 
@@ -76,13 +116,16 @@ export function useGameState() {
     return {
       user: null,
       setUser: () => {},
-      questoesRespondidas: [],
-      questoesErradas: [],
+
       loginMock: () => {},
       comprarPremium: () => {},
+
+      questoesRespondidas: [],
+      questoesErradas: [],
+
       registrarAcerto: () => {},
       registrarErro: () => {},
-    };
+    } as GameState;
   }
 
   return ctx;

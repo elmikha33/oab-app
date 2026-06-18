@@ -1,4 +1,4 @@
-import { GameStateProvider } from '@/context/GameStateContext';
+import { GameProvider } from '@/context/GameStateContext';
 
 export default function RootLayout({
   children,
@@ -8,9 +8,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <GameStateProvider>
-          {children}
-        </GameStateProvider>
+        <GameProvider>{children}</GameProvider>
       </body>
     </html>
   );

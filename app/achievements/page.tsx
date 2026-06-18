@@ -1,6 +1,6 @@
 'use client';
 
-import { useGameState } from '@/context/GameState';
+import { useGameState } from '@/context/GameStateContext';
 
 export default function AchievementsPage() {
   const { questoesRespondidas } = useGameState();
