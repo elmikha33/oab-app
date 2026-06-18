@@ -1,9 +1,11 @@
 'use client';
 
-import { useGameState } from '@/context/GameStateContext';
+import { useGameStore } from '@/store/gameStore';
 
 export default function AchievementsPage() {
-  const { questoesRespondidas } = useGameState();
+  const questoesRespondidas = useGameStore(
+    (state) => state.questoesRespondidas
+  );
 
   return (
     <div className="p-6 text-white">
