@@ -1,56 +1,53 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGameState } from '@/context/GameStateContext';
-import { Award, Lock } from 'lucide-react';
-
-interface Conquista {
-  id: string;
-  titulo: string;
-  descricao: string;
-  icone: string;
-}
 
 export default function AchievementsPage() {
-  const { user, conquistas } = useGameState();
+  const state = useGameState();
+
+  const user = state?.user ?? null;
+  const conquistas = state?.conquistas ?? [];
+
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Se não estiver montado no navegador, ou se os dados não existirem, não renderiza
-  if (!mounted || !user || !conquistas) {
-    return <div className="p-8 text-white min-h-screen bg-slate-950">Carregando conquistas...</div>;
-  }
-
-  const mapaIcones: Record<string, any> = {
-    'award': Award,
-    'lock': Lock
-  };
+  if (!mounted) return null;
 
   return (
-    <div className="flex-1 p-6 md:p-8 bg-slate-950 min-h-screen text-white">
-      <h1 className="text-3xl font-bold mb-8">Suas Conquistas</h1>
-      
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {conquistas.map((badge: Conquista) => {
-          const desbloqueado = user.conquistasDesbloqueadas?.includes(badge.id) || false;
-          const IconeComp = mapaIcones[badge.icone] || Award;
+    <div className="min-h-screen bg-slate-950 text-white p-6">
+      <h1 className="text-2xl font-bold mb-6">
+        🏆 Conquistas
+      </h1>
 
-          return (
-            <div 
-              key={badge.id} 
-              className={`p-6 rounded-2xl border ${desbloqueado ? 'bg-slate-900 border-indigo-500/50' : 'bg-slate-900/50 border-slate-800'}`}
-            >
-              <div className={`mb-4 ${desbloqueado ? 'text-yellow-400' : 'text-slate-600'}`}>
-                {desbloqueado ? <IconeComp size={32} /> : <Lock size={32} />}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <p className="text-sm">
+          Total de conquistas: <strong>{conquistas.length}</strong>
+        </p>
+
+        <p className="text-sm mt-2">
+          Questões respondidas: <strong>{user?.questoesRespondidas?.length || 0}</strong>
+        </p>
+
+        <div className="mt-4 space-y-2">
+          {conquistas.length === 0 ? (
+            <p className="text-slate-400 text-sm">
+              Nenhuma conquista ainda.
+            </p>
+          ) : (
+            conquistas.map((c, i) => (
+              <div
+                key={i}
+                className="p-2 bg-slate-800 rounded-lg text-sm"
+              >
+                {c}
               </div>
-              <h3 className="font-bold text-lg">{badge.titulo}</h3>
-              <p className="text-sm text-slate-400">{badge.descricao}</p>
-            </div>
-          );
-        })}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
