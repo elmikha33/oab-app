@@ -1,0 +1,6 @@
+scripts/
+provas/
+temp_ocr/
+*.pdf
+node_modules/
+.git/
