@@ -2,83 +2,66 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-/**
- * GAME STATE BLINDADO (PRODUÇÃO)
- * - Não quebra build
- * - Campos opcionais seguros
- * - Compatível com qualquer page
- */
-
-type User = {
-  nome?: string;
-  email?: string;
-  premium?: boolean;
-} | null;
-
 type GameState = {
-  user: User;
+  user: {
+    nome?: string;
+    email?: string;
+    premium?: boolean;
+  } | null;
 
-  // AUTH SAFE
+  setUser: (u: any) => void;
+
+  questoesRespondidas: number[];
+  questoesErradas: number[];
+
   loginMock: (name: string) => void;
-  logout: () => void;
   comprarPremium: () => void;
 
-  // PROGRESSO
-  conquistas: string[];
-
-  // BOSS (opcional, não quebra se não usar)
-  bossHp: number;
-  playerHp: number;
-  combaterBoss: () => void;
-  resetarBatalhaBoss: () => void;
+  registrarAcerto: (id: number) => void;
+  registrarErro: (id: number) => void;
 };
 
 const GameContext = createContext<GameState | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<any>(null);
 
-  const [conquistas, setConquistas] = useState<string[]>([]);
-
-  const [bossHp, setBossHp] = useState(100);
-  const [playerHp, setPlayerHp] = useState(100);
+  const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
+  const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
 
   function loginMock(name: string) {
     setUser({ nome: name, premium: false });
   }
 
-  function logout() {
-    setUser(null);
-  }
-
   function comprarPremium() {
-    setUser(prev =>
-      prev ? { ...prev, premium: true } : { nome: 'User', premium: true }
+    setUser((prev: any) =>
+      prev ? { ...prev, premium: true } : { nome: 'user', premium: true }
     );
   }
 
-  function combaterBoss() {
-    setBossHp(hp => Math.max(0, hp - 10));
-    setPlayerHp(hp => Math.max(0, hp - 5));
+  function registrarAcerto(id: number) {
+    setQuestoesRespondidas(prev =>
+      prev.includes(id) ? prev : [...prev, id]
+    );
   }
 
-  function resetarBatalhaBoss() {
-    setBossHp(100);
-    setPlayerHp(100);
+  function registrarErro(id: number) {
+    setQuestoesErradas(prev =>
+      prev.includes(id) ? prev : [...prev, id]
+    );
   }
 
   return (
     <GameContext.Provider
       value={{
         user,
+        setUser,
+        questoesRespondidas,
+        questoesErradas,
         loginMock,
-        logout,
         comprarPremium,
-        conquistas,
-        bossHp,
-        playerHp,
-        combaterBoss,
-        resetarBatalhaBoss,
+        registrarAcerto,
+        registrarErro,
       }}
     >
       {children}
@@ -87,22 +70,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
 }
 
 export function useGameState() {
-  const context = useContext(GameContext);
+  const ctx = useContext(GameContext);
 
-  if (!context) {
-    // 🔥 BLINDAGEM DE BUILD (não quebra SSR / Vercel)
+  if (!ctx) {
     return {
       user: null,
+      setUser: () => {},
+      questoesRespondidas: [],
+      questoesErradas: [],
       loginMock: () => {},
-      logout: () => {},
       comprarPremium: () => {},
-      conquistas: [],
-      bossHp: 0,
-      playerHp: 0,
-      combaterBoss: () => {},
-      resetarBatalhaBoss: () => {},
+      registrarAcerto: () => {},
+      registrarErro: () => {},
     };
   }
 
-  return context;
+  return ctx;
 }
