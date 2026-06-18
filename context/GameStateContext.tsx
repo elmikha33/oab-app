@@ -6,28 +6,24 @@ type GameState = {
   user: any;
   setUser: (u: any) => void;
 
-  // QUESTÕES
+  // PROGRESSO
   questoesRespondidas: number[];
   questoesErradas: number[];
   revisaoIds: number[];
 
-  // CONQUISTAS
+  // XP / PROGRESSO
+  xp: number;
+  addXp: (value: number) => void;
+
+  // CONQUISTAS (evita erro do achievements)
   conquistas: string[];
 
-  // LOGIN / PREMIUM
+  // AÇÕES DO APP
   loginMock: (nome: string) => void;
   comprarPremium: () => void;
 
-  // BOSS FIGHT SYSTEM
-  bossHp: number;
-  playerHp: number;
-
-  combaterBoss: (dano: number) => void;
-  resetarBatalhaBoss: () => void;
-
-  // XP SYSTEM (caso use futuramente)
-  xp: number;
-  addXp: (value: number) => void;
+  registrarAcerto: (id: number) => void;
+  registrarErro: (id: number) => void;
 };
 
 const GameStateContext = createContext<GameState | null>(null);
@@ -38,13 +34,8 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [questoesRespondidas, setQuestoesRespondidas] = useState<number[]>([]);
   const [questoesErradas, setQuestoesErradas] = useState<number[]>([]);
   const [revisaoIds, setRevisaoIds] = useState<number[]>([]);
-  const [conquistas, setConquistas] = useState<string[]>([]);
+  const [conquistas] = useState<string[]>([]);
 
-  // BOSS SYSTEM
-  const [bossHp, setBossHp] = useState(100);
-  const [playerHp, setPlayerHp] = useState(100);
-
-  // XP SYSTEM
   const [xp, setXp] = useState(0);
 
   // LOGIN MOCK
@@ -64,18 +55,22 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // BOSS ACTION
-  const combaterBoss = (dano: number) => {
-    setBossHp((prev) => Math.max(0, prev - dano));
-    setPlayerHp((prev) => Math.max(0, prev - 5));
+  // ACERTO
+  const registrarAcerto = (id: number) => {
+    setQuestoesRespondidas((prev) =>
+      prev.includes(id) ? prev : [...prev, id]
+    );
+
+    setXp((prev) => prev + 10);
   };
 
-  const resetarBatalhaBoss = () => {
-    setBossHp(100);
-    setPlayerHp(100);
+  // ERRO
+  const registrarErro = (id: number) => {
+    setQuestoesErradas((prev) =>
+      prev.includes(id) ? prev : [...prev, id]
+    );
   };
 
-  // XP
   const addXp = (value: number) => {
     setXp((prev) => prev + value);
   };
@@ -90,18 +85,16 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         questoesErradas,
         revisaoIds,
 
+        xp,
+        addXp,
+
         conquistas,
 
         loginMock,
         comprarPremium,
 
-        bossHp,
-        playerHp,
-        combaterBoss,
-        resetarBatalhaBoss,
-
-        xp,
-        addXp,
+        registrarAcerto,
+        registrarErro,
       }}
     >
       {children}
