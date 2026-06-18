@@ -1,30 +1,37 @@
-'use client';
-
 import { create } from 'zustand';
 
-export type User = {
+/**
+ * TIPOS BÁSICOS (SEM GameState complexo quebrando build)
+ */
+type User = {
   nome: string;
-  email?: string;
+  email: string;
   premium: boolean;
-  questoesRespondidas: number[];
-  acertos: number;
-  erros: number;
 };
 
-type GameState = {
+type GameStore = {
   user: User | null;
 
-  setUser: (user: User | null) => void;
+  questoesRespondidas: number[];
+  questoesErradas: number[];
 
+  // AUTH
   loginMock: (nome: string) => void;
   comprarPremium: () => void;
 
-  registrarAcerto: () => void;
-  registrarErro: () => void;
+  // QUESTÕES
+  registrarAcerto: (id: number) => void;
+  registrarErro: (id: number) => void;
+
+  // USER
+  setUser: (user: User | null) => void;
 };
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   user: null,
+
+  questoesRespondidas: [],
+  questoesErradas: [],
 
   setUser: (user) => set({ user }),
 
@@ -34,9 +41,6 @@ export const useGameStore = create<GameState>((set) => ({
         nome,
         email: `${nome.toLowerCase()}@local.com`,
         premium: false,
-        questoesRespondidas: [],
-        acertos: 0,
-        erros: 0,
       },
     }),
 
@@ -45,27 +49,17 @@ export const useGameStore = create<GameState>((set) => ({
       user: state.user ? { ...state.user, premium: true } : null,
     })),
 
-  registrarAcerto: () =>
-    set((state) => {
-      if (!state.user) return state;
+  registrarAcerto: (id) =>
+    set((state) => ({
+      questoesRespondidas: state.questoesRespondidas.includes(id)
+        ? state.questoesRespondidas
+        : [...state.questoesRespondidas, id],
+    })),
 
-      return {
-        user: {
-          ...state.user,
-          acertos: state.user.acertos + 1,
-        },
-      };
-    }),
-
-  registrarErro: () =>
-    set((state) => {
-      if (!state.user) return state;
-
-      return {
-        user: {
-          ...state.user,
-          erros: state.user.erros + 1,
-        },
-      };
-    }),
+  registrarErro: (id) =>
+    set((state) => ({
+      questoesErradas: state.questoesErradas.includes(id)
+        ? state.questoesErradas
+        : [...state.questoesErradas, id],
+    })),
 }));

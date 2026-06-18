@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+<<<<<<< HEAD
         // Cores personalizadas tema escuro e RPG
         brand: {
           50: '#f5f3ff',
@@ -54,6 +55,14 @@ module.exports = {
           '100%': { transform: 'scale(1)', opacity: '1' },
         }
       }
+=======
+        brand: {
+          400: '#a78bfa',
+          500: '#8b5cf6',
+          600: '#7c3aed',
+        },
+      },
+>>>>>>> e1e1b23 (primeira versao)
     },
   },
   plugins: [],
