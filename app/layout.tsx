@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description: 'Sistema de estudo',
 };
 
+<html lang="pt-BR" className={theme === 'dark' ? 'dark' : 'light'}>
 export default function RootLayout({
   children,
 }: {
