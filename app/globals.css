@@ -161,6 +161,7 @@
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
   font-style: normal;
   font-variant-emoji: emoji;
+<<<<<<< HEAD
 
   html.light {
   color-scheme: light;
@@ -169,4 +170,6 @@
 html.dark {
   color-scheme: dark;
 }
+=======
+>>>>>>> 287bc4ad7e1c302163ff1f5fe459d04185da957e
 }
