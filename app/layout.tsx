@@ -1,9 +1,6 @@
 import './globals.css';
-
-export const metadata = {
-  title: 'OAB App',
-  description: 'Sistema de questões OAB',
-};
+import { GameStateProvider } from '@/context/GameStateContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 
 export default function RootLayout({
   children,
@@ -12,7 +9,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="dark">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+          <GameStateProvider>
+            {children}
+          </GameStateProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
