@@ -2,16 +2,11 @@
 
 import { create } from 'zustand';
 
-/**
- * TIPOS SEGUROS (NUNCA MAIS QUEBRA BUILD)
- */
 export type User = {
   nome: string;
   email?: string;
   premium: boolean;
-
   questoesRespondidas: number[];
-
   acertos: number;
   erros: number;
 };
@@ -28,10 +23,7 @@ type GameState = {
   registrarErro: () => void;
 };
 
-/**
- * STORE ZUSTAND (SIMPLIFICADO E ESTÁVEL)
- */
-export const useGameStore = create<GameState>((set, get) => ({
+export const useGameStore = create<GameState>((set) => ({
   user: null,
 
   setUser: (user) => set({ user }),
@@ -50,9 +42,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   comprarPremium: () =>
     set((state) => ({
-      user: state.user
-        ? { ...state.user, premium: true }
-        : null,
+      user: state.user ? { ...state.user, premium: true } : null,
     })),
 
   registrarAcerto: () =>
