@@ -35,11 +35,7 @@ export interface Missao {
   meta: number;
   progressoAtual: number;
   concluida: boolean;
-<<<<<<< HEAD
-  tipo: 'total_questoes' | 'questoes_materia' | 'acertos_seguidos' | 'revisao_questoes' | 'completar_boss';
-=======
   tipo: 'total_questoes' | 'questoes_materia' | 'acertos_seguidos' | 'revisao_questoes';
->>>>>>> e1e1b23 (primeira versao)
   materia?: string;
 }
 
@@ -86,10 +82,6 @@ export const QUESTOES_MANUAIS: Questao[] = [];
 // A proteção abaixo evita erro caso o arquivo não exista ou esteja vazio
 let TODAS_QUESTOES_GERADAS: Questao[] = [];
 try {
-<<<<<<< HEAD
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-=======
->>>>>>> e1e1b23 (primeira versao)
   const db = require('./questoes_db');
   TODAS_QUESTOES_GERADAS = db.TODAS_QUESTOES_GERADAS || [];
 } catch (e) {
@@ -112,16 +104,6 @@ export const RANKING_INICIAL: UsuarioRanking[] = [
   { id: 'user_r1', nome: 'Dr. Lucas Silveira', nivel: 42, titulo: 'Advogado Júnior', xpSemanal: 1250, questoesRespondidas: 85, taxaAcerto: 0.81 }
 ];
 
-<<<<<<< HEAD
-export const BOSS_DIARIO_MOCK = {
-    nome: 'O Desafiante do Vade Mecum',
-    materia: 'Direito Constitucional',
-    xpRecompensa: 500,
-    moedasRecompensa: 100
-};
-
-=======
->>>>>>> e1e1b23 (primeira versao)
 export const MISSOES_DIARIAS_INICIAIS: Missao[] = [
   {
     id: 'm1',
@@ -134,21 +116,5 @@ export const MISSOES_DIARIAS_INICIAIS: Missao[] = [
     concluida: false,
     tipo: 'questoes_materia',
     materia: 'Ética Profissional'
-<<<<<<< HEAD
-  },
-  {
-    id: 'm2',
-    titulo: 'Desafio do Chefe',
-    descricao: `Derrote o Chefe do Dia para ganhar recompensas exclusivas.`,
-    xpRecompensa: 300,
-    moedasRecompensa: 50,
-    meta: 1,
-    progressoAtual: 0,
-    concluida: false,
-    tipo: 'completar_boss'
   }
 ];
-=======
-  }
-];
->>>>>>> e1e1b23 (primeira versao)

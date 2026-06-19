@@ -1,22 +1,5 @@
 'use client';
 
-<<<<<<< HEAD
-import { useGameStore } from '@/store/gameStore';
-
-export default function AchievementsPage() {
-  const questoesRespondidas = useGameStore(
-    (state) => state.questoesRespondidas
-  );
-
-  return (
-    <div className="p-6 text-white">
-      <h1 className="text-xl font-bold">Conquistas</h1>
-
-      <p className="text-sm mt-2">
-        Questões respondidas:{' '}
-        <strong>{questoesRespondidas.length}</strong>
-      </p>
-=======
 import React, { useEffect, useState } from 'react';
 import { useGameState } from '@/context/GameStateContext';
 import { Award, Lock } from 'lucide-react';
@@ -69,7 +52,6 @@ export default function AchievementsPage() {
           );
         })}
       </div>
->>>>>>> e1e1b23 (primeira versao)
     </div>
   );
 }

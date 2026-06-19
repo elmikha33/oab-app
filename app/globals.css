@@ -4,80 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
-/* =========================
-   BASE (NEUTRO - SEM TEMA AQUI)
-========================= */
-@layer base {
-  body {
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', sans-serif;
-  }
-}
-
-/* =========================
-   THEME SYSTEM (TAILWIND STYLE CORRETO)
-========================= */
-
-/* DARK (default) */
-html.dark body {
-  background-color: #020617;
-  color: #f8fafc;
-}
-
-/* LIGHT */
-html.light body {
-  background-color: #f8fafc;
-  color: #0f172a;
-}
-
-/* fallback safety */
-html {
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* =========================
-   COMPONENT BASE TOKENS (IMPORTANTE)
-========================= */
-
-/* cards no dark */
-html.dark .card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-}
-
-/* cards no light */
-html.light .card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-}
-
-/* =========================
-   GLASS
-========================= */
-.glass {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-html.dark .glass {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-html.light .glass {
-  background: rgba(255,255,255,0.7);
-  border: 1px solid rgba(0,0,0,0.05);
-}
-
-/* =========================
-   SCROLLBAR
-========================= */
-=======
 @layer base {
   body {
     background-color: #020617; /* game.darker */
@@ -106,87 +32,11 @@ html.light .glass {
 }
 
 /* Custom scrollbars */
->>>>>>> e1e1b23 (primeira versao)
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-<<<<<<< HEAD
-html.dark ::-webkit-scrollbar-track {
-  background: #020617;
-}
-
-html.light ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #64748b;
-  border-radius: 999px;
-}
-
-/* =========================
-   SUMÁRIO (BLINDADO + FUNCIONAL)
-========================= */
-.question-summary-item {
-  transition: all 0.2s ease;
-  border-radius: 10px;
-  padding: 8px 10px;
-}
-
-/* DARK */
-html.dark .question-summary-item {
-  background: rgba(148, 163, 184, 0.08);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-}
-
-/* LIGHT */
-html.light .question-summary-item {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-}
-
-/* hover universal */
-.question-summary-item:hover {
-  transform: translateX(4px);
-  background: rgba(139, 92, 246, 0.12);
-  border-color: rgba(139, 92, 246, 0.4);
-}
-
-/* estados reais */
-.question-summary-item.correct {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.5);
-}
-
-.question-summary-item.wrong {
-  background: rgba(239, 68, 68, 0.18);
-  border-color: rgba(239, 68, 68, 0.5);
-}
-
-.question-summary-item.pending {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.4);
-}
-
-/* =========================
-   ANIMAÇÕES (mantidas)
-========================= */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out;
-}
-
-/* emoji fix */
-.emoji {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-}
-=======
 ::-webkit-scrollbar-track {
   background: #020617;
 }
@@ -391,4 +241,3 @@ html.light .question-summary-item {
   font-style: normal;
   font-variant-emoji: emoji;
 }
->>>>>>> e1e1b23 (primeira versao)

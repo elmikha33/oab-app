@@ -7,10 +7,6 @@ import { useGameState } from '../context/GameStateContext';
 import { 
   LayoutDashboard, 
   BookOpen, 
-<<<<<<< HEAD
-  Swords, 
-=======
->>>>>>> e1e1b23 (primeira versao)
   Calendar,
   Award,
   Crown,
@@ -29,10 +25,6 @@ export default function MobileNav() {
   const mainLinks = [
     { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Estudo', href: '/play', icon: BookOpen },
-<<<<<<< HEAD
-    { name: 'Chefe', href: '/play/boss', icon: Swords },
-=======
->>>>>>> e1e1b23 (primeira versao)
     { name: 'Revisar', href: '/review', icon: Calendar },
   ];
 

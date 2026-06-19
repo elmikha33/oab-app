@@ -2,19 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-<<<<<<< HEAD
-import { useGameStore } from '@/store/gameStore';
-import { Scale, ShieldAlert, Loader2 } from 'lucide-react';
-
-function AuthFormContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const loginMock = useGameStore((state) => state.loginMock);
-  const comprarPremium = useGameStore((state) => state.comprarPremium);
-  const user = useGameStore((state) => state.user);
-
-=======
 import { useGameState } from '../../context/GameStateContext';
 import { Scale, ShieldAlert, Loader2 } from 'lucide-react';
 
@@ -27,15 +14,11 @@ function AuthFormContent() {
   const searchParams = useSearchParams();
   const { loginMock, comprarPremium, user } = useGameState();
   
->>>>>>> e1e1b23 (primeira versao)
   const [nome, setNome] = useState('');
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
 
-<<<<<<< HEAD
-=======
   // Efeito de redirecionamento se já logado
->>>>>>> e1e1b23 (primeira versao)
   useEffect(() => {
     if (user) {
       router.replace('/dashboard');
@@ -44,24 +27,12 @@ function AuthFormContent() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-<<<<<<< HEAD
-
-=======
->>>>>>> e1e1b23 (primeira versao)
     if (!nome.trim()) {
       setErro('Por favor, escolha um nome de jogador.');
       return;
     }
 
     setLoading(true);
-<<<<<<< HEAD
-
-    loginMock(nome.trim());
-
-    const comprouPremium =
-      searchParams.get('checkout') === 'premium';
-
-=======
     
     // Simulação de login
     loginMock(nome.trim());
@@ -70,15 +41,10 @@ function AuthFormContent() {
     const comprouPremium = searchParams.get('checkout') === 'premium';
     
     // Pequeno delay para garantir sincronia com contexto
->>>>>>> e1e1b23 (primeira versao)
     setTimeout(() => {
       if (comprouPremium) {
         comprarPremium();
       }
-<<<<<<< HEAD
-
-=======
->>>>>>> e1e1b23 (primeira versao)
       setLoading(false);
       router.push('/dashboard');
     }, 800);
@@ -86,10 +52,6 @@ function AuthFormContent() {
 
   const loginComoAdmin = () => {
     setLoading(true);
-<<<<<<< HEAD
-
-=======
->>>>>>> e1e1b23 (primeira versao)
     setTimeout(() => {
       loginMock('admin');
       setLoading(false);
@@ -104,48 +66,20 @@ function AuthFormContent() {
         <div className="bg-brand-600 p-3 rounded-2xl glow-purple text-white">
           <Scale className="h-8 w-8" />
         </div>
-<<<<<<< HEAD
-
-        <h2 className="font-heading font-extrabold text-2xl text-white">
-          MISSÃO <span className="text-brand-500">OAB</span>
-        </h2>
-
-        <p className="text-xs text-slate-400">
-          Acesse o seu painel de estudos e comece o desafio
-        </p>
-=======
         <h2 className="font-heading font-extrabold text-2xl text-white tracking-wide">
           MISSÃO <span className="text-brand-500">OAB</span>
         </h2>
         <p className="text-xs text-slate-400">Acesse o seu painel de estudos e comece o desafio</p>
->>>>>>> e1e1b23 (primeira versao)
       </div>
 
       {erro && (
         <div className="mb-4 bg-red-500/10 border border-red-500/25 p-3 rounded-xl flex items-center gap-2 text-xs text-red-400">
-<<<<<<< HEAD
-          <ShieldAlert className="h-4 w-4" />
-          {erro}
-=======
           <ShieldAlert className="h-4 w-4 shrink-0" />
           <span>{erro}</span>
->>>>>>> e1e1b23 (primeira versao)
         </div>
       )}
 
       <form onSubmit={handleLogin} className="space-y-5">
-<<<<<<< HEAD
-        <input
-          type="text"
-          placeholder="Seu nome"
-          value={nome}
-          onChange={(e) => {
-            setNome(e.target.value);
-            if (erro) setErro('');
-          }}
-          className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white"
-        />
-=======
         <div className="space-y-1.5">
           <label htmlFor="nome" className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
             Nome do Jogador / Estudante
@@ -163,26 +97,10 @@ function AuthFormContent() {
             className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-sm placeholder:text-slate-600 text-white outline-none transition-all"
           />
         </div>
->>>>>>> e1e1b23 (primeira versao)
 
         <button
           type="submit"
           disabled={loading}
-<<<<<<< HEAD
-          className="w-full py-3 bg-brand-600 text-white rounded-xl"
-        >
-          {loading ? 'Entrando...' : 'Entrar'}
-        </button>
-      </form>
-
-      <button
-        onClick={loginComoAdmin}
-        disabled={loading}
-        className="w-full mt-4 py-3 bg-slate-800 text-white rounded-xl"
-      >
-        Login Admin
-      </button>
-=======
           className="w-full py-3.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-bold rounded-xl glow-purple flex items-center justify-center gap-2 transition-all"
         >
           {loading ? (
@@ -216,21 +134,10 @@ function AuthFormContent() {
           Ao se registrar, você concorda com nossos Termos de Serviço. O sistema criará uma conta local persistida no seu navegador.
         </p>
       </div>
->>>>>>> e1e1b23 (primeira versao)
     </div>
   );
 }
 
-<<<<<<< HEAD
-export default function AuthPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
-      <Suspense
-        fallback={
-          <Loader2 className="h-8 w-8 animate-spin text-white" />
-        }
-      >
-=======
 /**
  * Componente Exportado Principal
  * O uso do Suspense aqui é obrigatório para Next.js App Router (Build)
@@ -246,7 +153,6 @@ export default function AuthPage() {
            <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
         </div>
       }>
->>>>>>> e1e1b23 (primeira versao)
         <AuthFormContent />
       </Suspense>
     </div>
