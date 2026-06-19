@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 /**
- * TIPOS BÁSICOS (SEM GameState complexo quebrando build)
+ * TIPOS BÃSICOS (SEM GameState complexo quebrando build)
  */
 type User = {
   nome: string;
@@ -19,7 +19,7 @@ type GameStore = {
   loginMock: (nome: string) => void;
   comprarPremium: () => void;
 
-  // QUESTÕES
+  // QUESTÃ•ES
   registrarAcerto: (id: number) => void;
   registrarErro: (id: number) => void;
 
