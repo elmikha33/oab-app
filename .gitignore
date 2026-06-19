@@ -21,3 +21,4 @@ yarn-debug.log*
 pnpm-debug.log*
 next-dev.*.log
 .npm-cache/
+.vs/
