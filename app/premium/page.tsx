@@ -1,24 +1,87 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useGameState } from '../../context/GameStateContext';
-import { Crown, Check, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
+import { Crown, Check, ShieldCheck } from 'lucide-react';
 
 export default function PremiumPage() {
   const { user, comprarPremium } = useGameState();
   const [carregando, SetCarregando] = useState(false);
   const [sucesso, SetSucesso] = useState(false);
+  const [erro, setErro] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') !== 'success') return;
+
+    if (user.isPremium) {
+      SetSucesso(true);
+      return;
+    }
+
+    const sessionId = params.get('session_id');
+    if (!sessionId || sessionId === '{CHECKOUT_SESSION_ID}') {
+      setErro('Pagamento ainda nao confirmado pela Stripe.');
+      return;
+    }
+
+    const confirmedSessionId = sessionId;
+    let cancelled = false;
+
+    async function confirmarPagamento() {
+      SetCarregando(true);
+      setErro('');
+
+      try {
+        const response = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(confirmedSessionId)}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.premium) throw new Error(data.error || 'Pagamento ainda nao confirmado.');
+        if (cancelled) return;
+
+        comprarPremium();
+        SetSucesso(true);
+      } catch (error: any) {
+        if (!cancelled) setErro(error.message || 'Pagamento ainda nao confirmado.');
+      } finally {
+        if (!cancelled) SetCarregando(false);
+      }
+    }
+
+    confirmarPagamento();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [comprarPremium, user]);
 
   if (!user) return null;
 
-  const handleAssinar = () => {
+  const handleAssinar = async () => {
     SetCarregando(true);
-    setTimeout(() => {
-      comprarPremium();
+    setErro('');
+
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: user.nome,
+          email: user.email || undefined,
+          userId: user.email || user.nome,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.url) throw new Error(data.error || 'Erro ao abrir checkout.');
+      window.location.href = data.url;
+    } catch (error: any) {
+      setErro(error.message || 'Erro ao abrir checkout.');
       SetCarregando(false);
-      SetSucesso(true);
-    }, 1500);
+    }
   };
 
   return (
@@ -75,7 +138,7 @@ export default function PremiumPage() {
                   <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold text-white block">Questões Ilimitadas</span>
-                    <span className="text-slate-400 text-xs">Esqueça o bloqueio de 20 questões por dia. Responda quantas quiser.</span>
+                    <span className="text-slate-400 text-xs">Esqueça o bloqueio de 25 questões por dia. Responda quantas quiser.</span>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -102,7 +165,7 @@ export default function PremiumPage() {
               </ul>
             </div>
 
-            {/* Simulação de Checkout */}
+            {/* Checkout */}
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 relative overflow-hidden">
               {user.isPremium ? (
                 <div className="text-center space-y-4 py-8">
@@ -122,39 +185,15 @@ export default function PremiumPage() {
                       <span className="font-heading font-extrabold text-3xl text-white">R$ 29,90</span>
                       <span className="text-slate-400 text-xs">/ por mês</span>
                     </div>
-                    <p className="text-slate-500 text-[10px]">Cancele quando quiser. Pagamento seguro simulado.</p>
+                    <p className="text-slate-500 text-[10px]">Cancele quando quiser. Pagamento seguro via Stripe.</p>
                   </div>
 
-                  {/* Formulário de Cartão Simulado */}
+                  {erro && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{erro}</div>}
+
+                  {/* Checkout Stripe */}
                   <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Número do Cartão (Simulado)</label>
-                      <input
-                        type="text"
-                        disabled
-                        value="•••• •••• •••• 4242"
-                        className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 outline-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Validade</label>
-                        <input
-                          type="text"
-                          disabled
-                          value="12/29"
-                          className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 outline-none"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">CVC</label>
-                        <input
-                          type="text"
-                          disabled
-                          value="123"
-                          className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-400 outline-none"
-                        />
-                      </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs leading-relaxed text-slate-400">
+                      O pagamento abre no checkout seguro da Stripe. Cartao e recibos ficam pela Stripe.
                     </div>
 
                     <button

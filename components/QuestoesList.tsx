@@ -9,6 +9,7 @@ import {
   ArrowDown,
   ArrowLeft,
   CheckCircle2,
+  Crown,
   Eraser,
   Lightbulb,
   Loader2,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 const PAGE_SIZE = 25;
+const FREE_DAILY_LIMIT = 25;
 const BATCH_SIZE = 500;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_KEY = 'missao-oab:questoes-oab:v4';
@@ -190,7 +192,17 @@ function formatCount(total: number, singular: string, plural: string) {
   return `${total} ${total === 1 ? singular : plural}`;
 }
 
-function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto: boolean) => void }) {
+function QuestaoCard({
+  q,
+  onAnswer,
+  canAnswer,
+  onBlocked,
+}: {
+  q: any;
+  onAnswer: (ids: string[], acerto: boolean) => void;
+  canAnswer: () => boolean;
+  onBlocked: () => void;
+}) {
   const { user } = useGameState();
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -238,6 +250,10 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
               key={`${primaryKey}-${i}`}
               disabled={isResolved}
               onClick={() => {
+                if (!canAnswer()) {
+                  onBlocked();
+                  return;
+                }
                 setSelected(i);
                 onAnswer(questionKeys, i === correct);
               }}
@@ -275,7 +291,7 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
 }
 
 export default function QuestoesList() {
-  const { user, registrarAcerto, registrarErro, setUser } = useGameState();
+  const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, setUser } = useGameState();
 
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [filtroMateria, setFiltroMateria] = useState<string | null>(null);
@@ -285,6 +301,7 @@ export default function QuestoesList() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadError, setLoadError] = useState('');
+  const [limitMessage, setLimitMessage] = useState('');
   const [ordemInicial, setOrdemInicial] = useState<Set<string> | null>(null);
   const [modalMateria, setModalMateria] = useState<string | null>(null);
   const questoesRef = useRef<HTMLDivElement>(null);
@@ -435,6 +452,10 @@ export default function QuestoesList() {
   const respondidasAtuais = todasDoFiltro.filter((q) => hasQuestionKey(q, progressKeys)).length;
   const pendentes = Math.max(todasDoFiltro.length - respondidasAtuais, 0);
   const activeLabel = filtroMateria || 'Todas as questões';
+  const today = new Date().toISOString().split('T')[0];
+  const freeAnswersToday = user?.freeDailyAnswers?.date === today ? user.freeDailyAnswers.count || 0 : 0;
+  const freeRemaining = Math.max(FREE_DAILY_LIMIT - freeAnswersToday, 0);
+  const isFreeLimitReached = !user?.isPremium && freeRemaining <= 0;
 
   const selecionarMateria = (materia: string | null) => {
     setFiltroMateria(materia);
@@ -466,6 +487,13 @@ export default function QuestoesList() {
   const handleAnswer = (ids: string[], acerto: boolean) => {
     if (acerto) registrarAcerto(ids);
     else registrarErro(ids);
+    registrarRespostaFreeHoje?.();
+  };
+
+  const canAnswer = () => !isFreeLimitReached;
+
+  const onBlocked = () => {
+    setLimitMessage('Limite free de 25 questoes hoje. Seja Premium para continuar sem travas.');
   };
 
   return (
@@ -483,6 +511,9 @@ export default function QuestoesList() {
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold uppercase text-indigo-700 dark:text-indigo-300">{activeLabel}</p>
             <p className="truncate text-sm font-semibold text-white">{formatCount(todasDoFiltro.length, 'questão', 'questões')}</p>
+            {!user?.isPremium && (
+              <p className="truncate text-[11px] font-semibold text-yellow-500">{freeRemaining}/25 free hoje</p>
+            )}
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
@@ -602,6 +633,15 @@ export default function QuestoesList() {
               Mostrando {Math.min(visibleLimit, exibidas.length)} de {exibidas.length}
             </h1>
           </div>
+          {!user?.isPremium && (
+            <Link
+              href="/premium"
+              className="inline-flex animate-pulse items-center gap-1 rounded-xl border border-yellow-300 bg-yellow-400 px-3 py-2 text-xs font-black text-slate-950 shadow-lg shadow-yellow-500/20"
+            >
+              <Crown size={14} />
+              Seja Premium
+            </Link>
+          )}
           {isRefreshing && (
             <span className="inline-flex items-center gap-2 rounded bg-slate-900 px-3 py-2 text-xs font-semibold text-slate-300">
               <Loader2 className="animate-spin" size={13} />
@@ -609,6 +649,12 @@ export default function QuestoesList() {
             </span>
           )}
         </div>
+
+        {limitMessage && (
+          <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm font-semibold text-yellow-700 dark:text-yellow-200">
+            {limitMessage}
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-8 text-slate-300">
@@ -624,7 +670,13 @@ export default function QuestoesList() {
         ) : (
           <>
             {visibleQuestoes.map((q) => (
-              <QuestaoCard key={getQuestionKey(q)} q={q} onAnswer={handleAnswer} />
+              <QuestaoCard
+                key={getQuestionKey(q)}
+                q={q}
+                onAnswer={handleAnswer}
+                canAnswer={canAnswer}
+                onBlocked={onBlocked}
+              />
             ))}
 
             {visibleLimit < exibidas.length && (

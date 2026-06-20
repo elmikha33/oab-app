@@ -44,6 +44,7 @@ function criarUsuario(base: any = {}) {
     questoesRespondidas,
     questoesErradas: base.questoesErradas || [],
     revisaoIds: base.revisaoIds || [],
+    freeDailyAnswers: base.freeDailyAnswers?.date === today ? base.freeDailyAnswers : { date: today, count: 0 },
     conquistasDesbloqueadas: base.conquistasDesbloqueadas || [],
     isPremium: base.isPremium || false,
     isAdmin: base.isAdmin || nome.toLowerCase() === 'admin',
@@ -77,6 +78,16 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
   const comprarPremium = useCallback(() => {
     setUser((prev: any) => (prev ? { ...prev, isPremium: true } : prev));
+  }, []);
+
+  const registrarRespostaFreeHoje = useCallback(() => {
+    const today = new Date().toISOString().split('T')[0];
+
+    setUser((prev: any) => {
+      if (!prev || prev.isPremium) return prev;
+      const atual = prev.freeDailyAnswers?.date === today ? prev.freeDailyAnswers.count || 0 : 0;
+      return { ...prev, freeDailyAnswers: { date: today, count: atual + 1 } };
+    });
   }, []);
 
   const registrarAcerto = useCallback((questaoId: number | string | Array<number | string>) => {
@@ -137,6 +148,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         loginMock,
         logout,
         comprarPremium,
+        registrarRespostaFreeHoje,
         registrarAcerto,
         registrarErro,
         conquistas,
