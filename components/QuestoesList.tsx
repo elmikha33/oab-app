@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useGameState } from '@/context/GameStateContext';
+import ThemeToggle from '@/components/ThemeToggle';
 import {
   ArrowDown,
   ArrowLeft,
@@ -206,12 +207,12 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
   const explicacao = q.comentario || q.explicacao || 'Comentário ainda não cadastrado.';
 
   return (
-    <article className="w-full rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-lg md:p-5">
+    <article className="w-full rounded-xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-800 dark:bg-slate-900 md:p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="rounded bg-slate-950 px-2 py-1 text-[10px] font-black uppercase text-slate-400">
+        <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-black uppercase text-slate-600 dark:bg-slate-950 dark:text-slate-400">
           {getMateria(q)}
         </span>
-        {q.tema && <span className="rounded bg-slate-800 px-2 py-1 text-[10px] font-semibold text-slate-300">{q.tema}</span>}
+        {q.tema && <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{q.tema}</span>}
         {isResolved && (
           <span
             className={`inline-flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold uppercase ${
@@ -224,7 +225,7 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
         )}
       </div>
 
-      <h2 className="mb-4 text-[15px] font-medium leading-relaxed text-slate-100 md:text-sm">{q.enunciado}</h2>
+      <h2 className="mb-4 text-[15px] font-medium leading-relaxed text-slate-900 dark:text-slate-100 md:text-sm">{q.enunciado}</h2>
 
       {alternativas.length === 0 ? (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
@@ -247,7 +248,7 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
                     : i === selected
                       ? 'border-red-500 bg-red-900/30 text-red-100'
                       : 'border-slate-800 bg-slate-950/60 text-slate-500'
-                  : 'border-slate-800 bg-slate-950 text-slate-300 active:scale-[0.99] hover:border-slate-600 hover:bg-slate-900'
+                  : 'border-slate-200 bg-slate-50 text-slate-800 active:scale-[0.99] hover:border-slate-300 hover:bg-white dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-900'
               }`}
             >
               {alt}
@@ -266,7 +267,7 @@ function QuestaoCard({ q, onAnswer }: { q: any; onAnswer: (ids: string[], acerto
             <Lightbulb size={14} />
             <span className="text-xs font-bold">{acertou ? 'Explicação' : 'Erro'}</span>
           </div>
-          <p className="text-sm leading-relaxed text-slate-300">{explicacao}</p>
+          <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">{explicacao}</p>
         </div>
       )}
     </article>
@@ -468,37 +469,40 @@ export default function QuestoesList() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 px-3 pb-28 pt-3 text-slate-100 md:px-4 md:pb-8">
-      <div className="sticky top-0 z-30 -mx-3 mb-3 border-b border-slate-800 bg-slate-950/95 px-3 py-2 backdrop-blur md:static md:mx-auto md:max-w-3xl md:border-b-0 md:bg-transparent md:px-0">
+    <div className="min-h-screen w-full bg-slate-50 px-3 pb-28 pt-3 text-slate-950 dark:bg-slate-950 dark:text-slate-100 md:px-4 md:pb-8">
+      <div className="sticky top-0 z-30 -mx-3 mb-3 border-b border-slate-200 bg-slate-50/95 px-3 py-2 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 md:static md:mx-auto md:max-w-3xl md:border-b-0 md:bg-transparent md:px-0">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <Link
             href="/dashboard"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700 hover:text-white"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white"
             aria-label="Voltar para o dashboard"
           >
             <ArrowLeft size={16} />
           </Link>
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold uppercase text-indigo-300">{activeLabel}</p>
+            <p className="truncate text-xs font-bold uppercase text-indigo-700 dark:text-indigo-300">{activeLabel}</p>
             <p className="truncate text-sm font-semibold text-white">{formatCount(todasDoFiltro.length, 'questão', 'questões')}</p>
           </div>
 
-          <div className="text-right text-[11px] leading-tight">
-            <p className="font-bold text-emerald-300">{respondidasAtuais} feitas</p>
-            <p className="text-slate-400">{pendentes} pendentes</p>
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="text-right text-[11px] leading-tight">
+              <p className="font-bold text-emerald-300">{respondidasAtuais} feitas</p>
+              <p className="text-slate-400">{pendentes} pendentes</p>
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </div>
 
-      <section className="mx-auto mb-4 max-w-3xl rounded-xl border border-slate-800 bg-slate-900/60 p-3 md:p-5">
+      <section className="mx-auto mb-4 max-w-3xl rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60 md:p-5">
         <div className="mb-3 grid grid-cols-[1fr_44px] gap-2">
           <button
             onClick={() => selecionarMateria(null)}
             className={`flex min-h-12 items-center justify-between rounded-xl border px-4 text-left text-sm font-bold transition-all ${
               filtroMateria === null
                 ? 'border-indigo-400 bg-indigo-600 text-white'
-                : 'border-slate-800 bg-slate-950 text-slate-200 hover:border-slate-700'
+                : 'border-slate-200 bg-slate-50 text-slate-800 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:border-slate-700'
             }`}
           >
             <span>Todas as questões</span>
@@ -524,7 +528,7 @@ export default function QuestoesList() {
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar por tema ou enunciado"
-            className="h-11 w-full rounded-xl border border-slate-800 bg-slate-950 pl-9 pr-10 text-sm text-white outline-none placeholder:text-slate-600 focus:border-indigo-400"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-10 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-indigo-400 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-600"
           />
           {search && (
             <button
@@ -537,7 +541,7 @@ export default function QuestoesList() {
           )}
         </div>
 
-        <div className="mb-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-950 p-1 text-xs font-bold">
+        <div className="mb-4 grid grid-cols-3 gap-2 rounded-xl bg-slate-100 p-1 text-xs font-bold dark:bg-slate-950">
           {[
             ['all', 'Todas'],
             ['pending', 'Pendentes'],
@@ -547,7 +551,7 @@ export default function QuestoesList() {
               key={value}
               onClick={() => setStatusFiltro(value as StatusFilter)}
               className={`min-h-9 rounded-lg transition-all ${
-                statusFiltro === value ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-white'
+                statusFiltro === value ? 'bg-indigo-600 text-white' : 'text-slate-500 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
               }`}
             >
               {label}
@@ -577,7 +581,7 @@ export default function QuestoesList() {
                   <button
                     onClick={() => setModalMateria(m)}
                     disabled={count === 0}
-                    className="flex h-12 w-10 items-center justify-center rounded-xl border border-slate-800 bg-slate-950 text-slate-400 hover:border-red-500/40 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-35"
+                    className="flex h-12 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 hover:border-red-500/40 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-35 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400 dark:hover:text-red-300"
                     title={`Limpar progresso de ${m}`}
                     aria-label={`Limpar progresso de ${m}`}
                   >
@@ -591,10 +595,10 @@ export default function QuestoesList() {
       </section>
 
       <section ref={questoesRef} className="mx-auto max-w-3xl scroll-mt-20 space-y-3 md:scroll-mt-4 md:space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 dark:border-slate-800">
           <div>
-            <p className="text-xs font-bold uppercase text-indigo-300">{activeLabel}</p>
-            <h1 className="text-lg font-extrabold text-white md:text-xl">
+            <p className="text-xs font-bold uppercase text-indigo-700 dark:text-indigo-300">{activeLabel}</p>
+            <h1 className="text-lg font-extrabold text-slate-900 dark:text-white md:text-xl">
               Mostrando {Math.min(visibleLimit, exibidas.length)} de {exibidas.length}
             </h1>
           </div>

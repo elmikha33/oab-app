@@ -1,65 +1,34 @@
 import { create } from 'zustand';
 
-/**
- * TIPOS BÁSICOS (SEM GameState complexo quebrando build)
- */
-type User = {
-  nome: string;
-  email: string;
-  premium: boolean;
-};
+export interface GameState {
+  level: number;
+  xp: number;
+  coins: number;
+  lives: number;
+  incrementXP: (amount: number) => void;
+  spendCoins: (amount: number) => void;
+  loseLife: () => void;
+  reset: () => void;
+}
 
-type GameStore = {
-  user: User | null;
+export const useGameStore = create<GameState>((set) => ({
+  level: 1,
+  xp: 0,
+  coins: 0,
+  lives: 3,
 
-  questoesRespondidas: number[];
-  questoesErradas: number[];
-
-  // AUTH
-  loginMock: (nome: string) => void;
-  comprarPremium: () => void;
-
-  // QUESTÕES
-  registrarAcerto: (id: number) => void;
-  registrarErro: (id: number) => void;
-
-  // USER
-  setUser: (user: User | null) => void;
-};
-
-export const useGameStore = create<GameStore>((set, get) => ({
-  user: null,
-
-  questoesRespondidas: [],
-  questoesErradas: [],
-
-  setUser: (user) => set({ user }),
-
-  loginMock: (nome) =>
-    set({
-      user: {
-        nome,
-        email: `${nome.toLowerCase()}@local.com`,
-        premium: false,
-      },
+  incrementXP: (amount) =>
+    set((state) => {
+      const totalXP = state.xp + amount;
+      const level = 1 + Math.floor(totalXP / 1_000); // sobe 1 nível a cada 1000 XP
+      return { xp: totalXP, level };
     }),
 
-  comprarPremium: () =>
-    set((state) => ({
-      user: state.user ? { ...state.user, premium: true } : null,
-    })),
+  spendCoins: (amount) =>
+    set((state) => ({ coins: Math.max(0, state.coins - amount) })),
 
-  registrarAcerto: (id) =>
-    set((state) => ({
-      questoesRespondidas: state.questoesRespondidas.includes(id)
-        ? state.questoesRespondidas
-        : [...state.questoesRespondidas, id],
-    })),
+  loseLife: () =>
+    set((state) => ({ lives: Math.max(0, state.lives - 1) })),
 
-  registrarErro: (id) =>
-    set((state) => ({
-      questoesErradas: state.questoesErradas.includes(id)
-        ? state.questoesErradas
-        : [...state.questoesErradas, id],
-    })),
+  reset: () => set({ level: 1, xp: 0, coins: 0, lives: 3 }),
 }));

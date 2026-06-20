@@ -21,6 +21,8 @@ export default function Dashboard() {
   if (!user) return <div className="min-h-screen bg-slate-950 p-8 text-white">Carregando...</div>;
 
   const totalAcertos = user.acertos ?? 0;
+  const streak = user.streak || 0;
+  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
 
   const goToStudy = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -41,7 +43,7 @@ export default function Dashboard() {
     <div className="min-h-screen flex-1 bg-[linear-gradient(180deg,#020617_0%,#0f172a_45%,#020617_100%)] px-4 pb-10 pt-5 text-white md:p-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-col gap-2 md:mb-8">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-3 py-1 text-xs font-bold uppercase text-yellow-300">
+          <div className="hidden">
             <Sparkles className="h-3.5 w-3.5" />
             Missão diária
           </div>
@@ -66,8 +68,8 @@ export default function Dashboard() {
               </div>
               <p className="text-[11px] font-black uppercase text-slate-500">Ofensiva</p>
             </div>
-            <p className="text-2xl font-extrabold">{user.streak || 0}</p>
-            <p className="text-xs text-slate-500">dias ativos</p>
+            <p className="text-2xl font-extrabold">{streak}</p>
+            <p className="text-xs text-slate-500">{streakLabel}</p>
           </div>
 
           <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-lg shadow-black/15">
