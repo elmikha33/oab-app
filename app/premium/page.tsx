@@ -7,10 +7,11 @@ import { Crown, Check, ShieldCheck } from 'lucide-react';
 
 export default function PremiumPage() {
   const { user, comprarPremium } = useGameState();
-  const [carregando, SetCarregando] = useState(false);
-  const [sucesso, SetSucesso] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState('');
 
+  /* ─────────────────────────── Verificação Stripe ─────────────────────────── */
   useEffect(() => {
     if (!user) return;
 
@@ -18,193 +19,188 @@ export default function PremiumPage() {
     if (params.get('checkout') !== 'success') return;
 
     if (user.isPremium) {
-      SetSucesso(true);
+      setSucesso(true);
       return;
     }
 
     const sessionId = params.get('session_id');
     if (!sessionId || sessionId === '{CHECKOUT_SESSION_ID}') {
-      setErro('Pagamento ainda nao confirmado pela Stripe.');
+      setErro('Pagamento ainda não confirmado pela Stripe.');
       return;
     }
 
-    const confirmedSessionId = sessionId;
     let cancelled = false;
-
-    async function confirmarPagamento() {
-      SetCarregando(true);
+    (async () => {
+      setCarregando(true);
       setErro('');
 
       try {
-        const response = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(confirmedSessionId)}`);
-        const data = await response.json();
+        const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await res.json();
+        if (!res.ok || !data.premium) throw new Error(data.error || 'Pagamento ainda não confirmado.');
 
-        if (!response.ok || !data.premium) throw new Error(data.error || 'Pagamento ainda nao confirmado.');
-        if (cancelled) return;
-
-        comprarPremium();
-        SetSucesso(true);
-      } catch (error: any) {
-        if (!cancelled) setErro(error.message || 'Pagamento ainda nao confirmado.');
+        if (!cancelled) {
+          comprarPremium();
+          setSucesso(true);
+        }
+      } catch (err: any) {
+        if (!cancelled) setErro(err.message || 'Pagamento ainda não confirmado.');
       } finally {
-        if (!cancelled) SetCarregando(false);
+        if (!cancelled) setCarregando(false);
       }
-    }
-
-    confirmarPagamento();
+    })();
 
     return () => {
       cancelled = true;
     };
   }, [comprarPremium, user]);
 
-  if (!user) return null;
-
+  /* ─────────────────────────── Inicialização Stripe ─────────────────────────── */
   const handleAssinar = async () => {
-    SetCarregando(true);
+    setCarregando(true);
     setErro('');
-
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nome: user.nome,
-          email: user.email || undefined,
-          userId: user.email || user.nome,
+          nome: user!.nome,
+          email: user!.email || undefined,
+          userId: user!.email || user!.nome,
         }),
       });
       const data = await response.json();
-
       if (!response.ok || !data.url) throw new Error(data.error || 'Erro ao abrir checkout.');
       window.location.href = data.url;
-    } catch (error: any) {
-      setErro(error.message || 'Erro ao abrir checkout.');
-      SetCarregando(false);
+    } catch (err: any) {
+      setErro(err.message || 'Erro ao abrir checkout.');
+      setCarregando(false);
     }
   };
 
+  if (!user) return null;
+
+  /* ─────────────────────────── JSX ─────────────────────────── */
   return (
-    <div className="space-y-6 pb-10 max-w-4xl mx-auto">
-      
-      {/* 1. TELA DE ASSINATURA REALIZADA COM SUCESSO */}
+    <div className="max-w-4xl mx-auto space-y-6 pb-10">
+      {/* 1. Sucesso */}
       {sucesso && (
-        <div className="bg-slate-900 border border-yellow-500/30 rounded-3xl p-8 text-center space-y-6 glass-premium glow-purple animate-in zoom-in duration-300">
-          <div className="w-20 h-20 rounded-2xl bg-yellow-500/10 border border-yellow-500/25 flex items-center justify-center mx-auto text-yellow-500 text-4xl animate-bounce">
+        <div className="glass-premium glow-purple animate-in zoom-in duration-300 rounded-3xl bg-slate-900 border border-yellow-500/30 p-8 text-center space-y-6">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-yellow-500/10 text-4xl text-yellow-500">
             👑
           </div>
           <div className="space-y-2">
-            <h1 className="font-heading font-extrabold text-3xl text-white">SUA CONTA AGORA É PREMIUM!</h1>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
-              Parabéns, {user.nome}! Você desbloqueou o poder total do <strong className="text-white">Missão OAB</strong>. Todas as missões, revisões inteligentes e banco de questões ilimitado estão ativos.
+            <h1 className="font-heading text-3xl font-extrabold text-white">SUA CONTA AGORA É PREMIUM!</h1>
+            <p className="mx-auto max-w-md text-sm text-slate-400">
+              Parabéns, {user.nome}! Você desbloqueou o poder total do <strong className="text-white">Legl</strong>.
             </p>
           </div>
-
-          <div className="flex justify-center gap-4">
-            <Link
-              href="/dashboard"
-              className="px-8 py-3.5 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-bold rounded-xl text-sm transition-all glow-gold"
-            >
-              Ir para o Dashboard
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="glow-gold mx-auto inline-block rounded-xl bg-yellow-500 px-8 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-yellow-400"
+          >
+            Ir para o Dashboard
+          </Link>
         </div>
       )}
 
-      {/* 2. TELA DE DETALHAMENTO DE PLANOS */}
+      {/* 2. Plano */}
       {!sucesso && (
         <div className="space-y-6">
-          {/* Cabeçalho */}
-          <div className="text-center space-y-2 py-4">
-            <div className="inline-flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-full text-xs font-semibold text-yellow-500">
+          <header className="space-y-2 py-4 text-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-500">
               <Crown className="h-3.5 w-3.5 fill-yellow-500/20" />
-              <span>Assinatura Premium</span>
-            </div>
-            <h1 className="font-heading font-extrabold text-3xl text-white">Domine o Exame com Poder Máximo</h1>
-            <p className="text-slate-400 text-sm max-w-md mx-auto">
-              Acelere sua aprovação estudando sem limites diários e com estatísticas e revisões geradas por inteligência.
+              Assinatura Premium
+            </span>
+            <h1 className="font-heading text-3xl font-extrabold text-white">Domine o Exame com Poder Máximo</h1>
+            <p className="mx-auto max-w-md text-sm text-slate-400">
+              Acelere sua aprovação estudando sem limites diários e com relatórios gerados por inteligência.
             </p>
-          </div>
+          </header>
 
-          {/* Grid de Benefícios e Checkout */}
-          <div className="grid md:grid-cols-2 gap-6 items-start">
-            
+          <div className="grid gap-6 md:grid-cols-2">
             {/* Benefícios */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-              <h3 className="font-heading font-bold text-lg text-white">O que você ganha sendo Premium?</h3>
-              
-              <ul className="space-y-4 text-xs md:text-sm text-slate-300">
+            <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="font-heading text-lg font-bold text-white">O que você ganha sendo Premium?</h3>
+
+              <ul className="space-y-4 text-xs text-slate-300 md:text-sm">
+                {/* 1 */}
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                   <div>
-                    <span className="font-semibold text-white block">Questões Ilimitadas</span>
-                    <span className="text-slate-400 text-xs">Esqueça o bloqueio de 25 questões por dia. Responda quantas quiser.</span>
+                    <span className="block font-semibold text-white">Questões Ilimitadas</span>
+                    <span className="text-xs text-slate-400">
+                      Estude sem limites — responda quantas questões quiser, a qualquer hora.
+                    </span>
                   </div>
                 </li>
+                {/* 2 */}
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                   <div>
-                    <span className="font-semibold text-white block">Missões Diárias Completas (+4)</span>
-                    <span className="text-slate-400 text-xs">Libere missões adicionais para acumular mais XP e subir de nível rápido.</span>
+                    <span className="block font-semibold text-white">Acelere seus Estudos</span>
+                    <span className="text-xs text-slate-400">
+                      Missões extras diárias para acumular XP e subir de nível mais rápido.
+                    </span>
                   </div>
                 </li>
+                {/* 3 */}
                 <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                   <div>
-                    <span className="font-semibold text-white block">Modo Revisão Inteligente</span>
-                    <span className="text-slate-400 text-xs">Algoritmo de repetição espaçada SM-2 que avisa o dia certo de revisar cada tema.</span>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-semibold text-white block">Estatísticas Avançadas</span>
-                    <span className="text-slate-400 text-xs">Análise profunda por matéria para identificar seus pontos cegos no edital.</span>
+                    <span className="block font-semibold text-white">Relatórios de Progresso</span>
+                    <span className="text-xs text-slate-400">
+                      Estatísticas detalhadas de acertos, erros e tempo médio por questão.
+                    </span>
                   </div>
                 </li>
               </ul>
             </div>
 
-            {/* Checkout */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 relative overflow-hidden">
+            {/* Checkout / Estado */}
+            <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 p-6">
               {user.isPremium ? (
-                <div className="text-center space-y-4 py-8">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mx-auto text-emerald-400">
+                <div className="space-y-4 py-8 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
                     <ShieldCheck className="h-6 w-6" />
                   </div>
-                  <div>
-                    <h3 className="font-heading font-bold text-white text-md">Você já é Assinante Premium!</h3>
-                    <p className="text-xs text-slate-400 mt-1">Aproveite todos os benefícios liberados no seu painel.</p>
-                  </div>
+                  <h3 className="font-heading text-md font-bold text-white">Você já é Assinante Premium!</h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Aproveite todos os benefícios liberados no seu painel.
+                  </p>
                 </div>
               ) : (
                 <>
                   <div className="space-y-2">
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase">Assinatura Mensal</span>
+                    <span className="block text-[10px] font-bold uppercase text-slate-500">Assinatura Mensal</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="font-heading font-extrabold text-3xl text-white">R$ 29,90</span>
-                      <span className="text-slate-400 text-xs">/ por mês</span>
+                      <span className="font-heading text-3xl font-extrabold text-white">R$ 29,90</span>
+                      <span className="text-xs text-slate-400">/ por mês</span>
                     </div>
-                    <p className="text-slate-500 text-[10px]">Cancele quando quiser. Pagamento seguro via Stripe.</p>
+                    <p className="text-[10px] text-slate-500">Cancele quando quiser. Pagamento via Stripe.</p>
                   </div>
 
-                  {erro && <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">{erro}</div>}
+                  {erro && (
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+                      {erro}
+                    </div>
+                  )}
 
-                  {/* Checkout Stripe */}
-                  <div className="space-y-4 pt-4 border-t border-slate-800">
-                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs leading-relaxed text-slate-400">
-                      O pagamento abre no checkout seguro da Stripe. Cartao e recibos ficam pela Stripe.
+                  <div className="space-y-4 pt-4">
+                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-400">
+                      O pagamento abre no checkout seguro da Stripe.
                     </div>
 
                     <button
                       onClick={handleAssinar}
                       disabled={carregando}
-                      className="w-full py-3.5 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-slate-950 font-bold rounded-xl text-sm transition-all glow-gold flex items-center justify-center gap-2"
+                      className="glow-gold flex w-full items-center justify-center gap-2 rounded-xl bg-yellow-500
+                                 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-yellow-400 disabled:opacity-50"
                     >
                       {carregando ? (
                         <>
-                          <div className="w-4 h-4 rounded-full border-2 border-slate-950/20 border-t-slate-950 animate-spin"></div>
-                          <span>Processando Assinatura...</span>
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-slate-950 border-slate-950/20" />
+                          <span>Processando...</span>
                         </>
                       ) : (
                         <>
@@ -217,11 +213,9 @@ export default function PremiumPage() {
                 </>
               )}
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -10,8 +10,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Missao OAB',
-  description: 'Sistema de estudo',
+  title: 'Legl',
+  description: 'Preparacao OAB com IA e gamificacao',
 };
 
 export default function RootLayout({

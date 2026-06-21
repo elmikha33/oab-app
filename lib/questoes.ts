@@ -11,6 +11,7 @@ export async function getQuestoes() {
   const { data, error } = await supabase
     .from("questoes_oab")
     .select("*")
+    .eq("ativa", true)
     .order("created_at", { ascending: false })
     .limit(200); // Mantive o seu limite de 200
 

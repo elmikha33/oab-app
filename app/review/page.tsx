@@ -11,7 +11,12 @@ export default function ReviewPage() {
 
   useEffect(() => {
     async function loadQuestoes() {
-      const { data } = await supabase.from("questoes_oab").select("*");
+      const result = await supabase
+        .from("questoes_oab")
+        .select("*")
+        .eq("ativa", true);
+
+      const { data } = result;
       if (data) setQuestoes(data);
       setLoading(false);
     }

@@ -91,6 +91,7 @@ async function run() {
     const files = fs.readdirSync(PROVAS_DIR).filter(f => f.toLowerCase().endsWith(".txt"));
     
     for (const file of files) {
+        const provaCodigo = (file.match(/(\d{1,4})/) || [])[1] || null;
         console.log(`\n📄 Processando arquivo: ${file}`);
         const text = fs.readFileSync(path.join(PROVAS_DIR, file), "utf8");
         const blocos = splitQuestoes(text);
@@ -118,7 +119,12 @@ async function run() {
                     tema: ia.tema || "Geral",
                     comentario: ia.comentario || "Comentário não disponível.",
                     hash,
-                    origem: file
+                    origem: file,
+                    prova_codigo: provaCodigo,
+                    numero_questao: i + 1,
+                    revisado_ia: false,
+                    anulada: false,
+                    ativa: true
                 }]);
                 console.log(`💾 Salvo (${materiaFinal})`);
             } else {

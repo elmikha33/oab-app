@@ -1,243 +1,136 @@
+/* ----------------------------------------------------------
+ *  Fontes
+ * ---------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
+/* ----------------------------------------------------------
+ *  Tailwind layers
+ * ---------------------------------------------------------- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ----------------------------------------------------------
+ *  Tokens
+ * ---------------------------------------------------------- */
+:root {
+  --bg-base:       #f8fafc;
+  --bg-card:       #0f172a;
+  --text-base:     #020617;
+  --gold-100:      rgba(251,191,36,.10);
+  --gold-200:      rgba(251,191,36,.22);
+  --gold-300:      rgba(251,191,36,.32);
+  --gold-500:      #fbbf24;
+}
+.dark {
+  --bg-base:   #020617;
+  --text-base: #f8fafc;
+}
+
+/* ----------------------------------------------------------
+ *  Base
+ * ---------------------------------------------------------- */
 @layer base {
   body {
-    background-color: #020617; /* game.darker */
-    color: #f8fafc; /* slate-50 */
-    font-family: 'Inter', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-    overflow-x: hidden;
+    background: var(--bg-base);
+    color: var(--text-base);
+    font-family: Inter, system-ui, sans-serif;
   }
-
-  h1, h2, h3, h4, h5, h6, .font-heading {
-    font-family: 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-  }
+  h1,h2,h3,h4,h5,h6,
+  .font-heading { font-family: Outfit, system-ui, sans-serif; }
 }
 
-/* Glassmorphism utility */
-.glass {
-  background: rgba(30, 41, 59, 0.7); /* slate-800 com opacidade */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* ----------------------------------------------------------
+ *  Scrollbar mínima
+ * ---------------------------------------------------------- */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{
+  background:rgba(148,163,184,.4);
+  border-radius:9999px;
+}
+::-webkit-scrollbar-thumb:hover{background:rgba(124,58,237,.8)}
+
+/* ----------------------------------------------------------
+ *  Animações compartilhadas
+ * ---------------------------------------------------------- */
+@keyframes orbitGlow { to { transform: rotate(1turn); } }
+@keyframes pulseGlow {
+  0%,100% { box-shadow:0 0 6px 2px var(--gold-100); }
+  50%     { box-shadow:0 0 12px 4px var(--gold-200); }
 }
 
-.glass-premium {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(2, 6, 23, 0.8) 100%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-}
-
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #020617;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* Neon glow animations */
-.glow-purple {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
-}
-
-.glow-gold {
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
-}
-
-@keyframes goldenOrbit {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
-@keyframes goldenBreathe {
-  0%, 100% {
-    box-shadow:
-      0 16px 46px rgba(245, 158, 11, 0.18),
-      0 0 0 1px rgba(251, 191, 36, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  }
-  50% {
-    box-shadow:
-      0 22px 64px rgba(245, 158, 11, 0.32),
-      0 0 0 1px rgba(251, 191, 36, 0.44),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  }
-}
-
+/* ----------------------------------------------------------
+ *  GOLDEN ACTION — botão grande
+ * ---------------------------------------------------------- */
 @layer components {
-  .golden-action,
-  .golden-nav-link {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    border: 1px solid rgba(251, 191, 36, 0.34);
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95));
-    animation: goldenBreathe 4.6s ease-in-out infinite;
+  .golden-action{
+    @apply relative isolate overflow-hidden rounded-2xl font-semibold;
+    padding: 1rem 2rem;
+    background: var(--bg-card);
+    color: #fff;
+    border: 2px solid var(--gold-200);
+    animation: pulseGlow 6s ease-in-out infinite;
+    transition: transform .16s ease, box-shadow .18s ease;
+  }
+  .golden-action:hover{
+    transform: translateY(-2px) scale(1.02);
   }
 
-  .golden-action::before,
-  .golden-nav-link::before {
-    content: "";
-    position: absolute;
-    inset: -160%;
-    z-index: -2;
-    pointer-events: none;
+  /* halo giratório sincronizado */
+  .golden-action::before{
+    content:'';
+    position:absolute; inset:0;
+    border-radius:inherit;
+    padding:2px;
     background: conic-gradient(
       from 180deg,
-      transparent 0deg,
-      transparent 218deg,
-      rgba(251, 191, 36, 0.86) 254deg,
-      rgba(255, 255, 255, 0.88) 276deg,
-      rgba(245, 158, 11, 0.86) 300deg,
-      transparent 334deg,
-      transparent 360deg
+      transparent 0deg 210deg,
+      var(--gold-500) 240deg 260deg,
+      transparent 290deg
     );
-    animation: goldenOrbit 5.5s linear infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: orbitGlow 12s linear infinite;
+    pointer-events:none;
   }
 
-  .golden-action::after,
-  .golden-nav-link::after {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    z-index: -1;
-    pointer-events: none;
-    border-radius: inherit;
-    background:
-      linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.98) 48%, rgba(30, 41, 59, 0.98)),
-      radial-gradient(circle at 20% 10%, rgba(251, 191, 36, 0.18), transparent 42%);
+  /* reflexo interno MUITO leve */
+  .golden-action::after{
+    content:'';
+    position:absolute; inset:2px;
+    border-radius:inherit;
+    background: radial-gradient(circle at 60% 40%, var(--gold-100), transparent 60%);
+    pointer-events:none;
   }
 
-  .golden-action:hover::before,
-  .golden-nav-link:hover::before {
-    animation-duration: 3.8s;
+  /* -------- Sidebar link (mesma cadência) -------- */
+  .golden-nav-link{
+    @apply relative isolate rounded-xl font-extrabold px-3 py-3 text-sm text-white;
+    background: var(--bg-card);
+    border: 1px solid var(--gold-200);
+    transition: transform .14s ease, box-shadow .15s ease;
   }
-
-  .golden-nav-link {
-    animation-duration: 5.4s;
+  .golden-nav-link:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 0 6px 1px var(--gold-100);
   }
-
-  .golden-nav-link::after {
-    inset: 1px;
+  .golden-nav-link::before{
+    content:'';
+    position:absolute; inset:0;
+    border-radius:inherit;
+    padding:1px;
+    background: conic-gradient(
+      from 180deg,
+      transparent 0deg 210deg,
+      var(--gold-500) 240deg 260deg,
+      transparent 290deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    animation: orbitGlow 12s linear infinite;   /* MESMO tempo */
+    pointer-events:none;
   }
-}
-
-.glow-green {
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-}
-
-.glow-red {
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
-}
-
-/* Custom progress bar styles */
-.progress-bar-fill {
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ===== ANSWER FEEDBACK ANIMATIONS ===== */
-
-/* Correct answer glow pulse on the question card */
-@keyframes correctPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); border-color: rgba(16, 185, 129, 0.5); }
-  50% { box-shadow: 0 0 30px 4px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.8); }
-}
-.animate-correct-pulse {
-  animation: correctPulse 1.5s ease-in-out 2;
-  border-color: rgba(16, 185, 129, 0.5) !important;
-}
-
-/* Incorrect answer shake + red glow */
-@keyframes incorrectShake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-  20%, 40%, 60%, 80% { transform: translateX(4px); }
-}
-@keyframes incorrectPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.5); }
-  50% { box-shadow: 0 0 30px 4px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.8); }
-}
-.animate-incorrect-shake {
-  animation: incorrectShake 0.6s ease-in-out, incorrectPulse 1.5s ease-in-out 2;
-  border-color: rgba(239, 68, 68, 0.5) !important;
-}
-
-/* Big feedback overlay animation */
-@keyframes feedbackSlideIn {
-  0% { opacity: 0; transform: scale(0.8) translateY(20px); }
-  60% { opacity: 1; transform: scale(1.05) translateY(-4px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
-}
-.animate-feedback-overlay {
-  animation: feedbackSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* Confetti burst for correct answers */
-@keyframes confettiBurst {
-  0% { opacity: 1; transform: scale(0); }
-  50% { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0; transform: scale(2); }
-}
-.animate-confetti {
-  animation: confettiBurst 1s ease-out forwards;
-}
-
-/* Fade in from bottom for feedback card */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s ease-out forwards;
-}
-
-/* Persistent correct/incorrect border glow states */
-.border-glow-correct {
-  border-color: rgba(16, 185, 129, 0.6) !important;
-  box-shadow: 0 0 20px 2px rgba(16, 185, 129, 0.15), inset 0 0 20px rgba(16, 185, 129, 0.03);
-}
-.border-glow-incorrect {
-  border-color: rgba(239, 68, 68, 0.6) !important;
-  box-shadow: 0 0 20px 2px rgba(239, 68, 68, 0.15), inset 0 0 20px rgba(239, 68, 68, 0.03);
-}
-
-/* Summary question list item hover */
-.question-summary-item {
-  transition: all 0.2s ease;
-}
-.question-summary-item:hover {
-  transform: translateX(4px);
-  background-color: rgba(139, 92, 246, 0.05);
-}
-
-/* Skip button subtle animation */
-@keyframes skipBounce {
-  0%, 100% { transform: translateX(0); }
-  50% { transform: translateX(3px); }
-}
-.skip-btn:hover .skip-icon {
-  animation: skipBounce 0.6s ease-in-out infinite;
-}
-
-/* Emoji rendering — garante fontes de emoji em qualquer plataforma */
-.emoji, [role="img"] {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Twemoji Mozilla', sans-serif;
-  font-style: normal;
-  font-variant-emoji: emoji;
 }

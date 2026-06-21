@@ -1,0 +1,301 @@
+# Progresso Codex - Missao OAB
+
+## Objetivo atual
+Melhorar:
+- validacao automatica das questoes
+- auditoria de alteracoes da IA
+- UI premium das alternativas
+- fluxo gamificado
+- tripla verificacao de gabarito com arquivos oficiais em `provas/gabaritos`
+
+## Concluido
+- Mapeado o fluxo atual de questoes:
+  - `scripts/validateQuestoes.ts`
+  - `app/api/questoes/route.ts`
+  - `components/QuestoesList.tsx`
+  - `context/GameStateContext.tsx`
+- Criado SQL idempotente em `sql/questoes_oab_ia_revisao.sql` para:
+  - marcar questoes revisadas por IA
+  - armazenar data/modelo/confianca da revisao
+  - marcar revisao humana necessaria
+  - registrar problemas de qualidade
+  - criar historico em `questoes_revisoes`
+  - guardar `prova_codigo`, `numero_questao`, `gabarito_oficial`, `fonte_gabarito` e `validacao_tripla`
+  - recarregar o schema cache via `notify pgrst, 'reload schema'`
+- Criada a pasta `provas/gabaritos`.
+- Criado `provas/gabaritos/README.md` com o formato recomendado dos arquivos:
+  - `gabarito_45.txt`
+  - `gabarito_46.txt`
+  - uma linha por questao, como `1 A`
+- Verificado que o arquivo existente `provas/gabaritos/gabarito_46.TXT` usa formato aceito pelo parser:
+  - `1=C`
+  - `2=D`
+  - etc.
+- Reescrito `scripts/validateQuestoes.ts` para:
+  - revisar por padrao apenas questoes pendentes
+  - aceitar `--all`, `--dry-run`, `--id=...` e `--limit=...`
+  - validar enunciado, alternativas, materia, tema, dificuldade, comentario e gabarito
+  - corrigir gabarito automaticamente somente com confianca alta
+  - ler gabaritos oficiais em `provas/gabaritos/gabarito_NUMERO.txt`
+  - fazer tripla verificacao: banco + TXT oficial + IA
+  - marcar revisao humana quando TXT oficial e IA divergirem
+  - gravar auditoria detalhada em `questoes_revisoes`
+- Ajustado `scripts/validateQuestoes.ts` apos primeiro teste real:
+  - agora valida as colunas obrigatorias de `questoes_oab` antes de enviar questoes para a IA em execucoes reais
+  - se `confianca_correcao` ou outra coluna nova nao existir no schema cache, o script para no inicio
+  - o motivo de revisao humana agora prioriza os motivos deterministas do validador, evitando misturar texto contraditorio retornado pela IA
+- Ajustado `scripts/validateQuestoes.ts` para a regra definitiva de gabarito:
+  - o TXT oficial em `provas/gabaritos/gabarito_NUMERO.txt` e a fonte maxima de verdade
+  - a IA nao escolhe mais o gabarito final
+  - quando houver gabarito oficial correspondente, a coluna `gabarito` passa a receber sempre o valor oficial
+  - se a IA discordar do TXT, a discordancia fica apenas em auditoria/relatorio e nao marca revisao humana
+  - a IA deve reescrever o comentario explicando a alternativa oficial
+  - revisao humana agora fica restrita a problema objetivo: sem gabarito oficial, questao anulada, enunciado incompleto/corrompido, alternativas faltando/corrompidas ou alternativa oficial inexistente
+  - se nao houver gabarito oficial aplicavel, a questao nao e enviada para IA
+- Ajustado `scripts/validateQuestoes.ts` para anuladas manuais:
+  - le arquivos `anuladas_NUMERO.txt`
+  - aceita arquivos em `provas/anuladas_46.txt` e tambem em `provas/gabaritos/anuladas_46.txt`
+  - aceita linhas `12`, `37`, `58` ou `12=ANULADA`
+  - normaliza zero a esquerda: `07` vira numero inteiro `7`
+  - nao chama IA para questao anulada
+  - marca `anulada=true`, `ativa=false`, `motivo_anulacao='Anulada oficialmente pela OAB/FGV'`
+  - mantem a questao no banco para auditoria
+- Ajustado o modo pendentes em `scripts/validateQuestoes.ts`:
+  - pula questoes com `revisado_ia=true`
+  - pula questoes com `revisado_em` preenchido
+  - `--force` e a unica forma de revisar novamente questoes ja revisadas
+  - questoes anuladas/inativas continuam sempre fora, mesmo com `--force`
+  - questoes com `revisao_humana_necessaria=true` continuam pendentes
+  - questoes sem `gabarito_oficial`/`fonte_gabarito` salvos continuam pendentes
+- Ajustado `scripts/validateQuestoes.ts` para reconstruir comentarios com seguranca:
+  - comentario antigo agora e enviado apenas como referencia ruim
+  - toda revisao com IA deve gerar comentario novo do zero
+  - o comentario deve mencionar a alternativa oficial do TXT
+  - se o comentario citar outra alternativa como correta, ele e rejeitado
+  - se o comentario novo ficar muito parecido com o antigo, isso vira apenas alerta no relatorio
+  - a IA tem ate duas tentativas para gerar comentario valido
+  - se falhar duas vezes, a questao e marcada para revisao humana
+  - a discordancia da IA nunca altera o gabarito oficial
+- Ajustado novamente `scripts/validateQuestoes.ts` apos detectar rigidez excessiva:
+  - similaridade com comentario antigo nao marca mais revisao humana por si so
+  - comentario parecido pode ser aceito se mencionar a alternativa oficial, nao apontar outra alternativa como correta e nao for vazio/generico
+  - relatorio passa a mostrar `ACEITO - parecido com anterior, mas coerente com gabarito oficial`
+- Adicionada camada anti-alucinacao juridica em `scripts/validateQuestoes.ts`:
+  - prompt agora prefere explicacao conceitual estilo professor OAB
+  - prompt desestimula numeros de leis, artigos, sumulas, jurisprudencia e Tema STF/STJ
+  - se a IA nao tiver certeza absoluta, deve usar `conforme a legislacao aplicavel` ou `conforme entendimento juridico aplicavel`
+  - comentarios com `Lei`, `Art.`, `artigo`, `Sumula` ou `Tema STF/STJ` passam por checagem extra
+  - se houver duvida ou falha na checagem, a referencia especifica e substituida por termo generico seguro
+- Reforcada blindagem anti-alucinacao juridica com sanitizacao deterministica:
+  - comentarios finais nao devem manter referencia normativa especifica mesmo quando a IA tentar citar
+  - remove/substitui `Lei`, padrao de numero de lei, `Art.`, `artigo`, `inciso`, `paragrafo`, `§`, `Sumula`, `Tema STF/STJ`, `RE`, `ARE`, `ADI`, `ADC`, `ADPF` e `jurisprudencia`
+  - sanitizacao nao marca revisao humana por si so
+  - defesa final roda antes de salvar o comentario
+- Adicionado log persistente ao `scripts/validateQuestoes.ts`:
+  - cria `logs/` automaticamente
+  - duplica a saida do terminal em `logs/ultima_validacao.txt`
+  - cria historico em `logs/validacao_YYYY-MM-DD_HH-mm-ss.txt`
+- Corrigido log persistente em `scripts/validateQuestoes.ts`:
+  - arquivos de log agora sao criados imediatamente na inicializacao do script
+  - logger inicializa antes da validacao das variaveis de ambiente
+  - usa escrita sincronizada com descritores de arquivo
+  - faz `fsync`/`close` ao terminar com sucesso, erro, `beforeExit`, `exit`, `uncaughtException` ou `unhandledRejection`
+  - deve funcionar em dry-run e tambem quando a execucao falhar cedo
+- Adicionada auditoria semantica automatica dos comentarios:
+  - roda depois de gerar e sanitizar comentario
+  - verifica se o comentario ensina o conceito juridico corretamente
+  - pode aprovar ou devolver comentario corrigido
+  - nao pode alterar gabarito, enunciado, alternativas, materia ou tema
+  - salva somente comentario aprovado/corrigido
+  - adiciona controle `comentario_auditado`, `comentario_auditado_em`, `comentario_auditoria_motivo`
+- Adicionado comando `pnpm run auditar:comentarios`.
+- Ajustado `scripts/resetRevisaoQuestoes.ts` com `--comentarios-only` para reset controlado de comentarios/status de auditoria.
+- Atualizado SQL com campos de auditoria semantica.
+- Criado hotfix SQL `sql/questoes_oab_comentario_auditoria.sql` para aplicar apenas as colunas de auditoria de comentario quando o Supabase acusar `comentario_auditado` ausente.
+- Renome visual aplicado para `Legl`:
+  - sidebar mostra Legl com ultimo `l` verde
+  - logo da sidebar aponta para `/dashboard`
+  - metadata e texto premium atualizados
+- Gerada proposta visual de logo Legl via imagegen.
+- Atualizado `.gitignore` para ignorar `logs/*.txt`.
+- Criado `scripts/resetRevisaoQuestoes.ts` para invalidar revisoes anteriores sem apagar conteudo da questao:
+  - `revisado_ia=false`
+  - `revisado_em=null`
+  - limpa controles como `confianca_ia`, `confianca_correcao`, `revisao_humana_necessaria`, `motivo_revisao_humana`, `observacao_revisao`, `fonte_gabarito`, `modelo_ultima_revisao`, `problemas_qualidade` e `validacao_tripla` quando existirem
+  - preserva enunciado, alternativas, gabarito, materia, tema e historico em `questoes_revisoes`
+  - restaura/limpa comentarios da ultima revisao usando `questoes_revisoes` quando o comentario atual ainda corresponde ao ultimo `comentario_depois`
+- Executado reset real com `pnpm.cmd run reset:revisao`:
+  - questoes encontradas: 160
+  - revisoes resetadas: 160
+  - campos inexistentes ignorados com seguranca: `confianca_ia`, `observacao_revisao`
+- Executado novo reset real apos a camada anti-alucinacao:
+  - questoes encontradas: 160
+  - revisoes resetadas: 160
+  - comentarios candidatos na auditoria: 59
+  - comentarios restaurados/limpos com seguranca: 59
+  - comentarios ignorados por divergencia manual: 0
+- Executado novo reset real apos a blindagem deterministica:
+  - questoes encontradas: 160
+  - revisoes resetadas: 160
+  - comentarios candidatos na auditoria: 59
+  - comentarios restaurados/limpos com seguranca: 52
+  - comentarios ignorados por divergencia manual ou falta de correspondencia: 7
+- Ajustado `sql/questoes_oab_ia_revisao.sql`:
+  - adiciona `anulada boolean default false`
+  - adiciona `ativa boolean default true`
+  - adiciona `motivo_anulacao text`
+  - tambem evolui `questoes_revisoes` mesmo quando a tabela ja existe
+  - cria indice para buscas por `ativa/anulada`
+- Ajustadas buscas do app para filtrar `ativa=true`:
+  - `app/api/questoes/route.ts`
+  - `app/review/page.tsx`
+  - `app/admin/page.tsx`
+  - `lib/questoes.ts`
+- Ajustado `scripts/parserInteligenteV2.js` para novas importacoes salvarem:
+  - `prova_codigo`
+  - `numero_questao`
+  - `revisado_ia: false`
+- Refeita `components/QuestoesList.tsx` com fluxo de jogo:
+  - uma questao por vez
+  - alternativas como botoes premium
+  - sem revelar gabarito antes do clique
+  - sem revelar comentario antes do clique
+  - feedback correto/errado apos resposta
+  - XP visual quando acerta
+  - destaque claro da alternativa correta depois da resposta
+- Ajustada `app/api/questoes/route.ts` para, quando a migracao existir, nao servir questoes marcadas para revisao humana.
+- Ajustado `app/play/page.tsx` para envolver `QuestoesList` em `Suspense`, exigencia do Next para `useSearchParams`.
+- Adicionados comandos no `package.json`:
+  - `validate:questoes`
+  - `validate:questoes:dry`
+  - `validate:questoes:all`
+  - `auditar:comentarios`
+  - `reset:revisao`
+- Removido `"type": "module"` do `package.json`, porque os arquivos de configuracao existentes usam CommonJS (`next.config.js`, Tailwind/PostCSS etc.).
+- Criado `types/supabase.ts` como placeholder minimo para resolver o import ja existente em `lib/supabase.ts`.
+- Typecheck passou com:
+  - `.\node_modules\.bin\tsc.CMD --noEmit --pretty false`
+- Novo typecheck apos o ajuste de preflight tambem passou.
+- Typecheck apos a regra "TXT oficial manda no gabarito" tambem passou.
+- Typecheck apos anuladas manuais e filtros `ativa=true` tambem passou.
+- Typecheck apos ajuste do modo pendentes/`--force` tambem passou.
+- Typecheck apos reset de revisoes e comentario obrigatoriamente gerado do zero tambem passou.
+- Typecheck apos transformar similaridade em alerta tambem passou.
+- Typecheck apos camada anti-alucinacao juridica tambem passou.
+- Build apos camada anti-alucinacao juridica tambem passou.
+- Typecheck apos log persistente e blindagem deterministica tambem passou.
+- Build apos log persistente e blindagem deterministica tambem passou.
+- Typecheck apos correcao de criacao/flush do log persistente tambem passou.
+- Build apos correcao de criacao/flush do log persistente tambem passou.
+- Typecheck apos auditoria semantica e marca Legl passou.
+- Build apos auditoria semantica e marca Legl passou.
+- Criada camada `scripts/aiProvider.ts` com fallback automatico Groq/OpenAI.
+- `scripts/validateQuestoes.ts` agora aceita `--provider=auto`, `--provider=groq` e `--provider=openai`.
+- O modo padrao de IA agora e `auto`; o validador nao exige mais `GROQ_API_KEY` na inicializacao quando outro provedor puder assumir.
+- Quando todos os provedores falham, o lote entra em `PAUSADO`, salva log/progresso e deixa a questao pendente para nova execucao.
+- Typecheck apos fallback de provedor IA passou.
+- Build apos fallback de provedor IA passou.
+- `pnpm.cmd run auditar:comentarios -- --dry-run --limit=5` foi bloqueado pelo ambiente porque enviaria conteudo do banco/comentarios para a Groq.
+- `pnpm run validate:questoes:dry -- --limit=5` deve ser rodado pelo usuario no terminal local pelo mesmo motivo.
+- O dry-run `pnpm.cmd run validate:questoes:dry -- --limit=5` foi bloqueado pelo ambiente porque enviaria conteudo do banco para a Groq; precisa ser executado pelo usuario no terminal local.
+- Build passou com:
+  - `.\node_modules\.bin\next.CMD build`
+- Existe um servidor antigo respondendo em `http://localhost:3000/play` com HTTP 200.
+- A chamada local para `http://localhost:3000/api/questoes?page=0` retornou 500 nesse servidor antigo; a validacao real da API depende da conexao Supabase/migracao.
+
+## Arquivos alterados
+- `CODEx_PROGRESS.md`
+- `sql/questoes_oab_ia_revisao.sql`
+- `sql/questoes_oab_comentario_auditoria.sql`
+- `scripts/validateQuestoes.ts`
+- `scripts/aiProvider.ts`
+- `scripts/resetRevisaoQuestoes.ts`
+- `scripts/parserInteligenteV2.js`
+- `provas/gabaritos/.gitkeep`
+- `provas/gabaritos/README.md`
+- `components/QuestoesList.tsx`
+- `components/Sidebar.tsx`
+- `app/api/questoes/route.ts`
+- `app/play/page.tsx`
+- `app/layout.tsx`
+- `app/premium/page.tsx`
+- `package.json`
+- `types/supabase.ts`
+
+## Decisoes tomadas
+- O arquivo oficial de gabarito deve ficar em `provas/gabaritos/gabarito_NUMERO.txt`.
+- Formato recomendado do TXT:
+  - `1 A`
+  - `2 C`
+  - `3 D`
+- Tambem sao aceitos:
+  - `1. A`
+  - `1 - A`
+  - `1:A`
+  - `1=A`
+  - `Questao 1: A`
+- Questao marcada como `ANULADA` no TXT nao recebe gabarito automatico; fica para revisao humana.
+- Se o gabarito oficial existir e a IA divergir, a divergencia e ignorada para o campo `gabarito`; nao vira revisao humana por si so.
+- Revisao humana nao depende mais de confianca da IA sobre gabarito.
+- Anulacao nunca vem da IA; somente de arquivo manual `anuladas_NUMERO.txt`.
+- Questoes anuladas nao sao deletadas fisicamente. Elas ficam no banco com `anulada=true` e `ativa=false`.
+- O app deve consumir apenas questoes com `ativa=true`.
+- O modo pendentes do validador nao reprocessa questao revisada, salvo com `--force`.
+- Questoes com revisao humana ou sem gabarito oficial salvo continuam aparecendo como pendentes para permitir nova tentativa apos correcao dos arquivos/dados.
+- Revisoes antigas feitas pela IA devem ser invalidadas antes da reconstrucao premium dos comentarios.
+- O reset de revisao nao mexe no gabarito ja salvo, nem no conteudo da questao, nem no historico de auditoria.
+- Comentario antigo nao pode ser usado como fallback pelo validador.
+- Comentario aceito precisa mencionar a alternativa oficial e explicar o fundamento juridico.
+- Similaridade com comentario antigo e alerta de qualidade, nao bloqueio automatico.
+- O validador deve evitar referencia normativa especifica. Quando ela aparecer, deve checar antes de salvar.
+- Na duvida sobre lei, artigo, sumula, jurisprudencia ou tema STF/STJ, a referencia especifica deve virar termo generico seguro.
+- A decisao final agora e mais forte: comentario salvo nao deve conter referencia normativa especifica; sanitizar automaticamente em vez de confiar na IA.
+- Logs de validacao ficam locais em `logs/*.txt` e nao devem subir para o repositorio.
+- O reset de revisao restaura comentario anterior pela auditoria apenas quando ha correspondencia segura entre comentario atual e ultimo comentario gerado.
+- Auditoria semantica e segunda camada obrigatoria para comentarios novos.
+- Comentario ja auditado nao deve ser reprocessado sem `--force`.
+- `auditar:comentarios` reaproveita o pipeline atual para auditar comentarios existentes.
+- Auditor semantico deve agir como fiscal de erro grave, nao como editor de estilo.
+- Status possiveis da auditoria: `APROVADO`, `CORRIGIDO_ERRO_JURIDICO`, `IGNORADO_MELHORIA_ESTILO`.
+- Melhorias de estilo/completude nao alteram comentario.
+- Marca visual principal agora e `Legl`; `Missao OAB` fica como modulo/subtitulo.
+- Se a IA falhar duas vezes no comentario, a questao fica marcada como revisao humana e nao deve ir para alunos.
+- O provedor IA padrao e `auto`: Groq primario, Groq fallback se configurado e diferente do primario, depois OpenAI se `OPENAI_API_KEY` existir.
+- Se a Groq retornar limite/quota, o script nao insiste em outro modelo da propria Groq nessa execucao; registra `PROVEDOR IA`, `MOTIVO` e pula para o proximo provedor disponivel.
+- Se vier `retry_after`, o script faz uma pausa curta antes do fallback, limitada por `AI_RETRY_AFTER_MAX_MS` para evitar travar o lote por horas.
+- Se todos os provedores falharem, a questao nao vira falha definitiva nem revisao humana; fica pendente para a proxima execucao.
+- Para questoes antigas sem `numero_questao`, o validador tenta inferir o numero pela ordem dentro da mesma prova.
+- Para questoes novas, o importador passa a salvar `prova_codigo` e `numero_questao` explicitamente.
+- A rota de jogo filtra questoes com `revisao_humana_necessaria = true` quando a coluna existir no Supabase.
+- O SQL novo nao recria tabelas existentes; usa `alter table ... add column if not exists`.
+- O projeto estava com `"type": "module"`, mas configs principais usam CommonJS. A decisao foi remover esse campo, mudanca menor do que renomear varios arquivos para `.cjs`.
+- Existem outras alteracoes antigas no workspace que nao foram feitas nesta etapa; elas foram preservadas.
+
+## Pendencias
+- Executar `sql/questoes_oab_ia_revisao.sql` no SQL Editor do Supabase antes de rodar o validador real.
+- Depois da migracao, se o Supabase ainda disser que nao encontra uma coluna, aguardar alguns segundos e rodar novamente para o schema cache atualizar.
+- Rodar `pnpm run validate:questoes:dry -- --limit=3` depois que houver pelo menos um `gabarito_NUMERO.txt`.
+- Rodar `pnpm run validate:questoes -- --limit=3` para gravar poucas revisoes no banco.
+- Rodar `pnpm run validate:questoes` para validacao completa quando o lote pequeno estiver correto.
+- Confirmar visualmente a tela `/play` em desktop e mobile.
+- Confirmar a API `/api/questoes` depois de aplicar a migracao no Supabase.
+- Configurar `OPENAI_API_KEY` se quiser fallback automatico real quando Groq bater limite.
+- Opcional: configurar `GROQ_MODEL_PRIMARY`, `GROQ_MODEL_FALLBACK` e `OPENAI_MODEL_FALLBACK`.
+- Opcional: substituir o placeholder `types/supabase.ts` por tipos gerados pelo Supabase quando o schema estabilizar.
+- Observacao: `pnpm` direto continua bloqueado pela politica de execucao PowerShell; use os binarios `.CMD` locais ou ajuste a politica do ambiente.
+
+## Proximo passo exato
+1. Rodar `pnpm run validate:questoes:dry -- --limit=3 --provider=auto` usando os TXT oficiais e arquivos de anuladas.
+2. Se o dry-run estiver correto, rodar `pnpm run validate:questoes -- --limit=3 --provider=auto` para reconstruir poucas questoes primeiro.
+3. Conferir o relatorio, principalmente `COMENTARIO`, `GABARITO OFICIAL APLICADO` e `REVISAO HUMANA`.
+4. Se o lote pequeno estiver correto, rodar `pnpm run validate:questoes -- --limit=0` para validacao completa.
+5. Abrir `http://localhost:3000/play` e revisar a UI em desktop/mobile depois de validar dados reais.
+
+## Instrucao permanente para proximas etapas
+Ao terminar cada etapa importante, atualize `CODEx_PROGRESS.md` com:
+- o que fez
+- arquivos modificados
+- decisoes tomadas
+- proximos passos
+
+Se a sessao acabar, outro agente deve conseguir continuar lendo este arquivo.
