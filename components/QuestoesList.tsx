@@ -193,7 +193,7 @@ function getExameInfo(questao: Questao) {
     return { key: 'sem-exame', label: 'Exame não identificado', numero: 0 };
   }
 
-  return { key: String(numero), label: `Exame (${numero}) ${numeroParaRomano(numero)}`, numero };
+  return { key: String(numero), label: `Exame ${numeroParaRomano(numero)} (\"${numero}\")`, numero };
 }
 
 function ordenarQuestoes(questoes: Questao[]) {
@@ -933,8 +933,36 @@ export default function QuestoesList() {
     registrarRespostaFreeHoje?.();
 
     const correct = normalizarGabarito(questao.gabarito);
-    if (correct !== null && alternativaIndex === correct) registrarAcerto?.(questao.id);
-    else registrarErro?.(questao.id);
+
+    if (correct !== null && alternativaIndex === correct) {
+      registrarAcerto?.(questao.id);
+    } else {
+      registrarErro?.(questao.id);
+
+      const raw = localStorage.getItem('user-game-data');
+      const current = raw ? JSON.parse(raw) : {};
+
+      const id = String(questao.id);
+      const revisaoIds = Array.isArray(current.revisaoIds)
+        ? current.revisaoIds.map(String)
+        : [];
+
+      const questoesErradas = Array.isArray(current.questoesErradas)
+        ? current.questoesErradas.map(String)
+        : [];
+
+      localStorage.setItem(
+        'user-game-data',
+        JSON.stringify({
+          ...current,
+          revisaoIds: [...new Set([...revisaoIds, id])],
+          questoesErradas: [...new Set([...questoesErradas, id])],
+        })
+      );
+
+      window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
+    }
   }
 
   function selecionarMateria(materia: string) {
