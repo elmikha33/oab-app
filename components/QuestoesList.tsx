@@ -804,7 +804,7 @@ function removerQuestaoDaRevisaoLocal(idQuestao: number | string) {
     : [];
 
   const questoesErradas = Array.isArray(current.questoesErradas)
-    ? current.questoesErradas.map(String).filter((item) => item !== id)
+    ? current.questoesErradas.map(String).filter((item: string) => item !== id)
     : [];
 
   localStorage.setItem(
