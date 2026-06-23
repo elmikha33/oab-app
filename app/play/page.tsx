@@ -1,40 +1,52 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowUp } from 'lucide-react';
+import { ArrowLeft, ArrowUp } from 'lucide-react';
 import QuestoesList from '@/components/QuestoesList';
+import ThemeToggle from '@/components/ThemeToggle';
 
-/** quantos px de rolagem até o botão aparecer */
 const SHOW_OFFSET = 300;
 
 export default function PlayPage() {
   const [showTopBtn, setShowTopBtn] = useState(false);
-  const pathname = usePathname(); // esconde ao trocar de rota
+  const pathname = usePathname();
 
-  /* evita recriar a cada render  */
   const handleScroll = useCallback(() => {
     setShowTopBtn(window.scrollY > SHOW_OFFSET);
   }, []);
 
-  /* liga / desliga listener */
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
-  /* se o usuário navegar para outra rota, volta ao topo e esconde o botão */
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setShowTopBtn(false);
   }, [pathname]);
 
   return (
-    <main className="relative min-h-screen bg-slate-950">
+    <main className="relative min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
+      <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-amber-400 bg-amber-100 px-3 py-2 text-sm font-black text-amber-950 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-200 dark:border-amber-300/35 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={3} />
+            Voltar para dashboard
+          </Link>
+
+          <ThemeToggle />
+        </div>
+      </div>
+
       <Suspense
         fallback={
-          <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center p-4 text-slate-300">
-            Carregando questoes...
+          <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center p-4 text-slate-700 dark:text-slate-300">
+            Carregando questões...
           </div>
         }
       >
@@ -43,6 +55,7 @@ export default function PlayPage() {
 
       {showTopBtn && (
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="fixed bottom-24 right-4 z-50 rounded-full bg-yellow-500 p-3 text-slate-900 shadow-lg transition hover:scale-105 md:bottom-6 md:right-6 md:p-4"
           aria-label="Voltar ao topo"

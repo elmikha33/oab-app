@@ -1,55 +1,59 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase =
-  (globalThis as any).sb ??
-  createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-(globalThis as any).sb = supabase;
+export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const page = Number(searchParams.get('page') ?? '0');
-  const limitRaw = searchParams.get('limit') ?? '25';
-  const limit =
-    limitRaw.toLowerCase() === 'infinity'
-      ? Number.POSITIVE_INFINITY
-      : Number(limitRaw);
+function getSupabase() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Variáveis do Supabase ausentes');
+  }
 
-  const PAGE_SIZE = 25;
-  const from = page * PAGE_SIZE;
-  const to = from + PAGE_SIZE - 1;
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+    },
+  });
+}
 
+export async function GET(request: Request) {
   try {
-    const selectBase =
-      'id, uuid, hash, materia, tema, enunciado, alternativas, gabarito, comentario';
-    const selectComRevisao = `${selectBase}, revisado_ia, revisao_humana_necessaria, ativa`;
+    const { searchParams } = new URL(request.url);
 
-    const result = await supabase
+    const page = Math.max(Number(searchParams.get('page') ?? '0'), 0);
+    const limitParam = Number(searchParams.get('limit') ?? '200');
+    const limit = Math.min(Math.max(limitParam, 1), 500);
+
+    const from = page * limit;
+    const to = from + limit - 1;
+
+    const supabase = getSupabase();
+
+    const { data, error } = await supabase
       .from('questoes_oab')
-      .select(selectComRevisao)
-      .eq('ativa', true)
-      .or('revisao_humana_necessaria.is.false,revisao_humana_necessaria.is.null')
+      .select('*')
+      .order('edicao_exame', { ascending: false, nullsFirst: false })
       .order('id', { ascending: true })
       .range(from, to);
 
-    const { data, error } = result;
-
     if (error) {
-      console.error('Supabase error', error);
-      throw error;
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
-    const questoes = data ?? [];
-    const resposta = limit === Infinity ? questoes : questoes.slice(0, limit);
-    return NextResponse.json(resposta);
-  } catch (err: any) {
-    console.error('Rota /api/questoes falhou', err);
+    return NextResponse.json(data ?? []);
+  } catch (error) {
     return NextResponse.json(
-      { error: err.message ?? 'Erro ao buscar questoes.' },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Erro inesperado ao buscar questões',
+      },
       { status: 500 }
     );
   }

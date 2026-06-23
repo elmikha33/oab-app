@@ -7,14 +7,14 @@ const GameStateContext = createContext<any>(null);
 const conquistas = [
   {
     id: 'badge_first',
-    titulo: 'Primeira questao',
-    descricao: 'Respondeu a primeira questao no Missao OAB.',
+    titulo: 'Primeira questão',
+    descricao: 'Respondeu a primeira questão no LegⅠ.',
     icone: 'award',
   },
   {
     id: 'badge_10_correct',
-    titulo: 'Sequencia inicial',
-    descricao: 'Acertou 10 questoes no total.',
+    titulo: 'Sequência inicial',
+    descricao: 'Acertou 10 questões no total.',
     icone: 'award',
   },
 ];
@@ -28,6 +28,7 @@ function normalizarIdsQuestao(questaoId: number | string | Array<number | string
 function criarUsuario(base: any = {}) {
   const today = new Date().toISOString().split('T')[0];
   const nome = base.nome || 'Candidato';
+
   const questoesRespondidas = [
     ...new Set([...(base.questoesRespondidas || []), ...(base.questoesErradas || [])].map(String)),
   ];
@@ -38,7 +39,7 @@ function criarUsuario(base: any = {}) {
     lastAccess: today,
     acertos: base.acertos || 0,
     moedas: base.moedas || 0,
-    xp: base.xp || 0,
+    xp: 0,
     nivel: base.nivel || 1,
     xpNecessario: base.xpNecessario || 100,
     questoesRespondidas,
@@ -85,8 +86,16 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
     setUser((prev: any) => {
       if (!prev || prev.isPremium) return prev;
+
       const atual = prev.freeDailyAnswers?.date === today ? prev.freeDailyAnswers.count || 0 : 0;
-      return { ...prev, freeDailyAnswers: { date: today, count: atual + 1 } };
+
+      return {
+        ...prev,
+        freeDailyAnswers: {
+          date: today,
+          count: atual + 1,
+        },
+      };
     });
   }, []);
 
@@ -97,7 +106,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const ids = normalizarIdsQuestao(questaoId);
       const respondidasAtuais = (prev.questoesRespondidas || []).map(String);
       const jaRespondida = ids.some((id) => respondidasAtuais.includes(id));
-      const acertos = (prev.acertos || 0) + 1;
+      const acertos = jaRespondida ? prev.acertos || 0 : (prev.acertos || 0) + 1;
+
       const conquistasDesbloqueadas = [
         ...new Set([
           ...(prev.conquistasDesbloqueadas || []),
@@ -109,15 +119,16 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       return {
         ...prev,
         acertos,
-        xp: (prev.xp || 0) + 10,
-        moedas: (prev.moedas || 0) + 1,
+        xp: 0,
         questoesRespondidas: [
           ...new Set([...respondidasAtuais, ...ids]),
         ],
         questoesErradas: (prev.questoesErradas || []).filter(
           (id: number | string) => !ids.includes(String(id))
         ),
-        conquistasDesbloqueadas: jaRespondida ? prev.conquistasDesbloqueadas || [] : conquistasDesbloqueadas,
+        conquistasDesbloqueadas: jaRespondida
+          ? prev.conquistasDesbloqueadas || []
+          : conquistasDesbloqueadas,
       };
     });
   }, []);
@@ -130,12 +141,30 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
       return {
         ...prev,
+        xp: 0,
         questoesRespondidas: [
           ...new Set([...(prev.questoesRespondidas || []).map(String), ...ids]),
         ],
         questoesErradas: [
           ...new Set([...(prev.questoesErradas || []).map(String), ...ids]),
         ],
+      };
+    });
+  }, []);
+
+  const resetarAcertos = useCallback(() => {
+    setUser((prev: any) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        acertos: 0,
+        xp: 0,
+        moedas: 0,
+        questoesRespondidas: [],
+        questoesErradas: [],
+        revisaoIds: [],
+        conquistasDesbloqueadas: [],
       };
     });
   }, []);
@@ -151,6 +180,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         registrarRespostaFreeHoje,
         registrarAcerto,
         registrarErro,
+        resetarAcertos,
         conquistas,
         stats: {},
       }}

@@ -14,16 +14,17 @@
  *  Tokens
  * ---------------------------------------------------------- */
 :root {
-  --bg-base:       #f8fafc;
-  --bg-card:       #0f172a;
-  --text-base:     #020617;
-  --gold-100:      rgba(251,191,36,.10);
-  --gold-200:      rgba(251,191,36,.22);
-  --gold-300:      rgba(251,191,36,.32);
-  --gold-500:      #fbbf24;
+  --bg-base: #f8fafc;
+  --bg-card: #0f172a;
+  --text-base: #020617;
+  --gold-100: rgba(251, 191, 36, .10);
+  --gold-200: rgba(251, 191, 36, .22);
+  --gold-300: rgba(251, 191, 36, .32);
+  --gold-500: #fbbf24;
 }
+
 .dark {
-  --bg-base:   #020617;
+  --bg-base: #020617;
   --text-base: #f8fafc;
 }
 
@@ -36,101 +37,81 @@
     color: var(--text-base);
     font-family: Inter, system-ui, sans-serif;
   }
-  h1,h2,h3,h4,h5,h6,
-  .font-heading { font-family: Outfit, system-ui, sans-serif; }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading {
+    font-family: Outfit, system-ui, sans-serif;
+  }
 }
 
 /* ----------------------------------------------------------
  *  Scrollbar mínima
  * ---------------------------------------------------------- */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{
-  background:rgba(148,163,184,.4);
-  border-radius:9999px;
-}
-::-webkit-scrollbar-thumb:hover{background:rgba(124,58,237,.8)}
-
-/* ----------------------------------------------------------
- *  Animações compartilhadas
- * ---------------------------------------------------------- */
-@keyframes orbitGlow { to { transform: rotate(1turn); } }
-@keyframes pulseGlow {
-  0%,100% { box-shadow:0 0 6px 2px var(--gold-100); }
-  50%     { box-shadow:0 0 12px 4px var(--gold-200); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, .4);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, .8);
+}
+
 /* ----------------------------------------------------------
- *  GOLDEN ACTION — botão grande
+ *  Botões premium corrigidos
+ *  IMPORTANTE: sem ::before torto, sem halo desalinhado
  * ---------------------------------------------------------- */
 @layer components {
-  .golden-action{
-    @apply relative isolate overflow-hidden rounded-2xl font-semibold;
-    padding: 1rem 2rem;
-    background: var(--bg-card);
-    color: #fff;
-    border: 2px solid var(--gold-200);
-    animation: pulseGlow 6s ease-in-out infinite;
-    transition: transform .16s ease, box-shadow .18s ease;
-  }
-  .golden-action:hover{
-    transform: translateY(-2px) scale(1.02);
-  }
-
-  /* halo giratório sincronizado */
-  .golden-action::before{
-    content:'';
-    position:absolute; inset:0;
-    border-radius:inherit;
-    padding:2px;
-    background: conic-gradient(
-      from 180deg,
-      transparent 0deg 210deg,
-      var(--gold-500) 240deg 260deg,
-      transparent 290deg
-    );
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    animation: orbitGlow 12s linear infinite;
-    pointer-events:none;
+  .golden-action,
+  .golden-nav-link {
+    @apply relative isolate overflow-hidden font-extrabold text-white transition-all;
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    background:
+      linear-gradient(#0f172a, #0f172a) padding-box,
+      linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(139, 92, 246, 0.55), rgba(251, 191, 36, 0.80)) border-box;
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.06),
+      0 14px 35px rgba(0, 0, 0, .20);
+    animation: none !important;
   }
 
-  /* reflexo interno MUITO leve */
-  .golden-action::after{
-    content:'';
-    position:absolute; inset:2px;
-    border-radius:inherit;
-    background: radial-gradient(circle at 60% 40%, var(--gold-100), transparent 60%);
-    pointer-events:none;
+  .golden-action {
+    @apply rounded-2xl;
   }
 
-  /* -------- Sidebar link (mesma cadência) -------- */
-  .golden-nav-link{
-    @apply relative isolate rounded-xl font-extrabold px-3 py-3 text-sm text-white;
-    background: var(--bg-card);
-    border: 1px solid var(--gold-200);
-    transition: transform .14s ease, box-shadow .15s ease;
+  .golden-nav-link {
+    @apply rounded-xl;
   }
-  .golden-nav-link:hover{
+
+  .golden-action::before,
+  .golden-action::after,
+  .golden-nav-link::before,
+  .golden-nav-link::after {
+    content: none !important;
+    display: none !important;
+    animation: none !important;
+  }
+
+  .golden-action:hover,
+  .golden-nav-link:hover {
     transform: translateY(-1px);
-    box-shadow: 0 0 6px 1px var(--gold-100);
-  }
-  .golden-nav-link::before{
-    content:'';
-    position:absolute; inset:0;
-    border-radius:inherit;
-    padding:1px;
-    background: conic-gradient(
-      from 180deg,
-      transparent 0deg 210deg,
-      var(--gold-500) 240deg 260deg,
-      transparent 290deg
-    );
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
-    animation: orbitGlow 12s linear infinite;   /* MESMO tempo */
-    pointer-events:none;
+    border-color: rgba(251, 191, 36, 0.78);
+    background:
+      linear-gradient(#111827, #111827) padding-box,
+      linear-gradient(135deg, #fbbf24, #8b5cf6, #fbbf24) border-box;
+    box-shadow: 0 18px 42px rgba(251, 191, 36, 0.12);
   }
 }
