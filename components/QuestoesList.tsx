@@ -284,13 +284,17 @@ function QuestaoCard({
   index,
   total,
   selected,
+  reviewSuccessPending,
   onResponder,
+  onConfirmarAcertoRevisao,
 }: {
   questao: Questao;
   index: number;
   total: number;
   selected: number | null;
+  reviewSuccessPending?: boolean;
   onResponder: (questao: Questao, alternativaIndex: number) => void;
+  onConfirmarAcertoRevisao?: (questao: Questao) => void;
 }) {
   const correct = normalizarGabarito(questao.gabarito);
   const answered = selected !== null;
@@ -400,6 +404,22 @@ function QuestaoCard({
               <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                 {questao.comentario}
               </p>
+            </div>
+          )}
+
+          {reviewSuccessPending && (
+            <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-3 dark:border-emerald-300/30 dark:bg-slate-950">
+              <p className="text-sm font-bold leading-relaxed text-emerald-900 dark:text-emerald-100">
+                Você acertou esta questão de revisão. Ela só será removida da revisão quando você continuar.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => onConfirmarAcertoRevisao?.(questao)}
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-emerald-700 bg-emerald-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200 md:w-auto"
+              >
+                Continuar e remover da revisão
+              </button>
             </div>
           )}
         </section>
@@ -749,6 +769,58 @@ function Summary({
 }
 
 
+function lerUserGameDataLocal() {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const raw = localStorage.getItem('user-game-data');
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function questaoEstaEmRevisaoLocal(idQuestao: number | string) {
+  const current = lerUserGameDataLocal();
+  const id = String(idQuestao);
+
+  const revisaoIds = Array.isArray(current.revisaoIds)
+    ? current.revisaoIds.map(String)
+    : [];
+
+  const questoesErradas = Array.isArray(current.questoesErradas)
+    ? current.questoesErradas.map(String)
+    : [];
+
+  return revisaoIds.includes(id) || questoesErradas.includes(id);
+}
+
+function removerQuestaoDaRevisaoLocal(idQuestao: number | string) {
+  const current = lerUserGameDataLocal();
+  const id = String(idQuestao);
+
+  const revisaoIds = Array.isArray(current.revisaoIds)
+    ? current.revisaoIds.map(String).filter((item) => item !== id)
+    : [];
+
+  const questoesErradas = Array.isArray(current.questoesErradas)
+    ? current.questoesErradas.map(String).filter((item) => item !== id)
+    : [];
+
+  localStorage.setItem(
+    'user-game-data',
+    JSON.stringify({
+      ...current,
+      revisaoIds,
+      questoesErradas,
+    })
+  );
+
+  window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+  window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
+}
+
+
 function resetarAcertosDoDashboard() {
   const keys = ['user-game-data', 'missao-oab:user', 'missao-oab-user'];
 
@@ -806,6 +878,7 @@ export default function QuestoesList() {
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [activeExame, setActiveExame] = useState<string>(TODOS_OS_EXAMES);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [reviewSuccessPending, setReviewSuccessPending] = useState<Record<string, boolean>>({});
 
   const { registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
 
@@ -829,6 +902,7 @@ export default function QuestoesList() {
         if (!cancel) {
           setData(ordenadas);
           setRespostas({});
+          setReviewSuccessPending({});
           setAba('todas');
           setActiveMateria(getMateriaNome(ordenadas[0]));
         }
@@ -932,8 +1006,19 @@ export default function QuestoesList() {
     const correct = normalizarGabarito(questao.gabarito);
 
     if (correct !== null && alternativaIndex === correct) {
+      if (questaoEstaEmRevisaoLocal(questao.id)) {
+        setReviewSuccessPending((current) => ({ ...current, [key]: true }));
+        return;
+      }
+
       registrarAcerto?.(questao.id);
     } else {
+      setReviewSuccessPending((current) => {
+        const next = { ...current };
+        delete next[key];
+        return next;
+      });
+
       registrarErro?.(questao.id);
 
       const raw = localStorage.getItem('user-game-data');
@@ -960,6 +1045,21 @@ export default function QuestoesList() {
       window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
       window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
     }
+  }
+
+  function confirmarAcertoRevisao(questao: Questao) {
+    const key = getKey(questao);
+
+    registrarAcerto?.(questao.id);
+    removerQuestaoDaRevisaoLocal(questao.id);
+
+    setReviewSuccessPending((current) => {
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+
+    scrollToQuestoes();
   }
 
   function selecionarMateria(materia: string) {
@@ -1002,6 +1102,16 @@ export default function QuestoesList() {
       return next;
     });
 
+    setReviewSuccessPending((current) => {
+      const next = { ...current };
+
+      for (const questao of questoesDoExame) {
+        if (getMateriaNome(questao) === materia) delete next[getKey(questao)];
+      }
+
+      return next;
+    });
+
     setActiveMateria(materia);
     setActiveTema(null);
     setAba('todas');
@@ -1014,6 +1124,7 @@ export default function QuestoesList() {
 
   function confirmarResetarTodas() {
     setRespostas({});
+    setReviewSuccessPending({});
     resetarAcertos?.();
 
     setActiveExame(TODOS_OS_EXAMES);
@@ -1112,7 +1223,9 @@ export default function QuestoesList() {
                 index={index}
                 total={questoesVisiveis.length}
                 selected={respostas[getKey(questao)] ?? null}
+                reviewSuccessPending={Boolean(reviewSuccessPending[getKey(questao)])}
                 onResponder={responder}
+                onConfirmarAcertoRevisao={confirmarAcertoRevisao}
               />
             ))}
           </div>
