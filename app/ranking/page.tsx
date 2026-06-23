@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { ArrowLeft, Crown, Medal, Trophy } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
 
-const BASE_RANKING = [
+type RankingItem = {
+  nome: string;
+  rankingScore: number;
+  rankingQuestions: number;
+  rankingActiveDays: number;
+  atual?: boolean;
+};
+
+const BASE_RANKING: RankingItem[] = [
   { nome: 'Ana Clara', rankingScore: 392, rankingQuestions: 270, rankingActiveDays: 41 },
   { nome: 'Bruno Lima', rankingScore: 351, rankingQuestions: 248, rankingActiveDays: 34 },
   { nome: 'Carla Mendes', rankingScore: 326, rankingQuestions: 236, rankingActiveDays: 30 },
@@ -23,13 +31,14 @@ function icon(index: number) {
   if (index === 0) return <Crown className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />;
   if (index === 1) return <Medal className="h-5 w-5 text-slate-500 dark:text-slate-300" />;
   if (index === 2) return <Trophy className="h-5 w-5 text-teal-600 dark:text-teal-300" />;
+
   return <span className="text-sm font-black text-slate-500 dark:text-slate-400">#{index + 1}</span>;
 }
 
 export default function RankingPage() {
   const { user } = useGameState();
 
-  const ranking = [
+  const ranking: RankingItem[] = [
     ...BASE_RANKING,
     {
       nome: user?.nome || 'Candidato',
