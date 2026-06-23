@@ -12,6 +12,20 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 );
 
+const letras = ["A", "B", "C", "D"];
+
+function detectarComentario(texto) {
+  texto = String(texto || "").toUpperCase();
+
+  const match =
+    texto.match(/ALTERNATIVA CORRETA É A ([ABCD])/) ||
+    texto.match(/ALTERNATIVA ([ABCD]) ESTÁ CORRETA/);
+
+  if (!match) return null;
+
+  return letras.indexOf(match[1]);
+}
+
 async function main() {
   console.log("");
   console.log("🔎 AUDITORIA FINAL DOS COMENTÁRIOS");
@@ -19,56 +33,38 @@ async function main() {
 
   const { data, error } = await supabase
     .from("questoes_oab")
-    .select(
-      `
-      id,
-      numero_questao,
-      materia,
-      tema,
-      gabarito,
-      comentario
-      `
-    );
+    .select("*");
 
   if (error) {
     console.error(error);
     return;
   }
 
-  const erros = [];
+  const problemas = [];
 
   for (const q of data) {
-    const inicio = String(q.comentario || "")
-      .slice(0, 120)
-      .toLowerCase();
+    const comentario = detectarComentario(q.comentario);
 
     if (
-      (inicio.includes("alternativa a está correta") && q.gabarito !== 0) ||
-      (inicio.includes("alternativa b está correta") && q.gabarito !== 1) ||
-      (inicio.includes("alternativa c está correta") && q.gabarito !== 2) ||
-      (inicio.includes("alternativa d está correta") && q.gabarito !== 3)
+      comentario !== null &&
+      comentario !== Number(q.gabarito)
     ) {
-      erros.push(q);
+      problemas.push({
+        id: q.id,
+        numero: q.numero_questao,
+        materia: q.materia,
+        banco: letras[q.gabarito],
+        comentario: letras[comentario],
+      });
     }
   }
 
-  if (erros.length === 0) {
+  if (!problemas.length) {
     console.log("✅ APROVADO");
-    console.log("Nenhum comentário contradiz o gabarito oficial.");
+    console.log("Nenhuma divergência encontrada.");
   } else {
-    console.log("❌ ENCONTRADOS:", erros.length);
-
-    for (const erro of erros) {
-      console.log("");
-      console.log("ID:", erro.id);
-      console.log("Questão:", erro.numero_questao);
-      console.log("Matéria:", erro.materia);
-      console.log("Gabarito:", erro.gabarito);
-      console.log(
-        "Comentário:",
-        erro.comentario.slice(0, 100)
-      );
-    }
+    console.log("❌ DIVERGÊNCIAS:");
+    console.table(problemas);
   }
 
   console.log("");

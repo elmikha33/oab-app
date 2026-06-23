@@ -1,0 +1,87 @@
+{
+  "data": "2026-06-23T19:35:00.968Z",
+  "analisadas": 10,
+  "divergencias": [
+    {
+      "id": 73,
+      "numero_questao": 38,
+      "materia": "Direito Penal",
+      "tema": "Penas",
+      "banco": "D",
+      "ia": "C",
+      "confianca": 85,
+      "motivo": "O regime aberto realmente se baseia na autodisciplina do condenado, permitindo que ele cumpra a pena em liberdade, desde que respeite certas condições. As demais alternativas estão incorretas: A) O regime fechado não é o único para crimes hediondos, pois a lei prevê a possibilidade de regimes intermediários; B) A progressão de regime depende não apenas do tempo de pena cumprido, mas também do comportamento do condenado e do tipo de crime; D) A pena de multa é considerada uma sanção penal, embora não privativa de liberdade."
+    },
+    {
+      "id": 74,
+      "numero_questao": 39,
+      "materia": "Direito Penal",
+      "tema": "Crimes contra a Vida",
+      "banco": "B",
+      "ia": "A",
+      "confianca": 90,
+      "motivo": "O homicídio privilegiado, que ocorre quando o agente comete o crime sob a influência de violenta emoção, é de fato considerado uma forma menos grave de homicídio e não se enquadra na definição de crime hediondo, conforme a legislação brasileira."
+    },
+    {
+      "id": 75,
+      "numero_questao": 40,
+      "materia": "Direito Processual Penal",
+      "tema": "Inquérito Policial",
+      "banco": "B",
+      "ia": "C",
+      "confianca": 90,
+      "motivo": "O inquérito policial é um procedimento administrativo, inquisitivo e sigiloso, conforme previsto no Código de Processo Penal. As alternativas A e B estão incorretas, pois o inquérito não é judicial e não é indispensável para a denúncia. A alternativa D também está errada, pois o advogado tem direito de acesso aos autos do inquérito, mesmo que em sigilo."
+    },
+    {
+      "id": 76,
+      "numero_questao": 41,
+      "materia": "Direito Processual Penal",
+      "tema": "Ação Penal",
+      "banco": "A",
+      "ia": "C",
+      "confianca": 90,
+      "motivo": "A renúncia do direito de queixa impede a ação penal, pois a queixa é um requisito essencial para o prosseguimento da ação penal privada. As demais alternativas estão incorretas: A) A ação penal pública incondicionada não depende de representação; B) A ação penal privada não pode ser exercida pelo Ministério Público; D) A denúncia pode ser rejeitada pelo juiz em casos específicos."
+    },
+    {
+      "id": 80,
+      "numero_questao": 45,
+      "materia": "Direito Administrativo",
+      "tema": "Licitações",
+      "banco": "B",
+      "ia": "C",
+      "confianca": 85,
+      "motivo": "A alternativa C está correta, pois a Nova Lei de Licitações (Lei 14.133/2021) permite que o critério de julgamento das propostas seja o maior desconto, entre outros critérios. As alternativas A e B estão incorretas, pois o diálogo competitivo é uma modalidade de licitação e a inversão de fases é permitida em determinadas situações. A alternativa D também está errada, pois a dispensa de licitação é uma exceção, mas a regra não é a inexigibilidade, que se aplica a casos específicos."
+    },
+    {
+      "id": 81,
+      "numero_questao": 46,
+      "materia": "Direito Tributário",
+      "tema": "Competência Tributária",
+      "banco": "D",
+      "ia": "B",
+      "confianca": 90,
+      "motivo": "A competência tributária é irrenunciável, pois é um atributo do ente federativo que não pode ser renunciado ou delegado. As demais alternativas estão incorretas: A) a capacidade tributária ativa não é delegável; C) os Municípios não podem instituir impostos sobre a renda, que é competência da União e dos Estados; D) a União não possui competência residual para criar qualquer imposto, mas apenas para aqueles que não estão previstos na Constituição."
+    },
+    {
+      "id": 82,
+      "numero_questao": 47,
+      "materia": "Direito Tributário",
+      "tema": "Princípios Tributários",
+      "banco": "A",
+      "ia": "C",
+      "confianca": 85,
+      "motivo": "O princípio da capacidade contributiva estabelece que os tributos devem ser proporcionais à capacidade econômica do contribuinte, orientando a graduação dos impostos de acordo com a situação financeira do indivíduo ou da empresa."
+    }
+  ],
+  "erros": [
+    {
+      "id": 78,
+      "erro": "IA retornou letra inválida",
+      "retorno": {
+        "correta": "A|C",
+        "confianca": 85,
+        "motivo": "O princípio da legalidade realmente permite à administração pública fazer tudo o que a lei não proíbe, o que está correto. O princípio da impessoalidade veda a promoção pessoal de agentes públicos, o que também é correto. As alternativas B e D estão incorretas, pois o princípio da publicidade admite exceções e o princípio da eficiência é compatível com o controle de resultados."
+      }
+    }
+  ]
+}

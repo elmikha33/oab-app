@@ -1,0 +1,19 @@
+{
+  "name": "LegⅠ Missão OAB",
+  "short_name": "LegⅠ",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "theme_color": "#059669",
+  "background_color": "#ecfdf5",
+  "display": "standalone"
+}

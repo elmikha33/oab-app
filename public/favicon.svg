@@ -1,30 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <!-- Background with OAB Deep Blue -->
-  <rect width="512" height="512" rx="128" fill="#0c1b33"/>
-  <rect width="480" height="480" x="16" y="16" rx="112" fill="none" stroke="#eab308" stroke-width="8"/>
-  
-  <!-- Scales of Justice (Balança do Direito) in Gold/Yellow -->
-  <!-- Central Pillar -->
-  <path d="M256 100 V400 M200 400 H312 M236 400 L256 370 L276 400" stroke="#eab308" stroke-width="20" stroke-linecap="round" fill="none"/>
-  
-  <!-- Main Beam -->
-  <path d="M120 180 H392" stroke="#eab308" stroke-width="20" stroke-linecap="round" fill="none"/>
-  
-  <!-- Central Peak -->
-  <polygon points="256,120 240,180 272,180" fill="#eab308"/>
-  
-  <!-- Left Pan Support and Chains -->
-  <path d="M120 180 L80 280 M120 180 L160 280" stroke="#f1f5f9" stroke-width="6" stroke-linecap="round"/>
-  <!-- Left Pan -->
-  <path d="M60 280 Q120 320 180 280 Z" fill="#eab308" stroke="#eab308" stroke-width="8" stroke-linejoin="round"/>
-  
-  <!-- Right Pan Support and Chains -->
-  <path d="M392 180 L352 280 M392 180 L432 280" stroke="#f1f5f9" stroke-width="6" stroke-linecap="round"/>
-  <!-- Right Pan -->
-  <path d="M332 280 Q392 320 452 280 Z" fill="#eab308" stroke="#eab308" stroke-width="8" stroke-linejoin="round"/>
-  
-  <!-- Small details / Star or law book theme -->
-  <circle cx="256" cy="180" r="16" fill="#eab308"/>
-  <circle cx="120" cy="180" r="12" fill="#eab308"/>
-  <circle cx="392" cy="180" r="12" fill="#eab308"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="18" fill="#D1FAE5"/>
+  <rect x="6" y="6" width="52" height="52" rx="15" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
+  <g fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 15v34"/>
+    <path d="M21 20h22"/>
+    <path d="M18 49h28"/>
+    <path d="M14 28l7-8 7 8"/>
+    <path d="M36 28l7-8 7 8"/>
+    <path d="M14 28h14"/>
+    <path d="M36 28h14"/>
+    <path d="M18 28l-5 12h16l-5-12"/>
+    <path d="M40 28l-5 12h16l-5-12"/>
+  </g>
 </svg>

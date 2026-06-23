@@ -8,6 +8,7 @@ import {
   FileText,
   Loader2,
   RotateCcw,
+  Shuffle,
   Sparkles,
   XCircle,
 } from 'lucide-react';
@@ -192,7 +193,7 @@ function getExameInfo(questao: Questao) {
     return { key: 'sem-exame', label: 'Exame não identificado', numero: 0 };
   }
 
-  return { key: String(numero), label: `Exame ${numeroParaRomano(numero)}`, numero };
+  return { key: String(numero), label: `Exame (${numero}) ${numeroParaRomano(numero)}`, numero };
 }
 
 function ordenarQuestoes(questoes: Questao[]) {
@@ -422,6 +423,7 @@ function Summary({
   onSelectExame,
   onResetMateria,
   onResetTodas,
+  onShuffle,
 }: {
   todasQuestoes: Questao[];
   questoesDoExame: Questao[];
@@ -437,6 +439,7 @@ function Summary({
   onSelectExame: (exame: string) => void;
   onResetMateria: (materia: string) => void;
   onResetTodas: () => void;
+  onShuffle: () => void;
 }) {
   const [openMaterias, setOpenMaterias] = useState<Record<string, boolean>>({});
 
@@ -534,15 +537,24 @@ function Summary({
                 : activeMateria}
           </h1>
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Clique na matéria para começar automaticamente. Clique na setinha para escolher um tema específico.
+            Clique na matéria para começar. Use a setinha para escolher um tema específico.
           </p>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={onShuffle}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-800 shadow-sm transition hover:border-emerald-500 hover:bg-emerald-100 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-200 dark:hover:bg-emerald-300/15"
+          >
+            <Shuffle className="h-4 w-4" strokeWidth={3} />
+            Embaralhar
+          </button>
+
+          <button
+            type="button"
             onClick={onResetTodas}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 shadow-sm transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/15 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-400/10 dark:hover:text-rose-200"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 shadow-sm transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-400/10 dark:hover:text-rose-200"
           >
             <RotateCcw className="h-4 w-4" strokeWidth={3} />
             Resetar todas
@@ -550,8 +562,8 @@ function Summary({
         </div>
       </div>
 
-      <div className="mb-4 rounded-2xl border border-violet-400 bg-violet-50 p-3 dark:border-violet-300/35 dark:bg-slate-800">
-        <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-violet-900 dark:text-violet-100">
+      <div className="mb-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-3 dark:border-emerald-300/35 dark:bg-slate-800">
+        <div className="mb-2 flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-800 dark:text-emerald-100">
           <FileText className="h-4 w-4" strokeWidth={3} />
           Edição do exame
         </div>
@@ -562,8 +574,8 @@ function Summary({
             onClick={() => onSelectExame(TODOS_OS_EXAMES)}
             className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black transition ${
               activeExame === TODOS_OS_EXAMES
-                ? 'border-violet-700 bg-violet-600 text-white dark:border-violet-300 dark:bg-violet-300 dark:text-slate-950'
-                : 'border-violet-300 bg-white text-violet-950 hover:bg-violet-100 dark:border-violet-300/25 dark:bg-slate-900 dark:text-violet-100 dark:hover:bg-slate-700'
+                ? 'border-emerald-700 bg-emerald-600 text-white shadow-sm shadow-emerald-500/20 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
+                : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
             }`}
           >
             Todos os exames
@@ -576,11 +588,11 @@ function Summary({
               onClick={() => onSelectExame(exame.key)}
               className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black transition ${
                 activeExame === exame.key
-                  ? 'border-violet-700 bg-violet-600 text-white dark:border-violet-300 dark:bg-violet-300 dark:text-slate-950'
-                  : 'border-violet-300 bg-white text-violet-950 hover:bg-violet-100 dark:border-violet-300/25 dark:bg-slate-900 dark:text-violet-100 dark:hover:bg-slate-700'
+                  ? 'border-emerald-700 bg-emerald-600 text-white shadow-sm shadow-emerald-500/20 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
+                  : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
               }`}
             >
-              {exame.label} · {exame.total}
+              {exame.label} · {exame.total} questões
             </button>
           ))}
         </div>
@@ -615,6 +627,41 @@ function Summary({
       </div>
 
       <div className="space-y-3">
+        <div
+          className={
+            activeMateria === TODAS_AS_MATERIAS
+              ? 'rounded-xl border-2 border-emerald-500 bg-emerald-50 p-3 dark:border-emerald-300/60 dark:bg-slate-800'
+              : 'rounded-xl border border-emerald-300 bg-emerald-50/80 p-3 dark:border-emerald-300/30 dark:bg-emerald-300/10'
+          }
+        >
+          <button
+            type="button"
+            onClick={() => onSelectMateria(TODAS_AS_MATERIAS)}
+            className="flex w-full items-center justify-between gap-3 rounded-xl border border-emerald-300 bg-white px-3 py-3 text-left text-sm font-black text-emerald-950 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10"
+          >
+            <span className="min-w-0">
+              🎯 Todas as matérias · {questoesDoExame.length}
+            </span>
+
+            <span className="ml-auto rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-black text-emerald-900 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
+              modo todas
+            </span>
+          </button>
+
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-emerald-100 dark:bg-slate-950">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all dark:bg-emerald-300"
+              style={{
+                width: `${questoesDoExame.length > 0 ? Math.round((questoesDoModoAtual.filter((questao) => respostas[getKey(questao)] !== undefined).length / questoesDoExame.length) * 100) : 0}%`,
+              }}
+            />
+          </div>
+
+          <p className="mt-2 text-xs font-bold text-emerald-900 dark:text-emerald-100">
+            Estude todas as matérias misturadas, simulando melhor o ritmo da prova.
+          </p>
+        </div>
+
         {materias.map((item) => {
           const isOpen = Boolean(openMaterias[item.materia]);
           const isActive = activeMateria === item.materia;
@@ -731,6 +778,27 @@ function resetarAcertosDoDashboard() {
   window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
 }
 
+
+function hashStringForShuffle(valor: string) {
+  let hash = 0;
+
+  for (let index = 0; index < valor.length; index += 1) {
+    hash = (hash * 31 + valor.charCodeAt(index)) >>> 0;
+  }
+
+  return hash;
+}
+
+function ordenarEmbaralhado(questoes: Questao[], seed: number) {
+  if (!seed) return questoes;
+
+  return [...questoes].sort((a, b) => {
+    const hashA = hashStringForShuffle(`${seed}-${getKey(a)}`);
+    const hashB = hashStringForShuffle(`${seed}-${getKey(b)}`);
+    return hashA - hashB;
+  });
+}
+
 export default function QuestoesList() {
   const [data, setData] = useState<Questao[] | null>(null);
   const [error, setError] = useState('');
@@ -739,6 +807,7 @@ export default function QuestoesList() {
   const [aba, setAba] = useState<AbaQuestoes>('todas');
   const [activeMateria, setActiveMateria] = useState<string>('');
   const [activeTema, setActiveTema] = useState<string | null>(null);
+  const [shuffleSeed, setShuffleSeed] = useState(0);
   const [activeExame, setActiveExame] = useState<string>(TODOS_OS_EXAMES);
 
   const { registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
@@ -845,10 +914,16 @@ export default function QuestoesList() {
   }, [questoesDoExame, activeMateria, activeTema]);
 
   const questoesVisiveis = useMemo(() => {
-    if (aba === 'feitas') return questoesDaMateria.filter((questao) => respostas[getKey(questao)] !== undefined);
-    if (aba === 'naoRespondidas') return questoesDaMateria.filter((questao) => respostas[getKey(questao)] === undefined);
-    return questoesDaMateria;
-  }, [aba, questoesDaMateria, respostas]);
+    let base = questoesDaMateria;
+
+    if (aba === 'feitas') {
+      base = questoesDaMateria.filter((questao) => respostas[getKey(questao)] !== undefined);
+    } else if (aba === 'naoRespondidas') {
+      base = questoesDaMateria.filter((questao) => respostas[getKey(questao)] === undefined);
+    }
+
+    return ordenarEmbaralhado(base, shuffleSeed);
+  }, [aba, questoesDaMateria, respostas, shuffleSeed]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
@@ -865,6 +940,12 @@ export default function QuestoesList() {
   function selecionarMateria(materia: string) {
     setActiveMateria(materia);
     setActiveTema(null);
+    setAba('todas');
+    scrollToQuestoes();
+  }
+
+  function embaralharQuestoes() {
+    setShuffleSeed(Date.now());
     setAba('todas');
     scrollToQuestoes();
   }
@@ -967,6 +1048,7 @@ export default function QuestoesList() {
         onSelectExame={selecionarExame}
         onResetMateria={resetarMateria}
         onResetTodas={resetarTodas}
+        onShuffle={embaralharQuestoes}
       />
 
       <section id="questoes-em-jogo" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
@@ -982,7 +1064,7 @@ export default function QuestoesList() {
                 : activeMateria}
           </h2>
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Exibindo {questoesVisiveis.length} questão(ões) {activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
+            Exibindo {questoesVisiveis.length} questão(ões) {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matérias' : activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
           </p>
         </div>
 
