@@ -800,7 +800,7 @@ function removerQuestaoDaRevisaoLocal(idQuestao: number | string) {
   const id = String(idQuestao);
 
   const revisaoIds = Array.isArray(current.revisaoIds)
-    ? current.revisaoIds.map(String).filter((item) => item !== id)
+    ? current.revisaoIds.map(String).filter((item: string) => item !== id)
     : [];
 
   const questoesErradas = Array.isArray(current.questoesErradas)
