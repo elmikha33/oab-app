@@ -193,7 +193,7 @@ function getExameInfo(questao: Questao) {
     return { key: 'sem-exame', label: 'Exame não identificado', numero: 0 };
   }
 
-  return { key: String(numero), label: `Exame ${numeroParaRomano(numero)} (\"${numero}\")`, numero };
+  return { key: String(numero), label: `Exame (${numero}) ${numeroParaRomano(numero)}`, numero };
 }
 
 function ordenarQuestoes(questoes: Questao[]) {
@@ -526,9 +526,6 @@ function Summary({
     <section id="resumo-rodada" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
-            Resumo da rodada
-          </p>
           <h1 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
             {activeMateria === TODAS_AS_MATERIAS
               ? 'Todas as matérias'
@@ -549,15 +546,6 @@ function Summary({
           >
             <Shuffle className="h-4 w-4" strokeWidth={3} />
             Embaralhar
-          </button>
-
-          <button
-            type="button"
-            onClick={onResetTodas}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-black text-slate-800 shadow-sm transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/15 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-rose-300/45 dark:hover:bg-rose-400/10 dark:hover:text-rose-200"
-          >
-            <RotateCcw className="h-4 w-4" strokeWidth={3} />
-            Resetar todas
           </button>
         </div>
       </div>
@@ -598,7 +586,7 @@ function Summary({
         </div>
       </div>
 
-      <div className="mb-4 grid grid-cols-1 gap-2 md:grid-cols-3">
+      <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <button type="button" onClick={() => onChangeAba('todas')} className={`rounded-xl border px-4 py-3 text-sm font-black transition ${tabClass(aba === 'todas')}`}>
           Todas · {questoesDoModoAtual.length}
         </button>
@@ -607,6 +595,14 @@ function Summary({
         </button>
         <button type="button" onClick={() => onChangeAba('feitas')} className={`rounded-xl border px-4 py-3 text-sm font-black transition ${tabClass(aba === 'feitas')}`}>
           Feitas · {totalFeitas}
+        </button>
+        <button
+          type="button"
+          onClick={onResetTodas}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-4 py-3 text-sm font-black text-rose-700 shadow-sm transition hover:border-rose-500 hover:bg-rose-50 dark:border-rose-300/40 dark:bg-slate-900 dark:text-rose-200 dark:hover:bg-rose-400/10"
+        >
+          <RotateCcw className="h-4 w-4" strokeWidth={3} />
+          Resetar {todasQuestoes.length} questões
         </button>
       </div>
 
@@ -1012,16 +1008,16 @@ export default function QuestoesList() {
   }
 
   function resetarTodas() {
-    setRespostas((current) => {
-      if (activeExame === TODOS_OS_EXAMES) return {};
+    const confirmar = window.confirm(
+      'Tem certeza que deseja resetar todas as questões respondidas? Essa ação vai limpar suas respostas, acertos e revisão local.'
+    );
 
-      const next = { ...current };
-      for (const questao of questoesDoExame) delete next[getKey(questao)];
-      return next;
-    });
+    if (!confirmar) return;
 
+    setRespostas({});
     resetarAcertos?.();
 
+    setActiveExame(TODOS_OS_EXAMES);
     setAba('todas');
     setActiveTema(null);
     if (materiasOrdenadas[0]) setActiveMateria(materiasOrdenadas[0]);
