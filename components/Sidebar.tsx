@@ -46,7 +46,7 @@ export default function Sidebar() {
             Leg<span className="text-emerald-600 dark:text-emerald-400">Ⅰ</span>
           </span>
           <p className="text-[11px] font-black uppercase tracking-[0.24em] text-slate-500">
-            Missão OAB
+            OAB Quest
           </p>
         </div>
       </Link>
