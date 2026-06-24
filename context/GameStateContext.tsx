@@ -13,6 +13,22 @@ function normalizarIdsQuestao(questaoId: number | string | Array<number | string
   return (Array.isArray(questaoId) ? questaoId : [questaoId]).map((id) => String(id)).filter(Boolean);
 }
 
+function lerRespostasQuestoesLocal() {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const raw = localStorage.getItem('user-game-data');
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw);
+    return parsed?.respostasQuestoes && typeof parsed.respostasQuestoes === 'object'
+      ? parsed.respostasQuestoes
+      : {};
+  } catch {
+    return {};
+  }
+}
+
 function criarUsuario(base: any = {}) {
   const today = new Date().toISOString().split('T')[0];
   const nome = base.nome || 'Candidato';
@@ -31,8 +47,9 @@ function criarUsuario(base: any = {}) {
     nivel: base.nivel || 1,
     xpNecessario: base.xpNecessario || 100,
     questoesRespondidas,
-    questoesErradas: base.questoesErradas || [],
-    revisaoIds: base.revisaoIds || [],
+    questoesErradas: Array.isArray(base.questoesErradas) ? base.questoesErradas.map(String) : [],
+    revisaoIds: Array.isArray(base.revisaoIds) ? base.revisaoIds.map(String) : [],
+    respostasQuestoes: base.respostasQuestoes && typeof base.respostasQuestoes === 'object' ? base.respostasQuestoes : {},
     freeDailyAnswers: base.freeDailyAnswers?.date === today ? base.freeDailyAnswers : { date: today, count: 0 },
     conquistasDesbloqueadas: base.conquistasDesbloqueadas || [],
     isPremium: base.isPremium || false,
@@ -140,11 +157,16 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       ];
 
       const comRanking = aplicarRanking(prev, questaoId);
+      const respostasQuestoes = {
+        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object' ? prev.respostasQuestoes : {}),
+        ...lerRespostasQuestoesLocal(),
+      };
 
       return {
         ...comRanking,
         acertos,
         xp: 0,
+        respostasQuestoes,
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: (prev.questoesErradas || []).filter((id: number | string) => !ids.includes(String(id))),
         conquistasDesbloqueadas: jaRespondida ? prev.conquistasDesbloqueadas || [] : conquistasDesbloqueadas,
@@ -158,10 +180,15 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
       const ids = normalizarIdsQuestao(questaoId);
       const comRanking = aplicarRanking(prev, questaoId);
+      const respostasQuestoes = {
+        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object' ? prev.respostasQuestoes : {}),
+        ...lerRespostasQuestoesLocal(),
+      };
 
       return {
         ...comRanking,
         xp: 0,
+        respostasQuestoes,
         questoesRespondidas: [...new Set([...(prev.questoesRespondidas || []).map(String), ...ids])],
         questoesErradas: [...new Set([...(prev.questoesErradas || []).map(String), ...ids])],
       };
@@ -180,6 +207,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         questoesRespondidas: [],
         questoesErradas: [],
         revisaoIds: [],
+        respostasQuestoes: {},
         conquistasDesbloqueadas: [],
       };
     });
