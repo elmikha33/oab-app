@@ -1210,7 +1210,7 @@ export default function QuestoesList() {
                 : activeMateria}
           </h2>
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Exibindo {questoesVisiveis.length} questão(ões) {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matérias' : activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
+            Exibindo {questoesVisiveis.length} {questoesVisiveis.length === 1 ? 'questão' : 'questões'} {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matérias' : activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
           </p>
         </div>
 
