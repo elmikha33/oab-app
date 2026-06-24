@@ -34,7 +34,10 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
       .from('questoes_oab')
       .select('*')
+      .eq('ativa', true)
+      .eq('inativa', false)
       .order('edicao_exame', { ascending: false, nullsFirst: false })
+      .order('numero_questao', { ascending: true, nullsFirst: false })
       .order('id', { ascending: true })
       .range(from, to);
 
