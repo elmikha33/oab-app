@@ -155,6 +155,8 @@ if (!supabaseKey) throw new Error("Chave Supabase nao encontrada.");
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const LETRAS = ["A", "B", "C", "D"] as const;
+const MOTIVO_COMENTARIO_CONTRADIZ_GABARITO =
+  "comentário contradiz letra do gabarito oficial";
 const PROVAS_DIR = path.resolve(process.cwd(), "provas");
 const GABARITOS_DIR = path.resolve(process.cwd(), "provas", "gabaritos");
 
@@ -306,7 +308,11 @@ type ValidacaoComentario = {
   auditoriaSemanticaCorrigida: boolean;
   auditoriaSemanticaMelhoriaIgnorada: boolean;
   auditoriaSemanticaMotivo: string;
-  auditoriaSemanticaStatus: "APROVADO" | "CORRIGIDO_ERRO_JURIDICO" | "IGNORADO_MELHORIA_ESTILO";
+  auditoriaSemanticaStatus:
+    | "APROVADO"
+    | "ERRO_JURIDICO"
+    | "CORRIGIDO_ERRO_JURIDICO"
+    | "IGNORADO_MELHORIA_ESTILO";
   aderenciaEnunciadoExecutada: boolean;
   aderenteQuestao: boolean;
   aderenciaEnunciadoMotivo: string;
@@ -325,7 +331,7 @@ type ChecagemReferenciasNormativas = {
 
 type AuditoriaComentario = {
   comentario: string;
-  status: "APROVADO" | "CORRIGIDO_ERRO_JURIDICO" | "IGNORADO_MELHORIA_ESTILO";
+  status: "APROVADO" | "ERRO_JURIDICO" | "CORRIGIDO_ERRO_JURIDICO" | "IGNORADO_MELHORIA_ESTILO";
   aprovado: boolean;
   corrigido: boolean;
   melhoriaIgnorada: boolean;
@@ -1134,22 +1140,68 @@ function comentarioMuitoParecidoComAntigo(comentarioNovo: string, comentarioAnte
   return jaccard >= 0.72 || coberturaMenor >= 0.86;
 }
 
-function comentarioMencionaGabaritoOficial(comentario: string, gabaritoOficial: number) {
-  const letra = formatarGabarito(gabaritoOficial).toLowerCase();
-  const texto = normalizarParaComparacao(comentario);
-  return (
-    texto.includes(`a alternativa ${letra} esta correta`) ||
-    texto.includes(`alternativa ${letra} esta correta`) ||
-    texto.includes(`alternativa correta e ${letra}`) ||
-    texto.includes(`letra ${letra} esta correta`)
-  );
+function extrairLetrasPorPadroes(texto: string, padroes: RegExp[]) {
+  const letras = new Set<string>();
+
+  for (const padrao of padroes) {
+    for (const match of texto.matchAll(padrao)) {
+      const letra = normalizarTexto(match[1]).toUpperCase();
+      if (LETRAS.includes(letra as (typeof LETRAS)[number])) {
+        letras.add(letra);
+      }
+    }
+  }
+
+  return letras;
 }
 
-function comentarioAfirmaOutraAlternativaCorreta(comentario: string, gabaritoOficial: number) {
-  const letraOficial = formatarGabarito(gabaritoOficial);
-  const texto = removerAcentos(normalizarTexto(comentario)).toLowerCase();
-  const matches = [...texto.matchAll(/\ba alternativa\s+([a-d])\s+esta\s+correta\b/g)];
-  return matches.some((match) => match[1]?.toUpperCase() !== letraOficial);
+function analisarLetrasDoComentario(comentario: string, gabaritoOficial: number | null) {
+  const letraOficial = gabaritoOficial === null ? "" : formatarGabarito(gabaritoOficial);
+  const texto = normalizarParaComparacao(comentario);
+  const letrasCorretas = extrairLetrasPorPadroes(texto, [
+    /\balternativa\s+correta\s+(?:e|eh|seria)?\s*(?:a\s+|letra\s+)?([a-d])\b/g,
+    /\b(?:a\s+)?alternativa\s+([a-d])\s+(?:esta|e|eh|seria)\s+correta\b/g,
+    /\bletra\s+([a-d])\s+(?:esta|e|eh|seria)\s+correta\b/g,
+    /\bgabarito\s+(?:oficial\s+|correto\s+|correta\s+)?(?:e\s+|eh\s+|seria\s+)?(?:a\s+|letra\s+)?([a-d])\s+(?:esta|e|eh|seria)\s+corret[oa]\b/g,
+    /\bgabarito\s+(?:oficial\s+|correto\s+|correta\s+)?(?:e\s+|eh\s+|seria\s+)?(?:a\s+|letra\s+)?([a-d])\b(?!\s+(?:esta|e|eh|seria)\s+incorret[oa]\b)(?!\s+nao\s+(?:esta|e|eh|seria)\s+corret[oa]\b)/g,
+    /\bopcao\s+correta\s+(?:e|eh|seria)?\s*(?:a\s+|letra\s+)?([a-d])\b/g,
+    /\bopcao\s+([a-d])\s+(?:esta|e|eh|seria)\s+correta\b/g,
+    /\bopcao\s+([a-d])\b(?!\s+(?:esta|e|eh|seria|incorreta|errada)\b)(?!\s+nao\s+(?:esta|e|eh|seria)\s+correta\b)/g,
+  ]);
+  const letrasIncorretas = extrairLetrasPorPadroes(texto, [
+    /\b(?:a\s+)?alternativa\s+([a-d])\s+(?:esta|e|eh|seria)\s+incorreta\b/g,
+    /\b(?:a\s+)?alternativa\s+([a-d])\s+nao\s+(?:esta|e|eh|seria)\s+correta\b/g,
+    /\bletra\s+([a-d])\s+(?:esta|e|eh|seria)\s+incorreta\b/g,
+    /\bletra\s+([a-d])\s+nao\s+(?:esta|e|eh|seria)\s+correta\b/g,
+    /\bgabarito\s+(?:oficial\s+|correto\s+|correta\s+)?(?:e\s+|eh\s+|seria\s+)?(?:a\s+|letra\s+)?([a-d])\s+(?:esta|e|eh|seria)\s+incorret[oa]\b/g,
+    /\bgabarito\s+(?:oficial\s+|correto\s+|correta\s+)?(?:e\s+|eh\s+|seria\s+)?(?:a\s+|letra\s+)?([a-d])\s+nao\s+(?:esta|e|eh|seria)\s+corret[oa]\b/g,
+    /\bopcao\s+([a-d])\s+(?:esta|e|eh|seria)\s+incorreta\b/g,
+    /\bopcao\s+([a-d])\s+nao\s+(?:esta|e|eh|seria)\s+correta\b/g,
+  ]);
+  const afirmaOutraAlternativaCorreta =
+    Boolean(letraOficial) && [...letrasCorretas].some((letra) => letra !== letraOficial);
+  const afirmaGabaritoOficialIncorreto =
+    Boolean(letraOficial) && letrasIncorretas.has(letraOficial);
+
+  return {
+    letraOficial,
+    letrasCorretas: [...letrasCorretas],
+    letrasIncorretas: [...letrasIncorretas],
+    afirmaOutraAlternativaCorreta,
+    afirmaGabaritoOficialIncorreto,
+    contradizGabarito:
+      afirmaOutraAlternativaCorreta || afirmaGabaritoOficialIncorreto,
+  };
+}
+
+function comentarioContradizGabaritoOficial(comentario: string, gabaritoOficial: number | null) {
+  if (gabaritoOficial === null) return false;
+  return analisarLetrasDoComentario(comentario, gabaritoOficial).contradizGabarito;
+}
+
+function comentarioMencionaGabaritoOficial(comentario: string, gabaritoOficial: number) {
+  const letra = formatarGabarito(gabaritoOficial);
+  return analisarLetrasDoComentario(comentario, gabaritoOficial).letrasCorretas.includes(letra);
 }
 
 function comentarioPossuiReferenciaNormativaEspecifica(comentario: string) {
@@ -1492,14 +1544,14 @@ function validarComentarioGerado(
     return resultado;
   }
 
+  if (comentarioContradizGabaritoOficial(comentarioNovo, gabaritoOficial)) {
+    resultado.erros.push(MOTIVO_COMENTARIO_CONTRADIZ_GABARITO);
+  }
+
   if (!comentarioMencionaGabaritoOficial(comentarioNovo, gabaritoOficial)) {
     resultado.erros.push(
       `Comentario nao menciona que a alternativa oficial ${formatarGabarito(gabaritoOficial)} esta correta.`
     );
-  }
-
-  if (comentarioAfirmaOutraAlternativaCorreta(comentarioNovo, gabaritoOficial)) {
-    resultado.erros.push("Comentario afirma que outra alternativa esta correta.");
   }
 
   if (comentarioMuitoParecidoComAntigo(comentarioNovo, comentarioAntes)) {
@@ -1528,6 +1580,10 @@ function revisarPorRegraConhecidaLocal(
     normalizarTexto(questao.comentario),
     gabaritoOficialNumero
   );
+  const statusAuditoriaLocal: ValidacaoComentario["auditoriaSemanticaStatus"] =
+    validacao.erros.includes(MOTIVO_COMENTARIO_CONTRADIZ_GABARITO)
+      ? "ERRO_JURIDICO"
+      : "APROVADO";
   const motivo = opcoes.dinamica
     ? "corrigido por regra local dinamica"
     : "corrigido por regra conhecida local";
@@ -1576,8 +1632,11 @@ function revisarPorRegraConhecidaLocal(
       auditoriaSemanticaAprovada: validacao.erros.length === 0,
       auditoriaSemanticaCorrigida: false,
       auditoriaSemanticaMelhoriaIgnorada: false,
-      auditoriaSemanticaMotivo: motivo,
-      auditoriaSemanticaStatus: "APROVADO",
+      auditoriaSemanticaMotivo:
+        statusAuditoriaLocal === "ERRO_JURIDICO"
+          ? MOTIVO_COMENTARIO_CONTRADIZ_GABARITO
+          : motivo,
+      auditoriaSemanticaStatus: statusAuditoriaLocal,
       aderenciaEnunciadoExecutada: true,
       aderenteQuestao: validacao.erros.length === 0,
       aderenciaEnunciadoMotivo:
@@ -1811,7 +1870,7 @@ function resultadoElegivelParaRegraDinamica(
   const comentarioAnteriorGenericoOuIncompleto =
     comentarioGenerico(comentarioAnterior, gabaritoOficialNumero) ||
     !comentarioMencionaGabaritoOficial(comentarioAnterior, gabaritoOficialNumero) ||
-    comentarioAfirmaOutraAlternativaCorreta(comentarioAnterior, gabaritoOficialNumero);
+    comentarioContradizGabaritoOficial(comentarioAnterior, gabaritoOficialNumero);
 
   const houveCorrecaoRelevante =
     validacao.auditoria_semantica_corrigida === true ||
@@ -2035,6 +2094,25 @@ async function auditarComentarioSemanticoComGroq(
 ): Promise<AuditoriaComentario> {
   const alternativas = normalizarAlternativas(questao.alternativas);
   const comentarioAtual = sanitizarReferenciasNormativasBloqueadas(comentario);
+  const gabaritoOficialNumero =
+    gabaritoOficial.valor !== "ANULADA" ? gabaritoOficial.valor : null;
+  const contradicaoInicial = analisarLetrasDoComentario(
+    comentarioAtual,
+    gabaritoOficialNumero
+  );
+
+  if (contradicaoInicial.contradizGabarito) {
+    return {
+      comentario: comentarioAtual,
+      status: "ERRO_JURIDICO",
+      aprovado: false,
+      corrigido: false,
+      melhoriaIgnorada: false,
+      motivo: MOTIVO_COMENTARIO_CONTRADIZ_GABARITO,
+      alertas: [MOTIVO_COMENTARIO_CONTRADIZ_GABARITO],
+    };
+  }
+
   const messages: AiMessage[] = [
       {
         role: "system",
@@ -2128,6 +2206,8 @@ ${comentarioAtual}
   const statusInicial: AuditoriaComentario["status"] =
     statusRaw === "CORRIGIDO_ERRO_JURIDICO"
       ? "CORRIGIDO_ERRO_JURIDICO"
+      : statusRaw === "ERRO_JURIDICO"
+        ? "ERRO_JURIDICO"
       : statusRaw === "IGNORADO_MELHORIA_ESTILO"
         ? "IGNORADO_MELHORIA_ESTILO"
         : "APROVADO";
@@ -2158,26 +2238,42 @@ ${comentarioAtual}
     );
   const deveCorrigir =
     statusBase === "CORRIGIDO_ERRO_JURIDICO" && Boolean(corrigidoBase) && !melhoriaIgnorada;
-  const status: AuditoriaComentario["status"] =
+  const statusAntesValidacaoFinal: AuditoriaComentario["status"] =
     statusBase === "IGNORADO_MELHORIA_ESTILO" || melhoriaIgnorada
       ? "APROVADO"
+      : statusBase === "ERRO_JURIDICO"
+      ? "ERRO_JURIDICO"
       : statusBase === "CORRIGIDO_ERRO_JURIDICO" && !deveCorrigir
-      ? "APROVADO"
+      ? "ERRO_JURIDICO"
       : statusBase;
-  const motivoNormalizado = normalizarMotivoAuditoria(status, motivoBase, melhoriaIgnorada, false);
   const comentarioFinal = sanitizarReferenciasNormativasBloqueadas(
     deveCorrigir ? corrigidoBase : comentarioAtual
   );
+  const contradicaoFinal = analisarLetrasDoComentario(
+    comentarioFinal,
+    gabaritoOficialNumero
+  );
+  const status: AuditoriaComentario["status"] = contradicaoFinal.contradizGabarito
+    ? "ERRO_JURIDICO"
+    : statusAntesValidacaoFinal;
+  const motivoNormalizado = contradicaoFinal.contradizGabarito
+    ? MOTIVO_COMENTARIO_CONTRADIZ_GABARITO
+    : normalizarMotivoAuditoria(status, motivoBase, melhoriaIgnorada, false);
+  const aprovado =
+    status === "APROVADO" ||
+    (status === "CORRIGIDO_ERRO_JURIDICO" && deveCorrigir && !contradicaoFinal.contradizGabarito);
 
   return {
-    comentario: comentarioFinal,
+    comentario: contradicaoFinal.contradizGabarito ? comentarioAtual : comentarioFinal,
     status,
-    aprovado: status !== "CORRIGIDO_ERRO_JURIDICO" || Boolean(corrigido),
-    corrigido: deveCorrigir,
-    melhoriaIgnorada,
+    aprovado,
+    corrigido: aprovado && deveCorrigir,
+    melhoriaIgnorada: aprovado ? melhoriaIgnorada : false,
     motivo: motivoNormalizado,
     alertas: [
-      status === "CORRIGIDO_ERRO_JURIDICO"
+      status === "ERRO_JURIDICO"
+        ? MOTIVO_COMENTARIO_CONTRADIZ_GABARITO
+        : status === "CORRIGIDO_ERRO_JURIDICO"
         ? "Auditoria semantica corrigiu erro juridico grave antes de salvar."
         : melhoriaIgnorada
           ? "Auditoria semantica ignorou melhoria de estilo/completude sem erro grave."
@@ -2458,33 +2554,37 @@ async function tentarAutocorrecaoAvancada(
     motivo: string,
     errosFalha: string[],
     alertasFalha: string[] = []
-  ): { json: Record<string, unknown>; validacaoComentario: ValidacaoComentario } => ({
-    json: {},
-    validacaoComentario: {
-      tentativas: 3,
-      erros: errosFalha,
-      alertas: alertasFalha,
-      geradoDoZero: false,
-      parecidoComAnterior: false,
-      regeneradoPorFugaTema: true,
-      autocorrecaoAvancadaStatus: "FALHOU",
-      autocorrecaoAvancadaMotivo: motivo,
-      autocorrecaoAvancadaModelo: modeloUsado,
-      autocorrecaoAvancadaComentarioFinal: comentarioFinal,
-      referenciasNormativasChecadas: false,
-      referenciasNormativasAjustadas: false,
-      auditoriaSemanticaExecutada: false,
-      auditoriaSemanticaAprovada: false,
-      auditoriaSemanticaCorrigida: false,
-      auditoriaSemanticaMelhoriaIgnorada: false,
-      auditoriaSemanticaMotivo: "",
-      auditoriaSemanticaStatus: "APROVADO",
-      aderenciaEnunciadoExecutada: false,
-      aderenteQuestao: false,
-      aderenciaEnunciadoMotivo: motivo,
-      comentariosRejeitadosFugaTema,
-    },
-  });
+  ): { json: Record<string, unknown>; validacaoComentario: ValidacaoComentario } => {
+    const erroLetra = errosFalha.includes(MOTIVO_COMENTARIO_CONTRADIZ_GABARITO);
+
+    return {
+      json: {},
+      validacaoComentario: {
+        tentativas: 3,
+        erros: errosFalha,
+        alertas: alertasFalha,
+        geradoDoZero: false,
+        parecidoComAnterior: false,
+        regeneradoPorFugaTema: true,
+        autocorrecaoAvancadaStatus: "FALHOU",
+        autocorrecaoAvancadaMotivo: motivo,
+        autocorrecaoAvancadaModelo: modeloUsado,
+        autocorrecaoAvancadaComentarioFinal: comentarioFinal,
+        referenciasNormativasChecadas: false,
+        referenciasNormativasAjustadas: false,
+        auditoriaSemanticaExecutada: erroLetra,
+        auditoriaSemanticaAprovada: false,
+        auditoriaSemanticaCorrigida: false,
+        auditoriaSemanticaMelhoriaIgnorada: false,
+        auditoriaSemanticaMotivo: erroLetra ? MOTIVO_COMENTARIO_CONTRADIZ_GABARITO : "",
+        auditoriaSemanticaStatus: erroLetra ? "ERRO_JURIDICO" : "APROVADO",
+        aderenciaEnunciadoExecutada: false,
+        aderenteQuestao: false,
+        aderenciaEnunciadoMotivo: motivo,
+        comentariosRejeitadosFugaTema,
+      },
+    };
+  };
 
   try {
     const messages: AiMessage[] = [
@@ -2582,6 +2682,11 @@ O comentario anterior foi rejeitado porque explicou ${motivoBase}. Gere um novo 
       normalizarTexto(questao.comentario),
       gabaritoOficialNumero
     );
+    if (!auditoria.aprovado && validacaoAposAuditoria.erros.length === 0) {
+      validacaoAposAuditoria.erros = [
+        auditoria.motivo || "Comentario reprovado pela auditoria semantica.",
+      ];
+    }
     if (erroSomenteFormatoAlternativaOficial(validacaoAposAuditoria.erros)) {
       comentarioAuditado = prefixarAlternativaOficial(comentarioAuditado, gabaritoOficialNumero);
       comentarioFinal = comentarioAuditado;
@@ -2756,6 +2861,14 @@ async function revisarComGroqValidado(
     erros = validacao.erros;
     alertas = validacao.alertas;
     parecidoComAnterior = validacao.parecidoComAnterior;
+    if (erros.includes(MOTIVO_COMENTARIO_CONTRADIZ_GABARITO)) {
+      auditoriaSemanticaExecutada = true;
+      auditoriaSemanticaAprovada = false;
+      auditoriaSemanticaCorrigida = false;
+      auditoriaSemanticaMelhoriaIgnorada = false;
+      auditoriaSemanticaMotivo = MOTIVO_COMENTARIO_CONTRADIZ_GABARITO;
+      auditoriaSemanticaStatus = "ERRO_JURIDICO";
+    }
 
     if (erros.length === 0) {
       const checagemReferencias = await checarReferenciasNormativasComGroq(
@@ -2793,6 +2906,9 @@ async function revisarComGroqValidado(
         gabaritoOficialNumero
       );
       erros = validacaoAposReferencias.erros;
+      if (!auditoriaSemantica.aprovado && erros.length === 0) {
+        erros = [auditoriaSemantica.motivo || "Comentario reprovado pela auditoria semantica."];
+      }
       alertas = [
         ...validacaoAposReferencias.alertas,
         ...checagemReferencias.alertas,
@@ -3082,6 +3198,8 @@ function normalizarRevisao(
     validacaoComentario.erros.length === 0;
   const comentarioRejeitadoPorFugaTema =
     validacaoComentario.aderenciaEnunciadoExecutada && !validacaoComentario.aderenteQuestao;
+  const comentarioRejeitadoPorValidacao =
+    validacaoComentario.erros.length > 0 && !autocorrecaoForteAprovada && !regraConhecidaLocalAprovada;
   const preservarEstruturaComentario =
     comentarioRejeitadoPorFugaTema || autocorrecaoForteAprovada || regraConhecidaLocalAprovada;
   if (comentarioGeradoOriginal && comentarioGerado !== comentarioGeradoOriginal) {
@@ -3094,8 +3212,12 @@ function normalizarRevisao(
   const comentarioNovo =
     comentarioRejeitadoPorFugaTema && comentarioAntes
       ? comentarioAntes
+      : comentarioRejeitadoPorValidacao && comentarioAntes
+      ? comentarioAntes
       : comentarioRejeitadoPorFugaTema
       ? "Comentario pendente de revisao humana: a IA gerou explicacao fora do tema do enunciado."
+      : comentarioRejeitadoPorValidacao
+      ? "Comentario pendente de revisao humana: a IA nao gerou uma explicacao confiavel para o gabarito oficial."
       :
     comentarioGerado ||
     "Comentario pendente de revisao humana: a IA nao gerou uma explicacao confiavel para o gabarito oficial.";
@@ -4015,6 +4137,7 @@ async function auditarComentariosExistentes() {
   let puladas = 0;
   let falhas = 0;
   let pausadas = 0;
+  let humanas = 0;
 
   for (const questao of questoes) {
     try {
@@ -4047,20 +4170,48 @@ async function auditarComentariosExistentes() {
         args.provider
       );
       const comentarioDepois = sanitizarReferenciasNormativasBloqueadas(auditoria.comentario);
-      const mudouComentario = comentarioDepois !== comentarioAntes;
+      const gabaritoOficialNumero = gabaritoOficial.valor;
+      const validacaoComentarioDepois = auditoria.corrigido
+        ? validarComentarioGerado(comentarioDepois, comentarioAntes, gabaritoOficialNumero)
+        : {
+            erros: [] as string[],
+            alertas: [] as string[],
+            parecidoComAnterior: false,
+            referenciasNormativasChecadas: false,
+            referenciasNormativasAjustadas: false,
+          };
+      const errosAplicacao = auditoria.aprovado
+        ? validacaoComentarioDepois.erros
+        : [auditoria.motivo || "Comentario reprovado pela auditoria semantica."];
+      const precisaRevisaoHumana = errosAplicacao.length > 0;
+      const statusAuditoriaFinal: AuditoriaComentario["status"] = errosAplicacao.includes(
+        MOTIVO_COMENTARIO_CONTRADIZ_GABARITO
+      )
+        ? "ERRO_JURIDICO"
+        : auditoria.status;
+      const motivoAuditoriaFinal = errosAplicacao.includes(MOTIVO_COMENTARIO_CONTRADIZ_GABARITO)
+        ? MOTIVO_COMENTARIO_CONTRADIZ_GABARITO
+        : errosAplicacao[0] || auditoria.motivo;
+      const podeAplicarComentario = !precisaRevisaoHumana;
+      const comentarioFinal = podeAplicarComentario ? comentarioDepois : comentarioAntes;
+      const mudouComentario = comentarioFinal !== comentarioAntes;
 
       console.log("");
       console.log(`QUESTAO ID ${questao.id}`);
       console.log("STATUS:");
-      console.log(auditoria.status);
+      console.log(statusAuditoriaFinal);
       console.log("GABARITO OFICIAL:");
       console.log(formatarGabaritoOficial(gabaritoOficial));
       console.log("MOTIVO:");
-      console.log(auditoria.motivo);
+      console.log(motivoAuditoriaFinal);
       console.log("ANTES:");
       console.log(`"${resumirTexto(comentarioAntes, 260)}"`);
       console.log("DEPOIS:");
-      console.log(`"${resumirTexto(comentarioDepois, 260)}"`);
+      console.log(`"${resumirTexto(comentarioFinal, 260)}"`);
+      if (precisaRevisaoHumana) {
+        console.log("REVISAO HUMANA:");
+        console.log(motivoAuditoriaFinal);
+      }
 
       if (!args.dryRun) {
         const auditadoEm = new Date().toISOString();
@@ -4069,29 +4220,44 @@ async function auditarComentariosExistentes() {
             ? { ...(questao.validacao_tripla as Record<string, unknown>) }
             : {};
         validacaoTripla.auditoria_semantica_executada = true;
-        validacaoTripla.auditoria_semantica_aprovada = true;
+        validacaoTripla.auditoria_semantica_aprovada = !precisaRevisaoHumana;
         validacaoTripla.auditoria_semantica_corrigida = mudouComentario;
-        validacaoTripla.auditoria_semantica_melhoria_ignorada = auditoria.melhoriaIgnorada;
-        validacaoTripla.auditoria_semantica_motivo = auditoria.motivo;
-        validacaoTripla.auditoria_semantica_status = auditoria.status;
+        validacaoTripla.auditoria_semantica_melhoria_ignorada =
+          !precisaRevisaoHumana && auditoria.melhoriaIgnorada;
+        validacaoTripla.auditoria_semantica_motivo = motivoAuditoriaFinal;
+        validacaoTripla.auditoria_semantica_status = statusAuditoriaFinal;
+        validacaoTripla.comentario_validacao_erros = errosAplicacao;
+        validacaoTripla.comentario_validacao_alertas = [
+          ...validacaoComentarioDepois.alertas,
+          ...auditoria.alertas,
+        ].filter(Boolean);
+
+        const updatePayload: Record<string, unknown> = {
+          comentario_auditado: !precisaRevisaoHumana,
+          comentario_auditado_em: !precisaRevisaoHumana ? auditadoEm : null,
+          comentario_auditoria_motivo: motivoAuditoriaFinal,
+          validacao_tripla: validacaoTripla,
+        };
+
+        if (podeAplicarComentario) {
+          updatePayload.comentario = comentarioFinal;
+        } else {
+          updatePayload.revisao_humana_necessaria = true;
+          updatePayload.motivo_revisao_humana = motivoAuditoriaFinal;
+        }
 
         const { error } = await supabase
           .from("questoes_oab")
-          .update({
-            comentario: comentarioDepois,
-            comentario_auditado: true,
-            comentario_auditado_em: auditadoEm,
-            comentario_auditoria_motivo: auditoria.motivo,
-            validacao_tripla: validacaoTripla,
-          })
+          .update(updatePayload)
           .eq("id", questao.id);
 
         if (error) throw new Error(error.message);
       }
 
       auditadas++;
-      if (auditoria.status === "CORRIGIDO_ERRO_JURIDICO" && mudouComentario) corrigidas++;
-      if (auditoria.melhoriaIgnorada) melhoriasIgnoradas++;
+      if (statusAuditoriaFinal === "CORRIGIDO_ERRO_JURIDICO" && mudouComentario) corrigidas++;
+      if (!precisaRevisaoHumana && auditoria.melhoriaIgnorada) melhoriasIgnoradas++;
+      if (precisaRevisaoHumana) humanas++;
       await esperar(800);
     } catch (err) {
       if (err instanceof AiProviderPausedError) {
@@ -4122,6 +4288,7 @@ async function auditarComentariosExistentes() {
   console.log(`Correcoes juridicas reais: ${corrigidas}`);
   console.log(`Melhorias ignoradas: ${melhoriasIgnoradas}`);
   console.log(`Puladas: ${puladas}`);
+  console.log(`Marcadas para revisao humana: ${humanas}`);
   console.log(`Pausadas por IA: ${pausadas}`);
   console.log(`Falhas: ${falhas}`);
 }

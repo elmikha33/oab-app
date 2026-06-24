@@ -1761,5 +1761,192 @@
     "prova_codigo": "44",
     "gabarito_oficial": "A",
     "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:80"
+  },
+  "452": {
+    "instituto_central": "Ética Profissional",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque, embora Antônia tenha advogado contra literal disposição de lei, ela pode contar com a presunção de boa-fé em seu favor, desde que tenha fundamentado seu pedido na inconstitucionalidade ou na injustiça da lei. Isso é importante porque a presunção de boa-fé é um direito fundamental da advocacia e é essencial para garantir a defesa dos interesses dos clientes.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:08:05.696Z",
+    "numero_questao": 1,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:1"
+  },
+  "454": {
+    "instituto_central": "Sociedades de Advogados",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque a legislação aplicável estabelece que a sociedade de advogados deve ser composta exclusivamente por advogados, sendo vedada a inclusão de sócios não advogados. Além disso, a combinação de atividades estranhas à advocacia com a prática da advocacia em uma mesma pessoa jurídica é incompatível com as normas que regem as sociedades de advogados, o que inviabiliza o registro da sociedade criada por Gustavo.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:10:59.223Z",
+    "numero_questao": 3,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:3"
+  },
+  "455": {
+    "instituto_central": "Ética Profissional",
+    "evitar": [],
+    "comentario_seguro": "A alternativa A está correta porque, conforme a legislação aplicável, a celebração de termo de ajustamento de conduta é uma possibilidade para infrações que podem ser punidas com censura, desde que não haja repercussão negativa à advocacia. Isso demonstra uma abordagem conciliatória e busca a reparação de danos, evitando sanções mais severas. As demais alternativas estão incorretas: a alternativa B confunde a instauração do processo disciplinar com a necessidade de suspensão preventiva, que não é automática; a alternativa C está errada, pois o arquivamento liminar não é passível de recurso ao Conselho Federal; e a alternativa D não considera que a designação do relator é uma etapa do processo que não necessariamente viola o direito à ampla defesa, que será garantido ao longo do processo.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:12:30.339Z",
+    "numero_questao": 4,
+    "prova_codigo": "44",
+    "gabarito_oficial": "A",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:4"
+  },
+  "457": {
+    "instituto_central": "Estatuto da Ordem dos Advogados do Brasil",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque a carteira da OAB é reconhecida como um documento de identidade civil válido, que pode ser utilizado para diversos fins legais, incluindo a realização de viagens nacionais em aviões. Isso se deve ao fato de que a carteira da OAB contém a foto do advogado e é um documento oficial que atesta a identidade do profissional. As demais alternativas estão incorretas, pois a alternativa A nega a validade da carteira da OAB como documento de identidade, a alternativa C impõe uma condição que não é necessária, e a alternativa D limita a validade da carteira da OAB apenas ao exercício da profissão, o que não é correto.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:14:41.868Z",
+    "numero_questao": 6,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:6"
+  },
+  "458": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque, conforme a legislação aplicável, o advogado tem direito de acesso aos autos de uma investigação, mas esse acesso pode ser restringido em situações específicas, como quando há diligências em andamento que não foram documentadas. Isso visa proteger a eficácia da investigação, permitindo que a autoridade policial atue sem interferências indevidas. As demais alternativas falham ao não considerar essas limitações necessárias, ou ao afirmar que o advogado teria acesso irrestrito, o que não é compatível com a proteção do processo investigativo.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:15:39.997Z",
+    "numero_questao": 7,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:7"
+  },
+  "459": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque a suspensão preventiva do advogado deve ser precedida de notificação e, caso o advogado não compareça, a suspensão pode ser aplicada. Além disso, o prazo máximo para a conclusão do processo disciplinar é de 90 dias, conforme a legislação aplicável, o que torna a decisão do Tribunal irregular ao estabelecer um prazo de 180 dias. As demais alternativas estão incorretas, pois a alternativa A confunde a possibilidade de prorrogação do prazo com a regularidade da suspensão, a alternativa B ignora a necessidade de notificação e a alternativa D, embora reconheça a irregularidade da suspensão, não aborda corretamente o prazo máximo do processo disciplinar.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:17:00.328Z",
+    "numero_questao": 8,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:8"
+  },
+  "460": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa A está correta porque reflete a ideia central de Locke de que todos os indivíduos, independentemente de sua posição social, estão sujeitos às leis criadas pelo parlamento na sociedade civil. Isso implica que a obediência às leis é um princípio fundamental para a manutenção da ordem e da justiça, e que ninguém, nem mesmo os legisladores, pode se isentar dessa obrigação. As demais alternativas incorretamente sugerem que certos grupos, como os governantes ou autoridades religiosas, estão isentos de obedecer às leis civis, o que contraria a visão de Locke sobre a igualdade perante a lei.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:17:54.900Z",
+    "numero_questao": 9,
+    "prova_codigo": "44",
+    "gabarito_oficial": "A",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:9"
+  },
+  "465": {
+    "instituto_central": "Competência Legislativa e Executiva",
+    "evitar": [],
+    "comentario_seguro": "A alternativa D está correta porque a Constituição estabelece que a iniciativa para aumentar a remuneração de cargos públicos é exclusiva do Presidente da República. Assim, qualquer emenda que amplie a despesa prevista em um projeto de lei de iniciativa do Executivo, sem a anuência do Presidente, é considerada inconstitucional. Isso se deve ao princípio da separação de poderes e à necessidade de respeito à iniciativa legislativa do Chefe do Executivo, que visa garantir a responsabilidade fiscal e a gestão adequada dos recursos públicos.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:22:55.846Z",
+    "numero_questao": 14,
+    "prova_codigo": "44",
+    "gabarito_oficial": "D",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:14"
+  },
+  "468": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa D está correta porque a Corte Interamericana de Direitos Humanos, ao interpretar a Convenção Americana sobre Direitos Humanos, estabelece uma distinção importante entre 'distinções' e 'discriminações'. As 'distinções' podem ser consideradas legítimas quando são razoáveis e objetivas, ou seja, quando visam a atender a necessidades específicas de determinados grupos, sem que isso configure discriminação. Por outro lado, as 'discriminações' são vistas como injustas e arbitrárias, resultando em prejuízos aos direitos humanos. Essa interpretação é fundamental para a aplicação do princípio da igualdade e para a proteção dos direitos de grupos vulneráveis, permitindo que certas diferenças de tratamento sejam justificadas em contextos específicos, desde que respeitados os critérios de razoabilidade e objetividade.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:26:00.048Z",
+    "numero_questao": 17,
+    "prova_codigo": "44",
+    "gabarito_oficial": "D",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:17"
+  },
+  "485": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque a responsabilização por ato de improbidade administrativa, conforme a legislação aplicável, não exige a demonstração de dolo, podendo ocorrer também em casos de culpa. No caso de Lucas, ele agiu de forma culposa, permitindo que um terceiro utilizasse bens da empresa pública para fins pessoais, o que pode caracterizar ato de improbidade administrativa, independentemente da intenção de causar prejuízo ou enriquecer ilicitamente. Portanto, a ausência de dolo não impede a responsabilização por improbidade administrativa. As demais alternativas estão incorretas, pois a primeira sugere que a perda patrimonial é um requisito para a responsabilização, a segunda afirma que Lucas não é servidor público sob a legislação pertinente, e a quarta implica que sua ação resultou em enriquecimento ilícito, o que não se sustenta diante da análise do dolo.",
+    "origem": "auditoria_semantica_corrigiu_erro_juridico",
+    "criado_em": "2026-06-24T20:44:41.797Z",
+    "numero_questao": 34,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:34"
+  },
+  "489": {
+    "instituto_central": "Tratamento de Dados Pessoais",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque a legislação aplicável permite que a controladora conserve dados pessoais cujo tratamento já se encerrou, desde que esses dados sejam anonimizados e utilizados exclusivamente para fins estatísticos. Isso significa que, ao anonimizar os dados, a controladora não poderá identificar os titulares, o que atende à necessidade de proteção da privacidade dos indivíduos. Além disso, a utilização para fins estatísticos é uma justificativa válida para a manutenção dos dados, desde que respeitadas as normas pertinentes.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:48:30.806Z",
+    "numero_questao": 38,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:38"
+  },
+  "496": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque, conforme a legislação aplicável, o consumidor tem o direito de buscar a renegociação de suas dívidas, especialmente quando sua situação financeira compromete o mínimo existencial, que inclui despesas básicas como alimentação e saúde. A renegociação deve levar em conta a capacidade de pagamento do consumidor, permitindo que ele mantenha um padrão de vida minimamente aceitável. As demais alternativas estão incorretas, pois a primeira limita a renegociação apenas a dívidas de consumo pessoal, a terceira impõe uma condição excessiva para a renegociação, e a quarta ignora a possibilidade de revisão das obrigações contratuais em situações de vulnerabilidade financeira.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T20:55:14.312Z",
+    "numero_questao": 45,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:45"
+  },
+  "508": {
+    "instituto_central": "Importunação Sexual",
+    "evitar": [],
+    "comentario_seguro": "A alternativa D está correta porque a conduta de Matheus, ao acariciar as nádegas de Laís sem seu consentimento e tentar beijá-la, caracteriza-se como importunação sexual. Essa conduta é uma ofensa à liberdade sexual da vítima, sendo tipificada como crime, pois envolve atos que visam satisfazer a lascívia de uma pessoa sem a anuência da outra. A importunação sexual é uma violação clara da integridade e da vontade da vítima, o que a torna um ato ilícito e punível. As demais alternativas estão incorretas: a alternativa A é errada porque a conduta é tipificada como crime; a alternativa B é incorreta, pois o estupro envolve penetração ou ato libidinoso com violência ou grave ameaça; e a alternativa C não se aplica, pois o assédio sexual envolve uma relação de subordinação, o que não é o caso aqui.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T21:08:05.728Z",
+    "numero_questao": 57,
+    "prova_codigo": "44",
+    "gabarito_oficial": "D",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:57"
+  },
+  "510": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque, conforme a legislação aplicável, a conduta de Thiago não configura crime de corrupção de menores, uma vez que ele não tinha conhecimento da idade de Vinicius no momento da prática do crime. O erro de tipo essencial, que se refere à ignorância sobre a idade do menor, impede a tipificação da corrupção de menores, permitindo que Thiago seja responsabilizado apenas pelo furto qualificado, que é a conduta que ele efetivamente praticou. As demais alternativas estão incorretas, pois não consideram adequadamente a questão do erro de tipo essencial ou confundem a natureza do furto qualificado com o simples, desconsiderando a imputabilidade de Vinicius.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T21:10:03.239Z",
+    "numero_questao": 59,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:59"
+  },
+  "513": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa C está correta porque o ato de Hermes, ao disparar um tiro no pescoço de Aquiles, configura um crime de lesão corporal de natureza grave, uma vez que o ferimento causado colocou a vida da vítima em risco, mesmo que Aquiles tenha conseguido se recuperar sem sequelas. A gravidade da lesão é determinada pelo potencial de dano à integridade física da vítima, e neste caso, o disparo de arma de fogo é um ato que, por sua natureza, pode causar lesões graves. As demais alternativas estão incorretas: a tentativa de homicídio se aplica, pois Hermes disparou a arma com a intenção de causar dano a Aquiles; a lesão corporal leve não se encaixa na situação, dado o risco à vida; e o exercício arbitrário das próprias razões não se aplica, pois Hermes não estava agindo em legítima defesa ou em uma situação que justificasse tal conduta.",
+    "origem": "auditoria_semantica_corrigiu_erro_juridico",
+    "criado_em": "2026-06-24T21:12:45.395Z",
+    "numero_questao": 62,
+    "prova_codigo": "44",
+    "gabarito_oficial": "C",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:62"
+  },
+  "514": {
+    "instituto_central": "Geral",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque, em casos de rejeição da queixa-crime, a legislação aplicável prevê que o recurso cabível é a apelação. A apelação é o meio adequado para que a parte insatisfeita com a decisão de primeira instância possa buscar a reforma dessa decisão em instância superior. As demais alternativas estão incorretas, pois o agravo não é cabível nesse contexto, o recurso inominado é utilizado em situações específicas de juizados especiais, e o recurso em sentido estrito não se aplica à rejeição de queixa-crime, que é uma decisão interlocutória.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T21:14:25.486Z",
+    "numero_questao": 63,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:63"
+  },
+  "524": {
+    "instituto_central": "Direito do Trabalho",
+    "evitar": [],
+    "comentario_seguro": "A alternativa B está correta porque, conforme a legislação aplicável, a mulher que sofre um aborto espontâneo tem direito a um repouso remunerado de duas semanas. Essa previsão visa garantir a saúde e o bem-estar da mulher após a interrupção da gravidez, reconhecendo a importância do período de recuperação. As demais alternativas estão incorretas, pois a primeira sugere um afastamento de 30 dias sem respaldo legal, a terceira confunde licença-paternidade com licença-maternidade, e a quarta ignora o direito ao repouso previsto na legislação.",
+    "origem": "comentario_aprovado_pelo_pipeline",
+    "criado_em": "2026-06-24T21:24:05.330Z",
+    "numero_questao": 73,
+    "prova_codigo": "44",
+    "gabarito_oficial": "B",
+    "fonte_gabarito": "provas/gabaritos/gabarito_44.TXT:73"
   }
 }

@@ -24,3 +24,4 @@ next-dev.*.log
 logs/*.txt
 .npm-cache/
 .vs/
+backups/
