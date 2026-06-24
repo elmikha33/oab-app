@@ -25,7 +25,7 @@ const REVISOES_HUMANAS_PENDENTES_FILE = path.join(LOGS_DIR, "revisoes_humanas_pe
 const REGRAS_CONHECIDAS_SUGERIDAS_FILE = path.join(LOGS_DIR, "regras_conhecidas_sugeridas.txt");
 const REGRAS_CONHECIDAS_DINAMICAS_FILE = path.join(DATA_DIR, "regrasConhecidasDinamicas.json");
 const MODELO_IA = getPrimaryModelLabel();
-const DEFAULT_LIMIT = 80;
+const DEFAULT_LIMIT = 25;
 const COLUNAS_OBRIGATORIAS_QUESTOES = [
   "revisado_ia",
   "revisado_em",
