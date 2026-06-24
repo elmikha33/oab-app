@@ -1,22 +1,22 @@
-﻿import { createClient } from "@supabase/supabase-js";
+�import { createClient } from "@supabase/supabase-js";
 
-// ExtraÃ­mos as variÃ¡veis de ambiente com um fallback de seguranÃ§a
+// Extraímos as variáveis de ambiente com um fallback de segurança
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-/* ðŸ”¥ BUSCA SEM LIMIT FIXO (OU COM LIMIT ALTO) */
+/* �x� BUSCA SEM LIMIT FIXO (OU COM LIMIT ALTO) */
 export async function getQuestoes() {
   const { data, error } = await supabase
     .from("questoes_oab")
     .select("*")
     .eq("ativa", true)
     .order("created_at", { ascending: false })
-    .limit(10000); // Mantive o seu limite de 200
+    .limit(10000); // Limite alto para carregar todas as questões atuais
 
   if (error) {
-    console.error("Erro ao buscar questÃµes:", error.message);
+    console.error("Erro ao buscar questões:", error.message);
     return [];
   }
 

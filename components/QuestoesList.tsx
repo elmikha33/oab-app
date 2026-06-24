@@ -1,4 +1,4 @@
-﻿'use client';
+�'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -93,7 +93,7 @@ function normalizarTexto(valor: string) {
 }
 
 function getMateriaNome(questao: Questao) {
-  return String(questao.materia || 'Sem matÃ©ria').trim();
+  return String(questao.materia || 'Sem matéria').trim();
 }
 
 function getTemaNome(questao: Questao) {
@@ -173,8 +173,8 @@ function extrairNumeroExame(questao: Questao) {
     }
 
     const match =
-      texto.match(/(?:prova|oab|exame|edicao|ediÃ§Ã£o|gabarito)[_\-\s]*(\d{1,3})/i) ||
-      texto.match(/(?:prova|oab|exame|edicao|ediÃ§Ã£o|gabarito).*?(\d{1,3})/i) ||
+      texto.match(/(?:prova|oab|exame|edicao|edição|gabarito)[_\-\s]*(\d{1,3})/i) ||
+      texto.match(/(?:prova|oab|exame|edicao|edição|gabarito).*?(\d{1,3})/i) ||
       texto.match(/\b(\d{2,3})\b/);
 
     if (match?.[1]) {
@@ -190,7 +190,7 @@ function getExameInfo(questao: Questao) {
   const numero = extrairNumeroExame(questao);
 
   if (!numero) {
-    return { key: 'sem-exame', label: 'Exame nÃ£o identificado', numero: 0 };
+    return { key: 'sem-exame', label: 'Exame não identificado', numero: 0 };
   }
 
   return { key: String(numero), label: `Exame (${numero}) ${numeroParaRomano(numero)}`, numero };
@@ -308,7 +308,7 @@ function QuestaoCard({
     >
       <div className="mb-5 flex flex-wrap items-center gap-2 text-xs font-black uppercase">
         <span className="rounded-md border border-slate-300 bg-slate-100 px-2.5 py-1 text-slate-700 dark:border-white/15 dark:bg-slate-800 dark:text-slate-200">
-          QuestÃ£o {index + 1} de {total}
+          Questão {index + 1} de {total}
         </span>
 
         <span
@@ -399,7 +399,7 @@ function QuestaoCard({
           {questao.comentario && (
             <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
               <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
-                ComentÃ¡rio
+                Comentário
               </p>
               <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                 {questao.comentario}
@@ -410,7 +410,7 @@ function QuestaoCard({
           {reviewSuccessPending && (
             <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-3 dark:border-emerald-300/30 dark:bg-slate-950">
               <p className="text-sm font-bold leading-relaxed text-emerald-900 dark:text-emerald-100">
-                VocÃª acertou esta questÃ£o de revisÃ£o. Ela sÃ³ serÃ¡ removida da revisÃ£o quando vocÃª continuar.
+                Você acertou esta questão de revisão. Ela só será removida da revisão quando você continuar.
               </p>
 
               <button
@@ -418,7 +418,7 @@ function QuestaoCard({
                 onClick={() => onConfirmarAcertoRevisao?.(questao)}
                 className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-emerald-700 bg-emerald-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200 md:w-auto"
               >
-                Continuar e remover da revisÃ£o
+                Continuar e remover da revisão
               </button>
             </div>
           )}
@@ -548,13 +548,13 @@ function Summary({
         <div className="min-w-0">
           <h1 className="text-xl font-black leading-tight text-slate-950 dark:text-white md:mt-2 md:text-2xl">
             {activeMateria === TODAS_AS_MATERIAS
-              ? 'Todas as matÃ©rias'
+              ? 'Todas as matérias'
               : activeTema
-                ? `${activeMateria} Â· ${activeTema}`
+                ? `${activeMateria} · ${activeTema}`
                 : activeMateria}
           </h1>
           <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-sm">
-            Escolha uma matÃ©ria ou estude tudo misturado.
+            Escolha uma matéria ou estude tudo misturado.
           </p>
         </div>
 
@@ -573,7 +573,7 @@ function Summary({
       <div className="mb-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-2.5 dark:border-emerald-300/35 dark:bg-slate-800 md:mb-4 md:p-3">
         <div className="mb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-800 dark:text-emerald-100 md:text-xs md:tracking-[0.18em]">
           <FileText className="h-4 w-4" strokeWidth={3} />
-          EdiÃ§Ã£o do exame
+          Edição do exame
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -600,7 +600,7 @@ function Summary({
                   : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
               }`}
             >
-              {exame.label} Â· {exame.total} questÃµes
+              {exame.label} · {exame.total} questões
             </button>
           ))}
         </div>
@@ -608,13 +608,13 @@ function Summary({
 
       <div className="mb-3 grid grid-cols-2 gap-2 md:mb-4 lg:grid-cols-4">
         <button type="button" onClick={() => onChangeAba('todas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'todas')}`}>
-          Todas Â· {questoesDoModoAtual.length}
+          Todas · {questoesDoModoAtual.length}
         </button>
         <button type="button" onClick={() => onChangeAba('naoRespondidas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'naoRespondidas')}`}>
-          NÃ£o respondidas Â· {totalNaoRespondidas}
+          Não respondidas · {totalNaoRespondidas}
         </button>
         <button type="button" onClick={() => onChangeAba('feitas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'feitas')}`}>
-          Feitas Â· {totalFeitas}
+          Feitas · {totalFeitas}
         </button>
         <button
           type="button"
@@ -622,7 +622,7 @@ function Summary({
           className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-3 py-2.5 text-xs font-black text-rose-700 shadow-sm transition hover:border-rose-500 hover:bg-rose-50 dark:border-rose-300/40 dark:bg-slate-900 dark:text-rose-200 dark:hover:bg-rose-400/10 lg:col-span-1 md:min-h-11 md:px-4 md:py-3 md:text-sm"
         >
           <RotateCcw className="h-4 w-4" strokeWidth={3} />
-          Resetar {todasQuestoes.length} questÃµes
+          Resetar {todasQuestoes.length} questões
         </button>
       </div>
 
@@ -633,10 +633,10 @@ function Summary({
           </div>
           <div>
             <p className="text-xs font-black uppercase tracking-[0.14em] md:text-sm md:tracking-[0.16em]">
-              Ordem por importÃ¢ncia na OAB
+              Ordem por importância na OAB
             </p>
             <p className="mt-1 text-xs font-semibold leading-relaxed text-emerald-950 dark:text-emerald-100 md:text-sm">
-              Ã‰tica vem primeiro, depois as matÃ©rias de maior peso.
+              �0tica vem primeiro, depois as matérias de maior peso.
             </p>
           </div>
         </div>
@@ -656,7 +656,7 @@ function Summary({
             className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-300 bg-white px-3 py-2.5 text-left text-sm font-black text-emerald-950 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10"
           >
             <span className="min-w-0">
-              ðŸŽ¯ Todas as matÃ©rias Â· {questoesDoExame.length}
+              �x}� Todas as matérias · {questoesDoExame.length}
             </span>
 
             <span className="ml-auto rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-black text-emerald-900 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
@@ -674,7 +674,7 @@ function Summary({
           </div>
 
           <p className="mt-1.5 text-xs font-bold text-emerald-900 dark:text-emerald-100">
-            Estude todas as matÃ©rias misturadas, simulando melhor o ritmo da prova.
+            Estude todas as matérias misturadas, simulando melhor o ritmo da prova.
           </p>
         </div>
 
@@ -699,8 +699,8 @@ function Summary({
                   className="flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-black text-slate-950 hover:bg-amber-50 dark:border-white/15 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
                 >
                   <span className="min-w-0">
-                    {isEtica(item.materia) ? 'âš¡ ' : item.peso >= 6 ? 'ðŸ”¥ ' : ''}
-                    {item.materia} Â· {item.total}
+                    {isEtica(item.materia) ? '�a� ' : item.peso >= 6 ? '�x� ' : ''}
+                    {item.materia} · {item.total}
                   </span>
 
                   <span className="ml-auto hidden rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[11px] font-black text-slate-900 md:inline-flex dark:border-white/10 dark:bg-slate-950 dark:text-slate-200">
@@ -739,7 +739,7 @@ function Summary({
               </div>
 
               <p className="mt-1.5 text-[11px] font-black text-slate-700 dark:text-slate-300">
-                Feitas: {item.feitas} Â· NÃ£o respondidas: {item.naoRespondidas}
+                Feitas: {item.feitas} · Não respondidas: {item.naoRespondidas}
               </p>
 
               {isOpen && (
@@ -755,7 +755,7 @@ function Summary({
                           : 'border-slate-300 bg-white text-slate-900 dark:bg-slate-800 dark:text-white'
                       }`}
                     >
-                      {tema.tema} Â· {tema.total}
+                      {tema.tema} · {tema.total}
                     </button>
                   ))}
                 </div>
@@ -838,7 +838,7 @@ function resetarAcertosDoDashboard() {
 
       localStorage.setItem(key, JSON.stringify(next));
     } catch {
-      // ignora chaves que nÃ£o forem JSON
+      // ignora chaves que não forem JSON
     }
   }
 
@@ -894,8 +894,8 @@ export default function QuestoesList() {
         const res = await fetch(`/api/questoes?${params.toString()}`, { cache: 'no-store' });
         const json = await res.json().catch(() => null);
 
-        if (!res.ok) throw new Error(json?.error || `Falha ao buscar questÃµes (${res.status})`);
-        if (!Array.isArray(json)) throw new Error('Resposta invÃ¡lida ao buscar questÃµes');
+        if (!res.ok) throw new Error(json?.error || `Falha ao buscar questões (${res.status})`);
+        if (!Array.isArray(json)) throw new Error('Resposta inválida ao buscar questões');
 
         const ordenadas = ordenarQuestoes(json);
 
@@ -909,7 +909,7 @@ export default function QuestoesList() {
       } catch (err: unknown) {
         if (!cancel) {
           setData([]);
-          setError(err instanceof Error ? err.message : 'Erro ao carregar questÃµes');
+          setError(err instanceof Error ? err.message : 'Erro ao carregar questões');
         }
       } finally {
         if (!cancel) setLoading(false);
@@ -1151,7 +1151,7 @@ export default function QuestoesList() {
       <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center p-4 text-slate-700 dark:text-slate-300">
         <p className="flex items-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Carregando questÃµes...
+          Carregando questões...
         </p>
       </div>
     );
@@ -1171,7 +1171,7 @@ export default function QuestoesList() {
     return (
       <div className="mx-auto max-w-5xl p-4">
         <div className="rounded-lg border border-slate-300 bg-white p-4 font-semibold text-slate-700 dark:border-white/15 dark:bg-slate-900 dark:text-slate-300">
-          Nenhuma questÃ£o disponÃ­vel.
+          Nenhuma questão disponível.
         </div>
       </div>
     );
@@ -1200,17 +1200,17 @@ export default function QuestoesList() {
       <section id="questoes-em-jogo" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-3 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
         <div className="mb-4">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-800 dark:text-cyan-300">
-            QuestÃµes em jogo
+            Questões em jogo
           </p>
           <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
             {activeMateria === TODAS_AS_MATERIAS
-              ? 'Todas as matÃ©rias'
+              ? 'Todas as matérias'
               : activeTema
-                ? `${activeMateria} Â· ${activeTema}`
+                ? `${activeMateria} · ${activeTema}`
                 : activeMateria}
           </h2>
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Exibindo {questoesVisiveis.length} {questoesVisiveis.length === 1 ? 'questÃ£o' : 'questÃµes'} {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matÃ©rias' : activeTema ? `do tema ${activeTema}` : 'da matÃ©ria selecionada'}.
+            Exibindo {questoesVisiveis.length} {questoesVisiveis.length === 1 ? 'questão' : 'questões'} {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matérias' : activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
           </p>
         </div>
 
@@ -1231,7 +1231,7 @@ export default function QuestoesList() {
           </div>
         ) : (
           <div className="rounded-xl border border-emerald-500 bg-emerald-50 p-4 text-sm font-black text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">
-            Nenhuma questÃ£o nesta seleÃ§Ã£o. Troque a ediÃ§Ã£o do exame, a matÃ©ria ou a aba.
+            Nenhuma questão nesta seleção. Troque a edição do exame, a matéria ou a aba.
           </div>
         )}
       </section>
@@ -1247,15 +1247,15 @@ export default function QuestoesList() {
               </div>
 
               <h2 className="text-center text-xl font-black tracking-tight md:text-2xl">
-                Resetar todas as 160 questÃµes?
+                Resetar todas as 160 questões?
               </h2>
 
               <p className="mx-auto mt-3 max-w-sm text-center text-sm font-medium leading-relaxed text-slate-300">
-                Isso vai limpar suas respostas, acertos e revisÃ£o local. O ranking permanente nÃ£o serÃ¡ apagado.
+                Isso vai limpar suas respostas, acertos e revisão local. O ranking permanente não será apagado.
               </p>
 
               <div className="mt-5 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-center text-sm font-black text-rose-200">
-                Essa aÃ§Ã£o nÃ£o pode ser desfeita.
+                Essa ação não pode ser desfeita.
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
