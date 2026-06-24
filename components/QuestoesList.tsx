@@ -30,11 +30,6 @@ type Questao = {
   alternativas: string[];
   gabarito: number | string | null;
   comentario?: string | null;
-  explicacao?: string | null;
-  explicação?: string | null;
-  comentario_ia?: string | null;
-  comentarioIA?: string | null;
-  explanation?: string | null;
   origem?: string | null;
   fonte?: string | null;
   arquivo?: string | null;
@@ -222,32 +217,13 @@ function normalizarGabarito(valor: Questao['gabarito']) {
   if (typeof valor === 'number' && valor >= 0 && valor <= 3) return valor;
 
   const texto = String(valor ?? '').trim().toUpperCase();
-  const letraMatch = texto.match(/[A-D]/);
-  if (letraMatch?.[0]) {
-    const letraIndex = LETRAS.indexOf(letraMatch[0]);
-    if (letraIndex >= 0) return letraIndex;
-  }
+  const letraIndex = LETRAS.indexOf(texto);
+  if (letraIndex >= 0) return letraIndex;
 
-  const numeroMatch = texto.match(/\d+/);
-  const numero = numeroMatch ? Number(numeroMatch[0]) : Number(texto);
+  const numero = Number(texto);
   if (Number.isInteger(numero) && numero >= 0 && numero <= 3) return numero;
-  if (Number.isInteger(numero) && numero >= 1 && numero <= 4) return numero - 1;
 
   return null;
-}
-
-function getComentarioQuestao(questao: Questao) {
-  const possiveisComentarios = [
-    questao.comentario,
-    questao.explicacao,
-    questao.explicação,
-    questao.comentario_ia,
-    questao.comentarioIA,
-    questao.explanation,
-  ];
-
-  const comentario = possiveisComentarios.find((valor) => String(valor ?? '').trim().length > 0);
-  return String(comentario ?? '').trim();
 }
 
 function scrollToQuestoes() {
@@ -324,7 +300,6 @@ function QuestaoCard({
   const answered = selected !== null;
   const acertou = answered && selected === correct;
   const exame = getExameInfo(questao);
-  const comentario = getComentarioQuestao(questao);
 
   return (
     <article
@@ -415,24 +390,22 @@ function QuestaoCard({
             </span>
           </div>
 
-          {correct !== null ? (
-            <p className={`mb-3 text-sm font-black ${acertou ? 'text-emerald-800 dark:text-emerald-100' : 'text-rose-800 dark:text-rose-100'}`}>
+          {!acertou && correct !== null && (
+            <p className="mb-3 text-sm font-black text-rose-800 dark:text-rose-100">
               Resposta correta: {LETRAS[correct]}
-            </p>
-          ) : (
-            <p className="mb-3 text-sm font-black text-amber-800 dark:text-amber-100">
-              Gabarito não identificado para esta questão.
             </p>
           )}
 
-          <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
-            <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
-              Comentário
-            </p>
-            <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
-              {comentario || 'Comentário ainda não cadastrado para esta questão.'}
-            </p>
-          </div>
+          {questao.comentario && (
+            <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
+              <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
+                Comentário
+              </p>
+              <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
+                {questao.comentario}
+              </p>
+            </div>
+          )}
 
           {reviewSuccessPending && (
             <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-3 dark:border-emerald-300/30 dark:bg-slate-950">
@@ -827,11 +800,11 @@ function removerQuestaoDaRevisaoLocal(idQuestao: number | string) {
   const id = String(idQuestao);
 
   const revisaoIds = Array.isArray(current.revisaoIds)
-    ? current.revisaoIds.map(String).filter((item: string) => item !== id)
+    ? current.revisaoIds.map(String).filter((item) => item !== id)
     : [];
 
   const questoesErradas = Array.isArray(current.questoesErradas)
-    ? current.questoesErradas.map(String).filter((item: string) => item !== id)
+    ? current.questoesErradas.map(String).filter((item) => item !== id)
     : [];
 
   localStorage.setItem(
@@ -906,16 +879,8 @@ export default function QuestoesList() {
   const [activeExame, setActiveExame] = useState<string>(TODOS_OS_EXAMES);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [reviewSuccessPending, setReviewSuccessPending] = useState<Record<string, boolean>>({});
-  const [isReviewMode, setIsReviewMode] = useState(false);
 
   const { registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const pathname = window.location.pathname.toLowerCase();
-    setIsReviewMode(pathname.includes('review') || pathname.includes('revisao') || pathname.includes('revisão'));
-  }, []);
 
   useEffect(() => {
     let cancel = false;
@@ -1025,34 +990,23 @@ export default function QuestoesList() {
     if (aba === 'feitas') {
       base = questoesDaMateria.filter((questao) => respostas[getKey(questao)] !== undefined);
     } else if (aba === 'naoRespondidas') {
-      base = questoesDaMateria.filter((questao) => {
-        const key = getKey(questao);
-
-        // No modo revisão, quando o usuário acerta, a questão precisa continuar
-        // aparecendo até ele clicar em "Continuar e remover da revisão".
-        // Sem isso, a aba "Não respondidas" remove a questão assim que a resposta
-        // é registrada e o usuário não consegue ver gabarito nem comentário.
-        return respostas[key] === undefined || Boolean(reviewSuccessPending[key]);
-      });
+      base = questoesDaMateria.filter((questao) => respostas[getKey(questao)] === undefined);
     }
 
     return ordenarEmbaralhado(base, shuffleSeed);
-  }, [aba, questoesDaMateria, respostas, reviewSuccessPending, shuffleSeed]);
+  }, [aba, questoesDaMateria, respostas, shuffleSeed]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
     if (respostas[key] !== undefined) return;
 
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
-    window.setTimeout(() => {
-      document.getElementById(`questao-${questao.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 80);
     registrarRespostaFreeHoje?.();
 
     const correct = normalizarGabarito(questao.gabarito);
 
     if (correct !== null && alternativaIndex === correct) {
-      if (isReviewMode || questaoEstaEmRevisaoLocal(questao.id)) {
+      if (questaoEstaEmRevisaoLocal(questao.id)) {
         setReviewSuccessPending((current) => ({ ...current, [key]: true }));
         return;
       }
