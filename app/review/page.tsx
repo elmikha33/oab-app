@@ -40,7 +40,7 @@ function lerRevisaoLocal() {
 }
 
 export default function ReviewPage() {
-  const { user, registrarErro, registrarAcerto, removerRevisao } = useGameState();
+  const { user, setUser, registrarErro, registrarAcerto } = useGameState();
 
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,17 +104,65 @@ export default function ReviewPage() {
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
 
     if (acertou) {
+      // IMPORTANTE:
+      // No modo revisão, a questão NÃO pode sair da tela imediatamente.
+      // Primeiro mostramos o feedback, a resposta certa e o comentário.
+      // Ela só sai quando o usuário clicar em "Continuar e remover da revisão".
       registrarAcerto?.(questao.id);
-      removerRevisao?.(questao.id);
+      return;
+    }
 
-      setRevisaoLocalIds((current) =>
-        current.filter((id) => id !== String(questao.id))
+    registrarErro?.(questao.id);
+    setRevisaoLocalIds((current) => [
+      ...new Set([...current, String(questao.id)]),
+    ]);
+  }
+
+  function removerDaRevisaoDepoisDoFeedback(questaoId: number | string) {
+    const id = String(questaoId);
+
+    setRevisaoLocalIds((current) => current.filter((item: string) => item !== id));
+    setRespostas((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+
+    setUser?.((prev: any) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        revisaoIds: Array.isArray(prev.revisaoIds)
+          ? prev.revisaoIds.map(String).filter((item: string) => item !== id)
+          : [],
+        questoesErradas: Array.isArray(prev.questoesErradas)
+          ? prev.questoesErradas.map(String).filter((item: string) => item !== id)
+          : [],
+      };
+    });
+
+    try {
+      const raw = localStorage.getItem('user-game-data');
+      const current = raw ? JSON.parse(raw) : {};
+
+      localStorage.setItem(
+        'user-game-data',
+        JSON.stringify({
+          ...current,
+          revisaoIds: Array.isArray(current.revisaoIds)
+            ? current.revisaoIds.map(String).filter((item: string) => item !== id)
+            : [],
+          questoesErradas: Array.isArray(current.questoesErradas)
+            ? current.questoesErradas.map(String).filter((item: string) => item !== id)
+            : [],
+        })
       );
-    } else {
-      registrarErro?.(questao.id);
-      setRevisaoLocalIds((current) => [
-        ...new Set([...current, String(questao.id)]),
-      ]);
+
+      window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+      window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
+    } catch {
+      // ignora falha de localStorage
     }
   }
 
@@ -273,8 +321,14 @@ export default function ReviewPage() {
                         </span>
                       </div>
 
-                      {!acertou && correct !== null && (
-                        <p className="mb-3 text-sm font-black text-rose-800 dark:text-rose-100">
+                      {correct !== null && (
+                        <p
+                          className={`mb-3 text-sm font-black ${
+                            acertou
+                              ? 'text-emerald-800 dark:text-emerald-100'
+                              : 'text-rose-800 dark:text-rose-100'
+                          }`}
+                        >
                           Resposta correta: {LETRAS[correct]}
                         </p>
                       )}
@@ -288,6 +342,16 @@ export default function ReviewPage() {
                             {questao.comentario}
                           </p>
                         </div>
+                      )}
+
+                      {acertou && (
+                        <button
+                          type="button"
+                          onClick={() => removerDaRevisaoDepoisDoFeedback(questao.id)}
+                          className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-700 md:w-auto"
+                        >
+                          Continuar e remover da revisão
+                        </button>
                       )}
                     </section>
                   )}
