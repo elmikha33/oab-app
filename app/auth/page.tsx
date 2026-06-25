@@ -18,6 +18,54 @@ function AuthFormContent() {
   const [aviso, setAviso] = useState('');
 
   useEffect(() => {
+    let cancelado = false;
+
+    async function finalizarRetornoOAuth() {
+      if (typeof window === 'undefined') return;
+
+      const url = new URL(window.location.href);
+      const temCode = url.searchParams.has('code');
+      const temAccessToken = window.location.hash.includes('access_token');
+
+      if (!temCode && !temAccessToken) return;
+
+      setCarregando(true);
+      setErro('');
+
+      try {
+        if (temCode) {
+          const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+
+          if (error) {
+            throw error;
+          }
+        }
+
+        await refreshUser();
+
+        if (!cancelado) {
+          window.history.replaceState({}, document.title, '/auth');
+          router.replace('/dashboard');
+        }
+      } catch (error: any) {
+        if (!cancelado) {
+          setErro(error?.message || 'Erro ao finalizar login com Google.');
+        }
+      } finally {
+        if (!cancelado) {
+          setCarregando(false);
+        }
+      }
+    }
+
+    finalizarRetornoOAuth();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [refreshUser, router]);
+
+  useEffect(() => {
     if (!loading && user) {
       router.replace('/dashboard');
     }
@@ -36,6 +84,10 @@ function AuthFormContent() {
       provider: 'google',
       options: {
         redirectTo: `${siteUrl}/auth`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
     });
 
@@ -118,10 +170,13 @@ function AuthFormContent() {
     router.replace('/dashboard');
   }
 
-  if (loading) {
+  if (loading || carregando) {
     return (
-      <div className="flex items-center justify-center rounded-3xl border border-emerald-300/10 bg-slate-900 p-8 text-emerald-300">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="flex w-full max-w-md flex-col items-center justify-center rounded-[2rem] border border-emerald-300/10 bg-slate-900 p-8 text-center text-emerald-300 shadow-2xl shadow-black/50">
+        <Loader2 className="h-7 w-7 animate-spin" />
+        <p className="mt-4 text-sm font-bold text-slate-200">
+          Entrando no OAPlay...
+        </p>
       </div>
     );
   }
@@ -163,13 +218,9 @@ function AuthFormContent() {
         disabled={carregando}
         className="mb-5 flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-4 py-3.5 text-sm font-black text-slate-950 transition hover:bg-emerald-50 disabled:opacity-60"
       >
-        {carregando ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[11px] font-black text-white">
-            G
-          </span>
-        )}
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[11px] font-black text-white">
+          G
+        </span>
         <span>Entrar com Google</span>
       </button>
 
@@ -212,7 +263,7 @@ function AuthFormContent() {
           disabled={carregando}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3.5 text-sm font-black text-emerald-950 transition hover:bg-emerald-200 disabled:opacity-60"
         >
-          {carregando ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+          <Mail className="h-4 w-4" />
           Entrar
         </button>
 
