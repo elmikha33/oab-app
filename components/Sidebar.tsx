@@ -16,9 +16,9 @@ import {
 
 const links = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Responder Questões', href: '/play', icon: BookOpen, featured: true },
-  { name: 'Modo Revisão', href: '/review', icon: Calendar },
-  { name: 'Classificação', href: '/ranking', icon: Award },
+  { name: 'Responder Questoes', href: '/play', icon: BookOpen, featured: true },
+  { name: 'Modo Revisao', href: '/review', icon: Calendar },
+  { name: 'Classificacao', href: '/ranking', icon: Award },
   { name: 'Ranking', href: '/ranking', icon: Trophy },
   { name: 'Seja Premium', href: '/premium', icon: Crown },
 ];
@@ -40,14 +40,26 @@ export default function Sidebar() {
     <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-emerald-300/10 bg-slate-950/95 p-5 text-slate-200 shadow-2xl shadow-black/30 backdrop-blur-xl md:flex">
       <Link
         href="/dashboard"
-        className="mb-8 flex items-center rounded-3xl border border-emerald-300/10 bg-white/[0.03] px-4 py-4 shadow-xl shadow-black/20 transition hover:bg-white/[0.05]"
+        className="mb-8 flex items-center gap-4 rounded-[2rem] border border-emerald-300/15 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-emerald-300/[0.05] px-4 py-4 shadow-xl shadow-black/25 transition hover:border-emerald-300/30 hover:bg-white/[0.07]"
         aria-label="Ir para o dashboard OAPlay"
       >
-        <img
-          src="/oaplay-logo-horizontal-transparent-white.png"
-          alt="OAPlay"
-          className="h-12 w-auto max-w-[190px] object-contain"
-        />
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-emerald-300/20 bg-slate-900 shadow-lg shadow-emerald-500/10">
+          <img
+            src="/oaplay-icon-192.png"
+            alt="OAPlay"
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="min-w-0">
+          <h1 className="font-heading text-3xl font-black leading-none tracking-tight text-white">
+            OA<span className="text-emerald-300">Play</span>
+          </h1>
+
+          <p className="mt-2 text-[9px] font-black uppercase leading-tight tracking-[0.22em] text-emerald-200/70">
+            Sua aprovacao expressa
+          </p>
+        </div>
       </Link>
 
       <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/20">
