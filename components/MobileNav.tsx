@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useGameState } from '../context/GameStateContext';
@@ -37,20 +37,26 @@ export default function MobileNav() {
 
   return (
     <div className="md:hidden">
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-slate-950/92 px-4 backdrop-blur-xl">
-        <Link href="/dashboard" className="flex items-center gap-1.5">
-          <span className="font-heading text-base font-black tracking-wide text-white">
-            OAB<span className="text-emerald-300">Play</span>
-          </span>
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-emerald-300/10 bg-slate-950/95 px-3 shadow-xl shadow-black/30 backdrop-blur-xl">
+        <Link
+          href="/dashboard"
+          className="flex min-w-0 items-center"
+          aria-label="Ir para o dashboard OAPlay"
+        >
+          <img
+            src="/oaplay-logo-horizontal-transparent-white.png"
+            alt="OAPlay"
+            className="h-9 w-auto max-w-[124px] object-contain"
+          />
         </Link>
 
-        <div className="flex items-center gap-2 text-xs font-bold">
-          <div className="flex items-center gap-1 rounded-full border border-orange-400/15 bg-orange-400/10 px-2 py-1 text-orange-300">
+        <div className="flex shrink-0 items-center gap-1.5 text-xs font-bold">
+          <div className="flex h-8 items-center gap-1 rounded-full border border-orange-400/15 bg-orange-400/10 px-2 text-orange-300">
             <Flame className="h-3.5 w-3.5" />
             <span>{user.streak}d</span>
           </div>
 
-          <div className="flex items-center gap-1 rounded-full border border-yellow-400/15 bg-yellow-400/10 px-2 py-1 text-yellow-300">
+          <div className="flex h-8 items-center gap-1 rounded-full border border-yellow-400/15 bg-yellow-400/10 px-2 text-yellow-300">
             <Coins className="h-3.5 w-3.5" />
             <span>{user.moedas}</span>
           </div>
@@ -58,7 +64,7 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={() => setMenuAberto(true)}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg shadow-emerald-500/20"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg shadow-emerald-500/20"
             aria-label="Abrir perfil"
           >
             {initial}
@@ -77,15 +83,17 @@ export default function MobileNav() {
 
           <div className="relative flex h-full w-80 max-w-[85vw] flex-col justify-between border-l border-white/10 bg-slate-950 p-6 shadow-2xl shadow-black">
             <div>
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="font-heading text-lg font-black text-white">
-                  Menu do Aluno
-                </h3>
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <img
+                  src="/oaplay-logo-horizontal-transparent-white.png"
+                  alt="OAPlay"
+                  className="h-10 w-auto max-w-[150px] object-contain"
+                />
 
                 <button
                   type="button"
                   onClick={() => setMenuAberto(false)}
-                  className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white"
                   aria-label="Fechar menu"
                 >
                   <X className="h-5 w-5" strokeWidth={3} />

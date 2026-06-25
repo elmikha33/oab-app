@@ -46,18 +46,42 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-3 pb-10 pt-20 text-slate-950 transition-colors dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white sm:px-4 md:px-8 md:pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-3 pb-10 pt-3 text-slate-950 transition-colors dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white sm:px-4 md:px-8 md:pt-8">
       <div className="mx-auto max-w-6xl">
-        <header className="mb-4 max-w-3xl md:mb-8">
-          <p className="mb-2 text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300 md:text-xs md:tracking-[0.24em]">
+        <section className="mb-4 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl shadow-emerald-950/5 dark:border-emerald-300/10 dark:bg-slate-900 md:hidden">
+          <div className="bg-slate-950 px-4 py-4">
+            <img
+              src="/oaplay-logo-horizontal-transparent-white.png"
+              alt="OAPlay"
+              className="h-10 w-auto object-contain"
+            />
+          </div>
+
+          <div className="px-4 py-4">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+              Painel de estudos
+            </p>
+
+            <h1 className="mt-2 font-heading text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+              Bem-vindo, {user.nome}
+            </h1>
+
+            <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+              Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
+            </p>
+          </div>
+        </section>
+
+        <header className="mb-4 hidden max-w-3xl md:mb-8 md:block">
+          <p className="mb-2 text-xs font-black uppercase tracking-[0.24em] text-emerald-700 dark:text-emerald-300">
             Painel de estudos
           </p>
 
-          <h1 className="font-heading text-3xl font-black tracking-tight text-slate-950 dark:text-white md:text-5xl">
+          <h1 className="font-heading text-5xl font-black tracking-tight text-slate-950 dark:text-white">
             Bem-vindo, {user.nome}
           </h1>
 
-          <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300 md:mt-3 md:text-base">
+          <p className="mt-3 text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
             Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
           </p>
         </header>
@@ -89,8 +113,15 @@ export default function Dashboard() {
             <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300 md:mb-4 md:h-14 md:w-14">
               <Flame className="h-5 w-5 md:h-7 md:w-7" />
             </div>
-            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">{streak}</p>
-            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">{streakLabel}</p>
+
+            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">
+              {streak}
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
+              {streakLabel}
+            </p>
+
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
               Mantenha a consistência.
             </p>
@@ -100,8 +131,15 @@ export default function Dashboard() {
             <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300 md:mb-4 md:h-14 md:w-14">
               <BarChart3 className="h-5 w-5 md:h-7 md:w-7" />
             </div>
-            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">{totalAcertos}</p>
-            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">questões corretas</p>
+
+            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">
+              {totalAcertos}
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
+              questões corretas
+            </p>
+
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
               Continue praticando.
             </p>
@@ -123,6 +161,7 @@ export default function Dashboard() {
                 <h2 className="font-heading text-2xl font-black leading-tight tracking-tight text-slate-950 dark:text-white md:text-3xl">
                   Estudar Agora
                 </h2>
+
                 <p className="mt-1 max-w-[210px] text-sm font-semibold leading-snug text-slate-600 dark:text-emerald-50/90 md:max-w-none md:text-base">
                   Responda questões e mantenha sua evolução.
                 </p>
