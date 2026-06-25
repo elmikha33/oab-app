@@ -1,221 +1,235 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useGameState } from '../../context/GameStateContext';
-import { Crown, Check, ShieldCheck } from 'lucide-react';
+import { Check, Crown, Loader2, ShieldCheck } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useGameState } from '@/context/GameStateContext';
+
+function formatarData(data?: string | null) {
+  if (!data) return null;
+
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date(data));
+  } catch {
+    return null;
+  }
+}
 
 export default function PremiumPage() {
-  const { user, comprarPremium } = useGameState();
+  const { user, loading, refreshUser } = useGameState();
+
   const [carregando, setCarregando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
   const [erro, setErro] = useState('');
 
-  /* ─────────────────────────── Verificação Stripe ─────────────────────────── */
+  const premiumAteFormatado = useMemo(() => formatarData(user?.premium_ate), [user?.premium_ate]);
+
   useEffect(() => {
-    if (!user) return;
-
     const params = new URLSearchParams(window.location.search);
-    if (params.get('checkout') !== 'success') return;
 
-    if (user.isPremium) {
+    if (params.get('mp') === 'success') {
       setSucesso(true);
-      return;
+      void refreshUser();
     }
+  }, [refreshUser]);
 
-    const sessionId = params.get('session_id');
-    if (!sessionId || sessionId === '{CHECKOUT_SESSION_ID}') {
-      setErro('Pagamento ainda não confirmado pela Stripe.');
-      return;
-    }
-
-    let cancelled = false;
-    (async () => {
-      setCarregando(true);
-      setErro('');
-
-      try {
-        const res = await fetch(`/api/stripe/verify?session_id=${encodeURIComponent(sessionId)}`);
-        const data = await res.json();
-        if (!res.ok || !data.premium) throw new Error(data.error || 'Pagamento ainda não confirmado.');
-
-        if (!cancelled) {
-          comprarPremium();
-          setSucesso(true);
-        }
-      } catch (err: any) {
-        if (!cancelled) setErro(err.message || 'Pagamento ainda não confirmado.');
-      } finally {
-        if (!cancelled) setCarregando(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [comprarPremium, user]);
-
-  /* ─────────────────────────── Inicialização Stripe ─────────────────────────── */
-  const handleAssinar = async () => {
+  async function handleAssinar() {
     setCarregando(true);
     setErro('');
+
     try {
-      const response = await fetch('/api/stripe/checkout', {
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+
+      if (!token) {
+        window.location.href = '/auth';
+        return;
+      }
+
+      const response = await fetch('/api/mercadopago/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: user!.nome,
-          email: user!.email || undefined,
-          userId: user!.email || user!.nome,
-        }),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      const data = await response.json();
-      if (!response.ok || !data.url) throw new Error(data.error || 'Erro ao abrir checkout.');
-      window.location.href = data.url;
+
+      const checkout = await response.json();
+
+      if (!response.ok || !checkout.url) {
+        throw new Error(checkout.error || 'Erro ao abrir checkout Mercado Pago.');
+      }
+
+      window.location.href = checkout.url;
     } catch (err: any) {
       setErro(err.message || 'Erro ao abrir checkout.');
       setCarregando(false);
     }
-  };
+  }
 
-  if (!user) return null;
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center text-emerald-300">
+        <Loader2 className="h-7 w-7 animate-spin" />
+      </div>
+    );
+  }
 
-  /* ─────────────────────────── JSX ─────────────────────────── */
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-slate-900 p-8 text-center">
+        <h1 className="font-heading text-2xl font-black text-white">Entre para assinar</h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Voce precisa criar uma conta ou entrar com Google antes de ativar o Premium.
+        </p>
+        <Link
+          href="/auth"
+          className="mt-6 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black text-emerald-950"
+        >
+          Fazer login
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-10">
-      {/* 1. Sucesso */}
+    <div className="mx-auto max-w-5xl space-y-6 px-4 pb-10 pt-4 md:px-0">
       {sucesso && (
-        <div className="glass-premium glow-purple animate-in zoom-in duration-300 rounded-3xl bg-slate-900 border border-yellow-500/30 p-8 text-center space-y-6">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-yellow-500/10 text-4xl text-yellow-500">
-            👑
-          </div>
-          <div className="space-y-2">
-            <h1 className="font-heading text-3xl font-extrabold text-white">SUA CONTA AGORA É PREMIUM!</h1>
-            <p className="mx-auto max-w-md text-sm text-slate-400">
-              Parabéns, {user.nome}! Você desbloqueou o poder total do <strong className="text-white">OAPlay</strong>.
-            </p>
-          </div>
-          <Link
-            href="/dashboard"
-            className="glow-gold mx-auto inline-block rounded-xl bg-yellow-500 px-8 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-yellow-400"
-          >
-            Ir para o Dashboard
-          </Link>
+        <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-5 text-center text-sm font-bold text-emerald-100">
+          Recebemos seu retorno do Mercado Pago. A liberacao final acontece quando o webhook confirmar o pagamento.
         </div>
       )}
 
-      {/* 2. Plano */}
-      {!sucesso && (
-        <div className="space-y-6">
-          <header className="space-y-2 py-4 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-500">
-              <Crown className="h-3.5 w-3.5 fill-yellow-500/20" />
-              Assinatura Premium
-            </span>
-            <h1 className="font-heading text-3xl font-extrabold text-white">Domine o Exame com Poder Máximo</h1>
-            <p className="mx-auto max-w-md text-sm text-slate-400">
-              Acelere sua aprovação estudando sem limites diários e com relatórios gerados por inteligência.
-            </p>
-          </header>
+      <header className="space-y-3 py-4 text-center">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
+          <Crown className="h-3.5 w-3.5 fill-yellow-500/20" />
+          OAPlay Premium
+        </span>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Benefícios */}
-            <div className="space-y-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <h3 className="font-heading text-lg font-bold text-white">O que você ganha sendo Premium?</h3>
+        <h1 className="font-heading text-3xl font-extrabold text-white md:text-5xl">
+          Sua aprovacao expressa, sem limites
+        </h1>
 
-              <ul className="space-y-4 text-xs text-slate-300 md:text-sm">
-                {/* 1 */}
-                <li className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-                  <div>
-                    <span className="block font-semibold text-white">Questões Ilimitadas</span>
-                    <span className="text-xs text-slate-400">
-                      Estude sem limites — responda quantas questões quiser, a qualquer hora.
-                    </span>
-                  </div>
-                </li>
-                {/* 2 */}
-                <li className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-                  <div>
-                    <span className="block font-semibold text-white">Acelere seus Estudos</span>
-                    <span className="text-xs text-slate-400">
-                      Missões extras diárias para acumular XP e subir de nível mais rápido.
-                    </span>
-                  </div>
-                </li>
-                {/* 3 */}
-                <li className="flex items-start gap-3">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-                  <div>
-                    <span className="block font-semibold text-white">Relatórios de Progresso</span>
-                    <span className="text-xs text-slate-400">
-                      Estatísticas detalhadas de acertos, erros e tempo médio por questão.
-                    </span>
-                  </div>
-                </li>
-              </ul>
+        <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
+          Assinatura trimestral recorrente. Voce paga R$ 99,90 a cada 3 meses e pode cancelar quando quiser.
+        </p>
+      </header>
+
+      <div className="grid gap-6 md:grid-cols-[1fr_0.9fr]">
+        <div className="space-y-6 rounded-[2rem] border border-white/10 bg-slate-900 p-6 shadow-2xl shadow-black/20">
+          <h3 className="font-heading text-xl font-bold text-white">O que voce ganha no Premium?</h3>
+
+          <ul className="space-y-5 text-sm text-slate-300">
+            <li className="flex items-start gap-3">
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <div>
+                <span className="block font-bold text-white">Questoes ilimitadas</span>
+                <span className="text-xs leading-relaxed text-slate-400">
+                  Estude sem limite diario e avance no seu ritmo.
+                </span>
+              </div>
+            </li>
+
+            <li className="flex items-start gap-3">
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <div>
+                <span className="block font-bold text-white">Ciclo completo de 3 meses</span>
+                <span className="text-xs leading-relaxed text-slate-400">
+                  Ideal para manter constancia ate a prova.
+                </span>
+              </div>
+            </li>
+
+            <li className="flex items-start gap-3">
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <div>
+                <span className="block font-bold text-white">Gamificacao completa</span>
+                <span className="text-xs leading-relaxed text-slate-400">
+                  Continue evoluindo com ranking, revisao e progresso salvo.
+                </span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-gradient-to-br from-slate-900 via-slate-900 to-yellow-950/30 p-6 shadow-2xl shadow-black/20">
+          {user.isPremium ? (
+            <div className="space-y-5 py-8 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-400/10 text-emerald-300">
+                <ShieldCheck className="h-8 w-8" />
+              </div>
+
+              <div>
+                <h3 className="font-heading text-2xl font-black text-white">
+                  Premium ativo
+                </h3>
+
+                <p className="mt-2 text-sm text-slate-400">
+                  Seu acesso Premium esta liberado
+                  {premiumAteFormatado ? ` ate ${premiumAteFormatado}` : ''}.
+                </p>
+              </div>
+
+              <Link
+                href="/dashboard"
+                className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black text-emerald-950"
+              >
+                Voltar ao painel
+              </Link>
             </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <span className="block text-[10px] font-bold uppercase tracking-[0.22em] text-yellow-300">
+                  Assinatura trimestral
+                </span>
 
-            {/* Checkout / Estado */}
-            <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              {user.isPremium ? (
-                <div className="space-y-4 py-8 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
-                    <ShieldCheck className="h-6 w-6" />
-                  </div>
-                  <h3 className="font-heading text-md font-bold text-white">Você já é Assinante Premium!</h3>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Aproveite todos os benefícios liberados no seu painel.
-                  </p>
+                <div className="flex items-end gap-2">
+                  <span className="font-heading text-5xl font-extrabold text-white">
+                    R$ 99,90
+                  </span>
                 </div>
-              ) : (
-                <>
-                  <div className="space-y-2">
-                    <span className="block text-[10px] font-bold uppercase text-slate-500">Assinatura Mensal</span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="font-heading text-3xl font-extrabold text-white">R$ 29,90</span>
-                      <span className="text-xs text-slate-400">/ por mês</span>
-                    </div>
-                    <p className="text-[10px] text-slate-500">Cancele quando quiser. Pagamento via Stripe.</p>
-                  </div>
 
-                  {erro && (
-                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-                      {erro}
-                    </div>
-                  )}
+                <p className="text-sm font-semibold text-slate-300">
+                  Cobrado automaticamente a cada 3 meses.
+                </p>
 
-                  <div className="space-y-4 pt-4">
-                    <div className="rounded-xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-400">
-                      O pagamento abre no checkout seguro da Stripe.
-                    </div>
+                <p className="text-xs leading-relaxed text-slate-500">
+                  Pagamento seguro pelo Mercado Pago. Cancele quando quiser.
+                </p>
+              </div>
 
-                    <button
-                      onClick={handleAssinar}
-                      disabled={carregando}
-                      className="glow-gold flex w-full items-center justify-center gap-2 rounded-xl bg-yellow-500
-                                 py-3.5 text-sm font-bold text-slate-950 transition hover:bg-yellow-400 disabled:opacity-50"
-                    >
-                      {carregando ? (
-                        <>
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-t-slate-950 border-slate-950/20" />
-                          <span>Processando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Crown className="h-4 w-4" />
-                          <span>Assinar Plano Premium</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </>
+              {erro && (
+                <div className="mt-5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+                  {erro}
+                </div>
               )}
-            </div>
-          </div>
+
+              <button
+                onClick={handleAssinar}
+                disabled={carregando}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-yellow-400 py-4 text-sm font-black text-slate-950 shadow-lg shadow-yellow-500/20 transition hover:bg-yellow-300 disabled:opacity-50"
+              >
+                {carregando ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Abrindo Mercado Pago...
+                  </>
+                ) : (
+                  <>
+                    <Crown className="h-4 w-4" />
+                    Assinar Premium trimestral
+                  </>
+                )}
+              </button>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

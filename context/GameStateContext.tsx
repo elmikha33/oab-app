@@ -1,16 +1,30 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 const GameStateContext = createContext<any>(null);
 
 const conquistas = [
-  { id: 'badge_first', titulo: 'Primeira questão', descricao: 'Respondeu a primeira questão no LegⅠ.', icone: 'award' },
-  { id: 'badge_10_correct', titulo: 'Sequência inicial', descricao: 'Acertou 10 questões no total.', icone: 'award' },
+  {
+    id: 'badge_first',
+    titulo: 'Primeira questao',
+    descricao: 'Respondeu a primeira questao no OAPlay.',
+    icone: 'award',
+  },
+  {
+    id: 'badge_10_correct',
+    titulo: 'Sequencia inicial',
+    descricao: 'Acertou 10 questoes no total.',
+    icone: 'award',
+  },
 ];
 
 function normalizarIdsQuestao(questaoId: number | string | Array<number | string>) {
-  return (Array.isArray(questaoId) ? questaoId : [questaoId]).map((id) => String(id)).filter(Boolean);
+  return (Array.isArray(questaoId) ? questaoId : [questaoId])
+    .map((id) => String(id))
+    .filter(Boolean);
 }
 
 function lerRespostasQuestoesLocal() {
@@ -29,6 +43,24 @@ function lerRespostasQuestoesLocal() {
   }
 }
 
+function premiumEstaAtivo(profile: any) {
+  if (!profile?.premium_ate) return false;
+  return new Date(profile.premium_ate).getTime() > Date.now();
+}
+
+function nomeDoAuthUser(authUser?: SupabaseUser | null) {
+  if (!authUser) return 'Candidato';
+
+  const metadata = authUser.user_metadata || {};
+  return (
+    metadata.full_name ||
+    metadata.name ||
+    metadata.nome ||
+    authUser.email?.split('@')[0] ||
+    'Candidato'
+  );
+}
+
 function criarUsuario(base: any = {}) {
   const today = new Date().toISOString().split('T')[0];
   const nome = base.nome || 'Candidato';
@@ -37,29 +69,56 @@ function criarUsuario(base: any = {}) {
     ...new Set([...(base.questoesRespondidas || []), ...(base.questoesErradas || [])].map(String)),
   ];
 
+  const email = base.email || null;
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+
   return {
+    id: base.id || null,
+    email,
     nome,
+    avatar_url: base.avatar_url || null,
+
     streak: base.streak || 1,
     lastAccess: today,
     acertos: base.acertos || 0,
     moedas: base.moedas || 0,
-    xp: 0,
+    xp: base.xp || 0,
     nivel: base.nivel || 1,
     xpNecessario: base.xpNecessario || 100,
+
     questoesRespondidas,
     questoesErradas: Array.isArray(base.questoesErradas) ? base.questoesErradas.map(String) : [],
     revisaoIds: Array.isArray(base.revisaoIds) ? base.revisaoIds.map(String) : [],
-    respostasQuestoes: base.respostasQuestoes && typeof base.respostasQuestoes === 'object' ? base.respostasQuestoes : {},
-    freeDailyAnswers: base.freeDailyAnswers?.date === today ? base.freeDailyAnswers : { date: today, count: 0 },
+    respostasQuestoes:
+      base.respostasQuestoes && typeof base.respostasQuestoes === 'object'
+        ? base.respostasQuestoes
+        : {},
+
+    freeDailyAnswers:
+      base.freeDailyAnswers?.date === today
+        ? base.freeDailyAnswers
+        : { date: today, count: 0 },
+
     conquistasDesbloqueadas: base.conquistasDesbloqueadas || [],
-    isPremium: base.isPremium || false,
-    isAdmin: base.isAdmin || nome.toLowerCase() === 'admin',
+
+    isPremium: Boolean(base.isPremium),
+    premium_ate: base.premium_ate || null,
+    plano: base.plano || (base.isPremium ? 'premium_trimestral' : 'free'),
+    subscription_status: base.subscription_status || null,
+    mercado_pago_subscription_id: base.mercado_pago_subscription_id || null,
+
+    isAdmin:
+      Boolean(base.isAdmin) ||
+      nome.toLowerCase() === 'admin' ||
+      Boolean(adminEmail && email && email.toLowerCase() === adminEmail.toLowerCase()),
 
     rankingScore: base.rankingScore || 0,
     rankingQuestions: base.rankingQuestions || 0,
     rankingActiveDays: base.rankingActiveDays || 0,
     rankingLastActiveDay: base.rankingLastActiveDay || null,
-    rankingAnsweredIds: Array.isArray(base.rankingAnsweredIds) ? base.rankingAnsweredIds.map(String) : [],
+    rankingAnsweredIds: Array.isArray(base.rankingAnsweredIds)
+      ? base.rankingAnsweredIds.map(String)
+      : [],
     rankingMilestones: Array.isArray(base.rankingMilestones) ? base.rankingMilestones : [],
   };
 }
@@ -105,32 +164,137 @@ function aplicarRanking(prev: any, questaoId: number | string | Array<number | s
   };
 }
 
+async function buscarProfile(accessToken: string) {
+  const res = await fetch('/api/auth/profile', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Erro ao carregar perfil.');
+  }
+
+  return res.json();
+}
+
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const carregarUsuario = useCallback(async (sessaoAtual?: Session | null) => {
+    setLoading(true);
+
+    try {
+      const sessao =
+        sessaoAtual ??
+        (await supabase.auth.getSession()).data.session;
+
+      setSession(sessao);
+
+      if (!sessao?.user || !sessao.access_token) {
+        setUser(null);
+        return;
+      }
+
+      const authUser = sessao.user;
+      const profile = await buscarProfile(sessao.access_token);
+
+      let savedLocal: any = {};
+      try {
+        const raw = localStorage.getItem('user-game-data');
+        savedLocal = raw ? JSON.parse(raw) : {};
+      } catch {
+        savedLocal = {};
+      }
+
+      const mergedUser = criarUsuario({
+        ...savedLocal,
+        id: authUser.id,
+        email: authUser.email,
+        nome: profile?.nome || savedLocal.nome || nomeDoAuthUser(authUser),
+        avatar_url: profile?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        isPremium: premiumEstaAtivo(profile),
+        premium_ate: profile?.premium_ate || null,
+        plano: profile?.plano || 'free',
+        subscription_status: profile?.subscription_status || null,
+        mercado_pago_subscription_id: profile?.mercado_pago_subscription_id || null,
+      });
+
+      setUser(mergedUser);
+      localStorage.setItem('user-game-data', JSON.stringify(mergedUser));
+    } catch (error) {
+      console.error(error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user-game-data');
-    const updatedUser = criarUsuario(savedUser ? JSON.parse(savedUser) : {});
-    setUser(updatedUser);
-    localStorage.setItem('user-game-data', JSON.stringify(updatedUser));
-  }, []);
+    let ativo = true;
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!ativo) return;
+      void carregarUsuario(data.session);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, novaSessao) => {
+      if (!ativo) return;
+
+      if (!novaSessao) {
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      void carregarUsuario(novaSessao);
+    });
+
+    return () => {
+      ativo = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [carregarUsuario]);
 
   useEffect(() => {
     if (!user) return;
     localStorage.setItem('user-game-data', JSON.stringify(user));
   }, [user]);
 
+  const refreshUser = useCallback(async () => {
+    await carregarUsuario();
+  }, [carregarUsuario]);
+
   const loginMock = useCallback((nome: string) => {
     setUser(criarUsuario({ nome }));
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     localStorage.removeItem('user-game-data');
     setUser(null);
+    setSession(null);
+    await supabase.auth.signOut();
   }, []);
 
   const comprarPremium = useCallback(() => {
-    setUser((prev: any) => (prev ? { ...prev, isPremium: true } : prev));
+    setUser((prev: any) => {
+      if (!prev) return prev;
+
+      const premiumAte = new Date();
+      premiumAte.setMonth(premiumAte.getMonth() + 3);
+
+      return {
+        ...prev,
+        isPremium: true,
+        premium_ate: premiumAte.toISOString(),
+        plano: 'premium_trimestral',
+      };
+    });
   }, []);
 
   const registrarRespostaFreeHoje = useCallback(() => {
@@ -153,23 +317,32 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const acertos = jaRespondida ? prev.acertos || 0 : (prev.acertos || 0) + 1;
 
       const conquistasDesbloqueadas = [
-        ...new Set([...(prev.conquistasDesbloqueadas || []), 'badge_first', ...(acertos >= 10 ? ['badge_10_correct'] : [])]),
+        ...new Set([
+          ...(prev.conquistasDesbloqueadas || []),
+          'badge_first',
+          ...(acertos >= 10 ? ['badge_10_correct'] : []),
+        ]),
       ];
 
       const comRanking = aplicarRanking(prev, questaoId);
       const respostasQuestoes = {
-        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object' ? prev.respostasQuestoes : {}),
+        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object'
+          ? prev.respostasQuestoes
+          : {}),
         ...lerRespostasQuestoesLocal(),
       };
 
       return {
         ...comRanking,
         acertos,
-        xp: 0,
         respostasQuestoes,
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
-        questoesErradas: (prev.questoesErradas || []).filter((id: number | string) => !ids.includes(String(id))),
-        conquistasDesbloqueadas: jaRespondida ? prev.conquistasDesbloqueadas || [] : conquistasDesbloqueadas,
+        questoesErradas: (prev.questoesErradas || []).filter((id: number | string) =>
+          !ids.includes(String(id))
+        ),
+        conquistasDesbloqueadas: jaRespondida
+          ? prev.conquistasDesbloqueadas || []
+          : conquistasDesbloqueadas,
       };
     });
   }, []);
@@ -181,13 +354,14 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const ids = normalizarIdsQuestao(questaoId);
       const comRanking = aplicarRanking(prev, questaoId);
       const respostasQuestoes = {
-        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object' ? prev.respostasQuestoes : {}),
+        ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object'
+          ? prev.respostasQuestoes
+          : {}),
         ...lerRespostasQuestoesLocal(),
       };
 
       return {
         ...comRanking,
-        xp: 0,
         respostasQuestoes,
         questoesRespondidas: [...new Set([...(prev.questoesRespondidas || []).map(String), ...ids])],
         questoesErradas: [...new Set([...(prev.questoesErradas || []).map(String), ...ids])],
@@ -218,6 +392,9 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       value={{
         user,
         setUser,
+        session,
+        loading,
+        refreshUser,
         loginMock,
         logout,
         comprarPremium,

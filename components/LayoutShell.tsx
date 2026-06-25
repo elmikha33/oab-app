@@ -1,24 +1,21 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 import { Moon, Sun } from 'lucide-react';
+import { useGameState } from '@/context/GameStateContext';
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useGameState();
 
   const [darkMode, setDarkMode] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   const hideLayout = pathname === '/' || pathname === '/auth';
-
-  /**
-   * Correção principal:
-   * no /play a sidebar desktop não aparece.
-   * Assim a tela de questões volta a ficar limpa como antes.
-   */
   const showDesktopSidebar = pathname !== '/play';
 
   useEffect(() => {
@@ -29,6 +26,14 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     document.documentElement.classList.toggle('dark', initialDark);
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (hideLayout) return;
+    if (loading) return;
+    if (!user) {
+      router.replace('/auth');
+    }
+  }, [hideLayout, loading, user, router]);
 
   function toggleTheme() {
     const next = !darkMode;
@@ -42,12 +47,20 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     return <>{children}</>;
   }
 
+  if (loading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-emerald-300">
+        Carregando OAPlay...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white">
       <div className="flex min-h-screen">
         {showDesktopSidebar && <Sidebar />}
 
-        <main className="min-w-0 flex-1 pb-28 pt-14 md:pb-0 md:pt-0">
+        <main className="min-w-0 flex-1 pb-28 pt-16 md:pb-0 md:pt-0">
           {children}
         </main>
       </div>
@@ -71,4 +84,4 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <MobileNav />
     </div>
   );
-}   
+}
