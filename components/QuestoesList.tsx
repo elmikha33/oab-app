@@ -355,7 +355,7 @@ function QuestaoCard({
         </span>
       </div>
 
-      <h2 className="mb-6 whitespace-pre-line text-justify text-base font-semibold leading-8 tracking-wide text-slate-950 dark:text-white md:text-lg md:leading-9">
+      <h2 className="mb-5 whitespace-pre-line text-left text-[15px] font-semibold leading-7 tracking-normal text-slate-950 dark:text-white md:mb-6 md:text-justify md:text-lg md:leading-9 md:tracking-wide">
         {questao.enunciado}
       </h2>
 
@@ -370,7 +370,7 @@ function QuestaoCard({
               type="button"
               onClick={() => onResponder(questao, alternativaIndex)}
               disabled={answered}
-              className={`grid w-full grid-cols-[2.25rem_1fr_1.25rem] items-start gap-3 rounded-xl border px-4 py-4 text-left transition md:grid-cols-[2.5rem_1fr_1.5rem] md:gap-4 md:px-5 md:py-5 ${optionClass(
+              className={`grid w-full grid-cols-[2.25rem_1fr_1.25rem] items-start gap-2.5 rounded-xl border px-3 py-3 text-left transition md:grid-cols-[2.5rem_1fr_1.5rem] md:gap-4 md:px-5 md:py-5 ${optionClass(
                 alternativaIndex,
                 selected,
                 correct
@@ -380,7 +380,7 @@ function QuestaoCard({
                 {LETRAS[alternativaIndex]}
               </span>
 
-              <span className="min-w-0 whitespace-pre-line text-justify text-[15px] leading-7 tracking-wide md:text-base md:leading-8">{alt}</span>
+              <span className="min-w-0 whitespace-pre-line text-left text-sm leading-6 tracking-normal md:text-justify md:text-base md:leading-8 md:tracking-wide">{alt}</span>
 
               <span className="flex justify-end">
                 {isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />}
@@ -429,7 +429,7 @@ function QuestaoCard({
             <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
               Comentário
             </p>
-            <p className="whitespace-pre-line text-justify text-sm leading-7 tracking-wide text-slate-800 dark:text-slate-100 md:text-[15px] md:leading-8">
+            <p className="whitespace-pre-line text-left text-sm leading-6 tracking-normal text-slate-800 dark:text-slate-100 md:text-justify md:text-[15px] md:leading-8 md:tracking-wide">
               {comentario || 'Comentário ainda não cadastrado para esta questão.'}
             </p>
           </div>
@@ -570,10 +570,10 @@ function Summary({
   }, [questoesDoExame, respostas]);
 
   return (
-    <section id="resumo-rodada" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-2.5 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
-      <div className="mb-3 flex flex-col gap-3 md:mb-5 md:flex-row md:items-start md:justify-between">
+    <section id="resumo-rodada" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white/95 p-2.5 shadow-sm dark:border-white/10 dark:bg-slate-900/95 md:p-4">
+      <div className="mb-2.5 flex flex-col gap-2.5 md:mb-3 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
-          <h1 className="text-xl font-black leading-tight text-slate-950 dark:text-white md:mt-2 md:text-2xl">
+          <h1 className="text-xl font-black leading-tight text-slate-950 dark:text-white md:text-2xl">
             {activeMateria === TODAS_AS_MATERIAS
               ? 'Todas as matérias'
               : activeTema
@@ -589,7 +589,7 @@ function Summary({
           <button
             type="button"
             onClick={onShuffle}
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 shadow-sm transition hover:border-emerald-500 hover:bg-emerald-100 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-200 dark:hover:bg-emerald-300/15 md:min-h-11 md:px-4 md:text-sm"
+            className="inline-flex min-h-9 items-center gap-2 rounded-xl border border-emerald-300 bg-white px-3 py-1.5 text-xs font-black text-emerald-800 shadow-sm transition hover:border-emerald-500 hover:bg-emerald-50 dark:border-emerald-300/25 dark:bg-slate-800 dark:text-emerald-200 dark:hover:bg-emerald-300/10 md:min-h-10 md:px-3.5 md:text-sm"
           >
             <Shuffle className="h-4 w-4" strokeWidth={3} />
             Embaralhar
@@ -597,8 +597,8 @@ function Summary({
         </div>
       </div>
 
-      <div className="mb-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-2.5 dark:border-emerald-300/35 dark:bg-slate-800 md:mb-4 md:p-3">
-        <div className="mb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-emerald-800 dark:text-emerald-100 md:text-xs md:tracking-[0.18em]">
+      <div className="mb-2.5 rounded-2xl border border-emerald-200 bg-slate-50/80 p-2 dark:border-emerald-300/20 dark:bg-slate-800/70 md:mb-3 md:p-2.5">
+        <div className="mb-1.5 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-800 dark:text-emerald-100 md:text-[11px] md:tracking-[0.16em]">
           <FileText className="h-4 w-4" strokeWidth={3} />
           Edição do exame
         </div>
@@ -607,7 +607,7 @@ function Summary({
           <button
             type="button"
             onClick={() => onSelectExame(TODOS_OS_EXAMES)}
-            className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black transition ${
+            className={`shrink-0 rounded-xl border px-3 py-1.5 text-xs font-black transition ${
               activeExame === TODOS_OS_EXAMES
                 ? 'border-emerald-700 bg-emerald-600 text-white shadow-sm shadow-emerald-500/20 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
                 : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
@@ -621,7 +621,7 @@ function Summary({
               key={exame.key}
               type="button"
               onClick={() => onSelectExame(exame.key)}
-              className={`shrink-0 rounded-xl border px-3 py-2 text-xs font-black transition ${
+              className={`shrink-0 rounded-xl border px-3 py-1.5 text-xs font-black transition ${
                 activeExame === exame.key
                   ? 'border-emerald-700 bg-emerald-600 text-white shadow-sm shadow-emerald-500/20 dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
                   : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
@@ -633,48 +633,48 @@ function Summary({
         </div>
       </div>
 
-      <div className="mb-3 grid grid-cols-2 gap-2 md:mb-4 lg:grid-cols-4">
-        <button type="button" onClick={() => onChangeAba('todas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'todas')}`}>
+      <div className="mb-2.5 grid grid-cols-2 gap-2 md:mb-3 lg:grid-cols-4">
+        <button type="button" onClick={() => onChangeAba('todas')} className={`rounded-xl border px-2 py-2 text-xs font-black transition md:px-4 md:py-2.5 md:text-sm ${tabClass(aba === 'todas')}`}>
           Todas · {questoesDoModoAtual.length}
         </button>
-        <button type="button" onClick={() => onChangeAba('naoRespondidas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'naoRespondidas')}`}>
+        <button type="button" onClick={() => onChangeAba('naoRespondidas')} className={`rounded-xl border px-2 py-2 text-xs font-black transition md:px-4 md:py-2.5 md:text-sm ${tabClass(aba === 'naoRespondidas')}`}>
           Não respondidas · {totalNaoRespondidas}
         </button>
-        <button type="button" onClick={() => onChangeAba('feitas')} className={`rounded-xl border px-2 py-2.5 text-xs font-black transition md:px-4 md:py-3 md:text-sm ${tabClass(aba === 'feitas')}`}>
+        <button type="button" onClick={() => onChangeAba('feitas')} className={`rounded-xl border px-2 py-2 text-xs font-black transition md:px-4 md:py-2.5 md:text-sm ${tabClass(aba === 'feitas')}`}>
           Feitas · {totalFeitas}
         </button>
         <button
           type="button"
           onClick={onResetTodas}
-          className="col-span-2 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-3 py-2.5 text-xs font-black text-rose-700 shadow-sm transition hover:border-rose-500 hover:bg-rose-50 dark:border-rose-300/40 dark:bg-slate-900 dark:text-rose-200 dark:hover:bg-rose-400/10 lg:col-span-1 md:min-h-11 md:px-4 md:py-3 md:text-sm"
+          className="col-span-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-3 py-2 text-xs font-black text-rose-700 shadow-sm transition hover:border-rose-500 hover:bg-rose-50 dark:border-rose-300/40 dark:bg-slate-900 dark:text-rose-200 dark:hover:bg-rose-400/10 lg:col-span-1 md:min-h-10 md:px-4 md:py-2.5 md:text-sm"
         >
           <RotateCcw className="h-4 w-4" strokeWidth={3} />
           Resetar {todasQuestoes.length} questões
         </button>
       </div>
 
-      <div className="mb-3 rounded-2xl border border-emerald-500 bg-emerald-100 p-3 text-emerald-950 dark:border-emerald-300/45 dark:bg-emerald-300/10 dark:text-emerald-100 md:mb-4 md:p-4">
+      <div className="mb-2.5 rounded-2xl border border-emerald-300 bg-white p-2.5 text-emerald-950 dark:border-emerald-300/25 dark:bg-slate-800/80 dark:text-emerald-100 md:mb-3 md:p-3">
         <div className="flex gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-500 bg-emerald-200 text-emerald-950 dark:border-emerald-300/45 dark:bg-emerald-300/15 dark:text-emerald-100 md:h-10 md:w-10">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100 md:h-9 md:w-9">
             <AlertTriangle className="h-5 w-5" strokeWidth={3} />
           </div>
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.14em] md:text-sm md:tracking-[0.16em]">
-              Ordem por importância na OAB
+            <p className="text-[11px] font-black uppercase tracking-[0.13em] md:text-xs md:tracking-[0.15em]">
+              Ordem sugerida na OAB
             </p>
-            <p className="mt-1 text-xs font-semibold leading-relaxed text-emerald-950 dark:text-emerald-100 md:text-sm">
-              Ética vem primeiro, depois as matérias de maior peso.
+            <p className="mt-0.5 text-xs font-semibold leading-relaxed text-emerald-900 dark:text-emerald-100 md:text-sm">
+              Ética primeiro, depois as matérias de maior peso.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         <div
           className={
             activeMateria === TODAS_AS_MATERIAS
-              ? 'rounded-xl border-2 border-emerald-500 bg-emerald-50 p-2.5 dark:border-emerald-300/60 dark:bg-slate-800 md:p-3'
-              : 'rounded-xl border border-emerald-300 bg-emerald-50/80 p-2.5 dark:border-emerald-300/30 dark:bg-emerald-300/10 md:p-3'
+              ? 'rounded-xl border-2 border-emerald-500 bg-white p-2.5 dark:border-emerald-300/50 dark:bg-slate-800 md:p-3'
+              : 'rounded-xl border border-emerald-200 bg-white p-2.5 dark:border-emerald-300/20 dark:bg-slate-800/80 md:p-3'
           }
         >
           <button
@@ -715,15 +715,15 @@ function Summary({
               key={item.materia}
               className={
                 isActive
-                  ? 'rounded-xl border-2 border-emerald-500 bg-emerald-50 p-2.5 dark:border-emerald-300/60 dark:bg-slate-800 md:p-3'
-                  : 'rounded-xl border border-slate-300 bg-slate-50 p-2.5 dark:border-white/15 dark:bg-slate-800 md:p-3'
+                  ? 'rounded-xl border-2 border-emerald-500 bg-white p-2.5 dark:border-emerald-300/50 dark:bg-slate-800 md:p-3'
+                  : 'rounded-xl border border-slate-200 bg-white p-2.5 dark:border-white/10 dark:bg-slate-800/80 md:p-3'
               }
             >
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => onSelectMateria(item.materia)}
-                  className="flex min-h-11 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-black text-slate-950 hover:bg-amber-50 dark:border-white/15 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+                  className="flex min-h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-black text-slate-950 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
                 >
                   <span className="min-w-0">
                     {isEtica(item.materia) ? '⚡ ' : item.peso >= 6 ? '🔥 ' : ''}
@@ -744,7 +744,7 @@ function Summary({
                     aria-expanded={isOpen}
                     aria-label={isOpen ? 'Recolher temas' : 'Expandir temas'}
                     title={isOpen ? 'Recolher temas' : 'Expandir temas'}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-900 transition hover:bg-slate-100 dark:border-white/15 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-900 transition hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-700"
                   >
                     <ChevronDown className={`h-4 w-4 transition ${isOpen ? 'rotate-180' : ''}`} strokeWidth={3} />
                   </button>
@@ -754,7 +754,7 @@ function Summary({
                     onClick={() => onResetMateria(item.materia)}
                     aria-label={`Resetar ${item.materia}`}
                     title={`Resetar ${item.materia}`}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/15 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-400/10 dark:hover:text-rose-200"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-rose-400 hover:bg-rose-50 hover:text-rose-700 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-rose-300/45 dark:hover:bg-rose-400/10 dark:hover:text-rose-200"
                   >
                     <RotateCcw className="h-4 w-4" strokeWidth={3} />
                   </button>
