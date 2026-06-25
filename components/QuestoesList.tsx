@@ -15,6 +15,7 @@ import {
 import { useGameState } from '@/context/GameStateContext';
 
 const LIMIT_QUESTOES = 10000;
+const FREE_DAILY_LIMIT = 5;
 const LETRAS = ['A', 'B', 'C', 'D'];
 const TODAS_AS_MATERIAS = '__TODAS_AS_MATERIAS__';
 const TODOS_OS_EXAMES = '__TODOS_OS_EXAMES__';
@@ -907,8 +908,15 @@ export default function QuestoesList() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [reviewSuccessPending, setReviewSuccessPending] = useState<Record<string, boolean>>({});
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
 
-  const { registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
+  const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
+
+  const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
+    ? user?.freeDailyAnswers?.count || 0
+    : 0;
+
+  const freeLimitReached = !user?.isPremium && freeDailyCount >= FREE_DAILY_LIMIT;
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1042,6 +1050,11 @@ export default function QuestoesList() {
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
     if (respostas[key] !== undefined) return;
+
+    if (freeLimitReached) {
+      setShowFreeLimitModal(true);
+      return;
+    }
 
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
     window.setTimeout(() => {
@@ -1243,6 +1256,29 @@ export default function QuestoesList() {
         onShuffle={embaralharQuestoes}
       />
 
+      {!user?.isPremium && (
+        <section className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em]">
+                Plano gratuito
+              </p>
+
+              <p className="mt-1 text-sm font-bold leading-relaxed">
+                Voc? usou {freeDailyCount} de {FREE_DAILY_LIMIT} quest?es gr?tis hoje.
+              </p>
+            </div>
+
+            <a
+              href="/premium"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-amber-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-amber-300"
+            >
+              Liberar Premium
+            </a>
+          </div>
+        </section>
+      )}
+
       <section id="questoes-em-jogo" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-3 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
         <div className="mb-4">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-800 dark:text-cyan-300">
@@ -1281,6 +1317,45 @@ export default function QuestoesList() {
           </div>
         )}
       </section>
+
+      {showFreeLimitModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/85 px-4 backdrop-blur-lg">
+          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/60 text-white shadow-2xl shadow-black ring-1 ring-white/10">
+            <div className="relative p-5 md:p-6">
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-400 via-emerald-300 to-cyan-300" />
+
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-300/35 bg-amber-500/15 text-3xl shadow-lg shadow-black/30">
+                ??
+              </div>
+
+              <h2 className="text-center text-xl font-black tracking-tight md:text-2xl">
+                Limite gr?tis atingido
+              </h2>
+
+              <p className="mx-auto mt-3 max-w-sm text-center text-sm font-medium leading-relaxed text-slate-300">
+                Voc? respondeu {FREE_DAILY_LIMIT} quest?es gr?tis hoje. Assine o Premium para continuar estudando sem limite.
+              </p>
+
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFreeLimitModal(false)}
+                  className="min-h-12 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
+                >
+                  Agora n?o
+                </button>
+
+                <a
+                  href="/premium"
+                  className="flex min-h-12 items-center justify-center rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-400 to-yellow-300 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-amber-950/30 transition hover:from-amber-300 hover:to-yellow-200"
+                >
+                  Conhecer Premium
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showResetConfirm && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/85 px-4 backdrop-blur-lg">
