@@ -5,8 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
-import { Crown, Moon, Sun } from 'lucide-react';
+import { Crown, LogOut, Moon, Sun } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
+import { supabase } from '@/lib/supabase';
 
 function FloatingPremiumCard() {
   return (
@@ -57,13 +58,54 @@ function MobileFloatingPremiumCard() {
   );
 }
 
+function LogoutButton({
+  mobile = false,
+  onLogout,
+}: {
+  mobile?: boolean;
+  onLogout: () => void;
+}) {
+  if (mobile) {
+    return (
+      <button
+        type="button"
+        onClick={onLogout}
+        className="fixed bottom-4 right-4 z-[9999] inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-rose-300/25 bg-slate-950/95 text-rose-200 shadow-2xl shadow-black/40 backdrop-blur-xl transition active:scale-95 md:hidden"
+        aria-label="Sair"
+        title="Sair"
+      >
+        <LogOut className="h-5 w-5" strokeWidth={2.7} />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onLogout}
+      className="fixed bottom-4 left-4 z-[9999] hidden w-[248px] items-center justify-center gap-2 rounded-2xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm font-black text-slate-300 shadow-2xl shadow-black/40 backdrop-blur-xl transition hover:border-rose-300/35 hover:bg-rose-500/10 hover:text-rose-200 md:inline-flex"
+      aria-label="Sair da conta"
+      title="Sair da conta"
+    >
+      <LogOut className="h-4 w-4" strokeWidth={2.7} />
+      Sair
+    </button>
+  );
+}
+
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useGameState();
+  const gameState = useGameState();
+
+  const user = gameState?.user;
+  const loading = gameState?.loading;
+  const logout = gameState?.logout;
+  const setUser = gameState?.setUser;
 
   const [darkMode, setDarkMode] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [saindo, setSaindo] = useState(false);
 
   const hideLayout = pathname === '/' || pathname === '/auth';
   const showDesktopSidebar = pathname !== '/play';
@@ -100,6 +142,33 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
     document.documentElement.classList.toggle('dark', next);
   }
 
+  async function handleLogout() {
+    if (saindo) return;
+
+    setSaindo(true);
+
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Continua o logout local mesmo se o Supabase falhar.
+    }
+
+    try {
+      logout?.();
+    } catch {
+      // Ignora falha do logout antigo.
+    }
+
+    try {
+      setUser?.(null);
+    } catch {
+      // Ignora falha do setUser.
+    }
+
+    router.replace('/auth');
+    router.refresh();
+  }
+
   if (hideLayout) {
     return <>{children}</>;
   }
@@ -128,6 +197,9 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           <MobileFloatingPremiumCard />
         </>
       )}
+
+      <LogoutButton onLogout={handleLogout} />
+      <LogoutButton mobile onLogout={handleLogout} />
 
       {mounted && (
         <button
