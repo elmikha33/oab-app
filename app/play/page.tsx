@@ -19,7 +19,10 @@ export default function PlayPage() {
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [handleScroll]);
 
   useEffect(() => {
@@ -29,10 +32,10 @@ export default function PlayPage() {
 
   return (
     <main className="relative min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
-      <div className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90">
+      <div className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
           <Link
-            href="/"
+            href="/dashboard"
             className="inline-flex items-center gap-2 rounded-full border border-amber-400 bg-amber-100 px-3 py-2 text-sm font-black text-amber-950 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-200 dark:border-amber-300/35 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={3} />
