@@ -201,7 +201,14 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       }
 
       const authUser = sessao.user;
-      const profile = await buscarProfile(sessao.access_token);
+
+      let profile: any = null;
+
+      try {
+        profile = await buscarProfile(sessao.access_token);
+      } catch (profileError) {
+        console.warn('Nao foi possivel carregar profile. Usando dados do Supabase Auth.', profileError);
+      }
 
       let savedLocal: any = {};
       try {
