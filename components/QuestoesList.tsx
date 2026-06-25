@@ -355,7 +355,7 @@ function QuestaoCard({
         </span>
       </div>
 
-      <h2 className="mb-5 text-base font-semibold leading-relaxed text-slate-950 dark:text-white md:text-lg">
+      <h2 className="mb-6 whitespace-pre-line text-justify text-base font-semibold leading-8 tracking-wide text-slate-950 dark:text-white md:text-lg md:leading-9">
         {questao.enunciado}
       </h2>
 
@@ -370,7 +370,7 @@ function QuestaoCard({
               type="button"
               onClick={() => onResponder(questao, alternativaIndex)}
               disabled={answered}
-              className={`grid w-full grid-cols-[2.25rem_1fr_1.25rem] items-center gap-2 rounded-xl border px-3 py-3 text-left transition md:grid-cols-[2.5rem_1fr_1.5rem] md:gap-3 md:px-4 ${optionClass(
+              className={`grid w-full grid-cols-[2.25rem_1fr_1.25rem] items-start gap-3 rounded-xl border px-4 py-4 text-left transition md:grid-cols-[2.5rem_1fr_1.5rem] md:gap-4 md:px-5 md:py-5 ${optionClass(
                 alternativaIndex,
                 selected,
                 correct
@@ -380,7 +380,7 @@ function QuestaoCard({
                 {LETRAS[alternativaIndex]}
               </span>
 
-              <span className="min-w-0 text-sm leading-relaxed md:text-[15px]">{alt}</span>
+              <span className="min-w-0 whitespace-pre-line text-justify text-[15px] leading-7 tracking-wide md:text-base md:leading-8">{alt}</span>
 
               <span className="flex justify-end">
                 {isCorrect && <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />}
@@ -429,7 +429,7 @@ function QuestaoCard({
             <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
               Comentário
             </p>
-            <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
+            <p className="whitespace-pre-line text-justify text-sm leading-7 tracking-wide text-slate-800 dark:text-slate-100 md:text-[15px] md:leading-8">
               {comentario || 'Comentário ainda não cadastrado para esta questão.'}
             </p>
           </div>
