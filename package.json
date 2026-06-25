@@ -17,6 +17,10 @@
     "backfill:numero-questoes": "tsx scripts/backfillNumeroQuestoes.ts",
     "backfill:numero-questoes:dry": "tsx scripts/backfillNumeroQuestoes.ts --dry-run",
     "auditar:comentarios": "tsx scripts/validateQuestoes.ts --auditar-comentarios",
+    "auditar:gabarito": "tsx scripts/auditarGabaritoJuridico.ts",
+    "auditar:gabarito:prova46": "tsx scripts/auditarGabaritoJuridico.ts --prova 46 --dry-run",
+    "auditar:gabarito:all": "tsx scripts/auditarGabaritoJuridico.ts --dry-run --limit 10000",
+    "auditar:gabarito:apply": "tsx scripts/auditarGabaritoJuridico.ts --apply --limit 10000",
     "sugerir:regras-conhecidas": "tsx scripts/sugerirRegrasConhecidas.ts",
     "reset:revisao": "tsx scripts/resetRevisaoQuestoes.ts"
   },
