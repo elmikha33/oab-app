@@ -92,7 +92,7 @@ export default function PremiumPage() {
           <div className="space-y-2">
             <h1 className="font-heading text-3xl font-extrabold text-white">SUA CONTA AGORA É PREMIUM!</h1>
             <p className="mx-auto max-w-md text-sm text-slate-400">
-              Parabéns, {user.nome}! Você desbloqueou o poder total do <strong className="text-white">Legl</strong>.
+              Parabéns, {user.nome}! Você desbloqueou o poder total do <strong className="text-white">OAPlay</strong>.
             </p>
           </div>
           <Link

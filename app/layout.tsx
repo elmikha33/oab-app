@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
+import type { ReactNode } from 'react';
 import ThemeProvider from '@/app/ThemeProvider';
 import LayoutShell from '@/components/LayoutShell';
 import { GameStateProvider } from '@/context/GameStateContext';
@@ -12,10 +13,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'OAPlay - Sua aprova??o expressa!!',
+    default: 'OAPlay',
     template: '%s | OAPlay',
   },
-  description: 'Quest?es OAB gamificadas para voc? estudar, jogar, evoluir e acelerar sua aprova??o.',
+  description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e acelerar sua aprovacao.',
   applicationName: 'OAPlay',
   appleWebApp: {
     capable: true,
@@ -31,8 +32,8 @@ export const metadata: Metadata = {
     apple: [{ url: '/oaplay-icon-180.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
-    title: 'OAPlay - Sua aprova??o expressa!!',
-    description: 'Quest?es OAB gamificadas para voc? estudar, jogar, evoluir e ser aprovado.',
+    title: 'OAPlay',
+    description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
     type: 'website',
     locale: 'pt_BR',
     images: [
@@ -40,14 +41,14 @@ export const metadata: Metadata = {
         url: '/oaplay-og-image.png',
         width: 1200,
         height: 630,
-        alt: 'OAPlay - Sua aprova??o expressa!!',
+        alt: 'OAPlay',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OAPlay - Sua aprova??o expressa!!',
-    description: 'Quest?es OAB gamificadas para voc? estudar, jogar, evoluir e ser aprovado.',
+    title: 'OAPlay',
+    description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
     images: ['/oaplay-og-image.png'],
   },
 };
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>

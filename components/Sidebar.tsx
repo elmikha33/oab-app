@@ -48,11 +48,11 @@ export default function Sidebar() {
 
         <div>
           <h1 className="font-heading text-2xl font-black tracking-tight text-white">
-            OAB Quest
+            OAPlay
           </h1>
 
           <p className="text-[11px] font-black uppercase tracking-[0.28em] text-slate-500">
-            Missao OAB
+            OAPlay
           </p>
         </div>
 
