@@ -52,12 +52,29 @@ function nomeDoAuthUser(authUser?: SupabaseUser | null) {
   if (!authUser) return 'Candidato';
 
   const metadata = authUser.user_metadata || {};
-  return (
+
+  const nome =
     metadata.full_name ||
     metadata.name ||
     metadata.nome ||
+    metadata.preferred_username ||
     authUser.email?.split('@')[0] ||
-    'Candidato'
+    'Candidato';
+
+  return String(nome).trim() || 'Candidato';
+}
+
+function nomeValido(nome?: string | null) {
+  if (!nome) return false;
+
+  const normalizado = String(nome).trim().toLowerCase();
+
+  return Boolean(
+    normalizado &&
+      normalizado !== 'candidato' &&
+      normalizado !== 'estudante' &&
+      normalizado !== 'usuario' &&
+      normalizado !== 'usu?rio'
   );
 }
 
@@ -222,7 +239,13 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ...savedLocal,
         id: authUser.id,
         email: authUser.email,
-        nome: profile?.nome || savedLocal.nome || nomeDoAuthUser(authUser),
+        nome: nomeValido(profile?.nome)
+          ? profile.nome
+          : nomeValido(nomeDoAuthUser(authUser))
+            ? nomeDoAuthUser(authUser)
+            : nomeValido(savedLocal.nome)
+              ? savedLocal.nome
+              : 'Candidato',
         avatar_url: profile?.avatar_url || authUser.user_metadata?.avatar_url || null,
         isPremium: premiumEstaAtivo(profile),
         premium_ate: profile?.premium_ate || null,
