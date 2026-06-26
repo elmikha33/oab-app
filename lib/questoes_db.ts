@@ -1,4 +1,4 @@
-// Base de dados de questões gerada dinamicamente - Missão OAB
+// Base de dados de questões gerada dinamicamente - OAPlay
 // Contém mais de 5.000 questões com dados realistas nas 17 disciplinas oficiais da OAB.
 
 import { Questao } from './mockData';

@@ -21,8 +21,8 @@ import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: Grid2X2 },
-  { label: 'Responder Questoes', href: '/play', icon: BookOpen },
-  { label: 'Modo Revisao', href: '/review', icon: CalendarDays },
+  { label: 'Responder Questões', href: '/play', icon: BookOpen },
+  { label: 'Modo Revisão', href: '/review', icon: CalendarDays },
   { label: 'Conquistas', href: '/achievements', icon: Medal },
   { label: 'Ranking', href: '/ranking', icon: Trophy },
 ];
@@ -50,7 +50,7 @@ function LogoTop() {
           OA<span className="text-emerald-300">Play</span>
         </p>
         <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
-          aprovacao expressa
+          aprovação expressa
         </p>
       </div>
     </Link>
@@ -73,7 +73,7 @@ function LogoMenu({ onClick }: { onClick?: () => void }) {
           OA<span className="text-emerald-300">Play</span>
         </p>
         <p className="mt-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300">
-          sua aprovacao expressa
+          sua aprovação expressa
         </p>
       </div>
     </Link>
@@ -106,9 +106,11 @@ export default function MobileNav() {
   const [darkMode, setDarkMode] = useState(true);
 
   const premiumAte = formatarData(user?.premium_ate);
+  const streak = Number(user?.streak || 1);
+  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
 
   useEffect(() => {
-    const saved = localStorage.getItem('missao-oab-theme');
+    const saved = localStorage.getItem('oaplay-theme');
     const initialDark = saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
 
     setDarkMode(initialDark);
@@ -121,7 +123,7 @@ export default function MobileNav() {
     const next = !darkMode;
 
     setDarkMode(next);
-    localStorage.setItem('missao-oab-theme', next ? 'dark' : 'light');
+    localStorage.setItem('oaplay-theme', next ? 'dark' : 'light');
     document.documentElement.classList.toggle('dark', next);
   }
 
@@ -161,8 +163,8 @@ export default function MobileNav() {
             type="button"
             onClick={() => setOpen(true)}
             className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/95 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
-            aria-label="Abrir opcoes"
-            title="Abrir opcoes"
+            aria-label="Abrir opções"
+            title="Abrir opções"
           >
             <SlidersHorizontal className="h-6 w-6" strokeWidth={2.8} />
           </button>
@@ -216,7 +218,7 @@ export default function MobileNav() {
 
                 <div className="min-w-0">
                   <p className="truncate text-lg font-black text-white">
-                    {user?.nome || 'Usuario'}
+                    {user?.nome || 'Usuário'}
                   </p>
 
                   <p className="text-sm font-black text-emerald-300">
@@ -226,7 +228,7 @@ export default function MobileNav() {
               </div>
 
               <div className="mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-300/10 px-4 py-2 text-xs font-black text-emerald-200">
-                {user?.streak || 1} dia ativo
+                {streak} {streakLabel}
               </div>
             </section>
 
@@ -282,7 +284,7 @@ export default function MobileNav() {
 
                   {user?.isPremium && premiumAte && (
                     <p className="mt-0.5 text-xs font-bold text-emerald-200">
-                      Ate {premiumAte}
+                      Até {premiumAte}
                     </p>
                   )}
                 </div>

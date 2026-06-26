@@ -9,7 +9,7 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
       defaultTheme="light"
       disableTransitionOnChange
       enableSystem
-      storageKey="missao-oab-theme"
+      storageKey="oaplay-theme"
     >
       {children}
     </NextThemeProvider>

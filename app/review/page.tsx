@@ -56,12 +56,12 @@ export default function ReviewPage() {
 
     window.addEventListener('storage', atualizar);
     window.addEventListener('focus', atualizar);
-    window.addEventListener('missao-oab-revisao-atualizada', atualizar);
+    window.addEventListener('oaplay-revisao-atualizada', atualizar);
 
     return () => {
       window.removeEventListener('storage', atualizar);
       window.removeEventListener('focus', atualizar);
-      window.removeEventListener('missao-oab-revisao-atualizada', atualizar);
+      window.removeEventListener('oaplay-revisao-atualizada', atualizar);
     };
   }, []);
 
@@ -159,7 +159,7 @@ export default function ReviewPage() {
         })
       );
 
-      window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+      window.dispatchEvent(new Event('oaplay-revisao-atualizada'));
       window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
     } catch {
       // ignora falha de localStorage

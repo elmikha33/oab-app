@@ -11,7 +11,6 @@ import {
   RefreshCcw,
   ShieldCheck,
   Target,
-  Wallet,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
 import RankingPreview from '@/components/RankingPreview';
@@ -24,9 +23,8 @@ const TEXTOS = {
   consistencia: 'Mantenha a consistência.',
   praticando: 'Continue praticando.',
   evolucao: 'Evolução',
-  carteira: 'Carteira',
-  carteiraDescricao: 'moedas acumuladas no treino.',
   entrando: 'Entrando no OAPlay',
+  redirecionando: 'Redirecionando para o login',
 };
 
 const FRASES = [
@@ -60,17 +58,17 @@ function numeroSeguro(valor: unknown, fallback = 0) {
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user } = useGameState();
+  const { user, loading } = useGameState();
 
   const [quote, setQuote] = useState(() => {
     return FRASES[Math.floor(Math.random() * FRASES.length)];
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.replace('/auth');
     }
-  }, [user, router]);
+  }, [loading, user, router]);
 
   const primeiroNome = useMemo(() => {
     const nome = String(user?.nome || user?.email || 'Estudante').trim();
@@ -80,7 +78,6 @@ export default function Dashboard() {
 
   const totalAcertos = numeroSeguro(user?.acertos, 0);
   const streak = numeroSeguro(user?.streak, 0);
-  const moedas = numeroSeguro(user?.moedas, 0);
   const xp = numeroSeguro(user?.xp, 0);
   const xpNecessario = Math.max(numeroSeguro(user?.xpNecessario, 100), 1);
   const nivel = numeroSeguro(user?.nivel, 1);
@@ -102,14 +99,14 @@ export default function Dashboard() {
     setQuote(nova);
   }
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
         <div className="text-center">
           <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-emerald-300/20 border-t-emerald-300" />
 
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
-            {TEXTOS.entrando}
+            {loading ? TEXTOS.entrando : TEXTOS.redirecionando}
           </p>
         </div>
       </main>
@@ -118,9 +115,9 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
+      <section className="relative overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-[-6rem] left-10 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
 
         <div className="relative z-10 grid gap-6 xl:grid-cols-[1fr_360px] xl:items-stretch">
           <div className="flex flex-col justify-between gap-5">
@@ -142,7 +139,7 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950/60 sm:p-5">
+            <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950/60 sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950">
                   <Quote className="h-5 w-5" strokeWidth={3} />
@@ -172,7 +169,7 @@ export default function Dashboard() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-            <div className="rounded-[1.5rem] border border-orange-300/25 bg-orange-300/10 p-5">
+            <div className="rounded-[1.25rem] border border-orange-300/25 bg-orange-300/10 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-4xl font-black text-slate-950 dark:text-white">
@@ -194,7 +191,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded-[1.5rem] border border-emerald-300/25 bg-emerald-300/10 p-5">
+            <div className="rounded-[1.25rem] border border-emerald-300/25 bg-emerald-300/10 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-4xl font-black text-slate-950 dark:text-white">
@@ -224,7 +221,7 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={() => router.push('/play')}
-            className="group rounded-[2rem] border border-emerald-300/30 bg-slate-900 p-6 text-left text-white shadow-xl shadow-black/20 transition hover:-translate-y-0.5 hover:border-emerald-300/60 dark:bg-slate-900 sm:p-7"
+            className="group rounded-[1.5rem] border border-emerald-300/30 bg-slate-900 p-6 text-left text-white shadow-xl shadow-black/20 transition hover:-translate-y-0.5 hover:border-emerald-300/60 dark:bg-slate-900 sm:p-7"
           >
             <div className="flex items-center justify-between gap-5">
               <div>
@@ -247,7 +244,7 @@ export default function Dashboard() {
             </div>
           </button>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
+          <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
@@ -278,29 +275,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <aside className="grid gap-6">
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
-                  {TEXTOS.carteira}
-                </p>
-
-                <p className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
-                  {moedas}
-                </p>
-              </div>
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-200">
-                <Wallet className="h-6 w-6" strokeWidth={3} />
-              </div>
-            </div>
-
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">
-              {TEXTOS.carteiraDescricao}
-            </p>
-          </div>
-
+        <aside>
           <RankingPreview />
         </aside>
       </section>

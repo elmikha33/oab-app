@@ -22,16 +22,16 @@ const ACHIEVEMENTS = [
     id: 'first_question',
     emoji: '🎯',
     icon: Target,
-    title: 'Primeira questao',
-    description: 'Responda sua primeira questao no OAPlay.',
-    requirement: 'Responder 1 questao',
+    title: 'Primeira questão',
+    description: 'Responda sua primeira questão no OAPlay.',
+    requirement: 'Responder 1 questão',
   },
   {
     id: 'ten_correct',
     emoji: '⚔️',
     icon: CheckCircle2,
-    title: 'Sequencia inicial',
-    description: 'Acerte 10 questoes no total.',
+    title: 'Sequência inicial',
+    description: 'Acerte 10 questões no total.',
     requirement: '10 acertos',
   },
   {
@@ -39,7 +39,7 @@ const ACHIEVEMENTS = [
     emoji: '🔥',
     icon: Flame,
     title: 'Ritmo de prova',
-    description: 'Acerte 50 questoes no total.',
+    description: 'Acerte 50 questões no total.',
     requirement: '50 acertos',
   },
   {
@@ -47,16 +47,16 @@ const ACHIEVEMENTS = [
     emoji: '🏆',
     icon: Trophy,
     title: 'Maratonista OAB',
-    description: 'Acerte 100 questoes no total.',
+    description: 'Acerte 100 questões no total.',
     requirement: '100 acertos',
   },
   {
     id: 'reviewed_33',
     emoji: '🧠',
     icon: RotateCcw,
-    title: 'Revisou 33 Questoes',
-    description: 'Revise 33 questoes no modo revisao.',
-    requirement: '33 questoes revisadas',
+    title: 'Revisou 33 Questões',
+    description: 'Revise 33 questões no modo revisão.',
+    requirement: '33 questões revisadas',
   },
   {
     id: 'twenty_five_review',
@@ -64,13 +64,13 @@ const ACHIEVEMENTS = [
     icon: ShieldCheck,
     title: 'Caçador de erros',
     description: 'Acumule 25 erros para revisar.',
-    requirement: '25 erros em revisao',
+    requirement: '25 erros em revisão',
   },
   {
     id: 'seven_days',
     emoji: '📅',
     icon: Flame,
-    title: 'Constancia semanal',
+    title: 'Constância semanal',
     description: 'Estude em 7 dias ativos.',
     requirement: '7 dias ativos',
   },
@@ -146,7 +146,7 @@ export default function AchievementsPage() {
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-              Colecao OAPlay
+              Coleção OAPlay
             </p>
 
             <h1 className="mt-3 text-3xl font-black tracking-tight md:text-5xl">
@@ -154,13 +154,13 @@ export default function AchievementsPage() {
             </h1>
 
             <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-base">
-              Sua colecao cresce no seu ritmo. Cada tentativa conta, cada revisao fortalece e cada badge marca uma etapa da sua evolucao.
+              Sua coleção cresce no seu ritmo. Cada tentativa conta, cada revisão fortalece e cada badge marca uma etapa da sua evolução.
             </p>
           </div>
 
           <div className="rounded-3xl border border-emerald-300/25 bg-emerald-300/10 px-5 py-4">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
-              Colecao liberada
+              Coleção liberada
             </p>
             <p className="mt-1 text-3xl font-black text-slate-950 dark:text-white">
               {unlockedCount}/{total}
@@ -172,7 +172,7 @@ export default function AchievementsPage() {
           <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm shadow-emerald-950/5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
             <BookOpen className="h-6 w-6 text-emerald-500 dark:text-emerald-300" />
             <p className="mt-4 text-2xl font-black text-slate-950 dark:text-white">Em movimento</p>
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">cada questao conta</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">cada questão conta</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
@@ -184,7 +184,7 @@ export default function AchievementsPage() {
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <RotateCcw className="h-6 w-6 text-amber-300" />
             <p className="mt-4 text-2xl font-black">{Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user))}</p>
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">em revisao</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">em revisão</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">

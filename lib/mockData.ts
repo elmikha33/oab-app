@@ -19,7 +19,6 @@ export interface Conquista {
   titulo: string;
   descricao: string;
   xpRecompensa: number;
-  moedasRecompensa: number;
   icone: string;
   tipoRequisito: 'responder_questoes' | 'questoes_corretas' | 'streak_dias' | 'materia_mestre';
   valorRequisito: number;
@@ -31,7 +30,6 @@ export interface Missao {
   titulo: string;
   descricao: string;
   xpRecompensa: number;
-  moedasRecompensa: number;
   meta: number;
   progressoAtual: number;
   concluida: boolean;
@@ -96,8 +94,8 @@ export const TODAS_QUESTOES: Questao[] = [
 // --- OUTROS DADOS ---
 
 export const CONQUISTAS_INICIAIS: Conquista[] = [
-  { id: 'badge_first', titulo: 'Batismo de Fogo', descricao: 'Respondeu à sua primeira questão no Missão OAB.', xpRecompensa: 50, moedasRecompensa: 10, icone: 'Flame', tipoRequisito: 'responder_questoes', valorRequisito: 1 },
-  { id: 'badge_10_correct', titulo: 'Vontade Inabalável', descricao: 'Acertou 10 questões no total.', xpRecompensa: 150, moedasRecompensa: 30, icone: 'Target', tipoRequisito: 'questoes_corretas', valorRequisito: 10 }
+  { id: 'badge_first', titulo: 'Batismo de Fogo', descricao: 'Respondeu à sua primeira questão no OAPlay.', xpRecompensa: 50, icone: 'Flame', tipoRequisito: 'responder_questoes', valorRequisito: 1 },
+  { id: 'badge_10_correct', titulo: 'Vontade Inabalável', descricao: 'Acertou 10 questões no total.', xpRecompensa: 150, icone: 'Target', tipoRequisito: 'questoes_corretas', valorRequisito: 10 }
 ];
 
 export const RANKING_INICIAL: UsuarioRanking[] = [
@@ -110,7 +108,6 @@ export const MISSOES_DIARIAS_INICIAIS: Missao[] = [
     titulo: 'Treino de Ética',
     descricao: `Responda 5 questões de Ética Profissional para dominar os pontos mais cobrados.`,
     xpRecompensa: 100,
-    moedasRecompensa: 20,
     meta: 5,
     progressoAtual: 0,
     concluida: false,

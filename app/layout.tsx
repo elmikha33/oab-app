@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: 'OAPlay',
     template: '%s | OAPlay',
   },
-  description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e acelerar sua aprovacao.',
+  description: 'Questões OAB gamificadas para estudar, jogar, evoluir e acelerar sua aprovação.',
   applicationName: 'OAPlay',
   appleWebApp: {
     capable: true,
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'OAPlay',
-    description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
+    description: 'Questões OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
     type: 'website',
     locale: 'pt_BR',
     images: [
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'OAPlay',
-    description: 'Questoes OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
+    description: 'Questões OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
     images: ['/oaplay-og-image.png'],
   },
 };

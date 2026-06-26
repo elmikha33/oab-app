@@ -84,7 +84,7 @@ export default function PremiumPage() {
       <div className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-slate-900 p-8 text-center">
         <h1 className="font-heading text-2xl font-black text-white">Entre para assinar</h1>
         <p className="mt-2 text-sm text-slate-400">
-          Voce precisa criar uma conta ou entrar com Google antes de ativar o Premium.
+          Você precisa criar uma conta ou entrar com Google antes de ativar o Premium.
         </p>
         <Link
           href="/auth"
@@ -100,7 +100,7 @@ export default function PremiumPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 pb-10 pt-4 md:px-0">
       {sucesso && (
         <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-5 text-center text-sm font-bold text-emerald-100">
-          Recebemos seu retorno do Mercado Pago. A liberacao final acontece quando o webhook confirmar o pagamento.
+          Recebemos seu retorno do Mercado Pago. A liberação final acontece quando o webhook confirmar o pagamento.
         </div>
       )}
 
@@ -111,11 +111,11 @@ export default function PremiumPage() {
         </span>
 
         <h1 className="font-heading text-3xl font-extrabold text-white md:text-5xl">
-          Sua aprovacao expressa, sem limites
+          Sua aprovação expressa, sem limites
         </h1>
 
         <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
-          Assinatura trimestral recorrente. Voce paga R$ 99,90 a cada 3 meses e pode cancelar quando quiser.
+          Assinatura trimestral recorrente. Você paga R$ 99,90 a cada 3 meses e pode cancelar quando quiser.
         </p>
       </header>
 
@@ -127,9 +127,9 @@ export default function PremiumPage() {
             <li className="flex items-start gap-3">
               <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
               <div>
-                <span className="block font-bold text-white">Questoes ilimitadas</span>
+                <span className="block font-bold text-white">Questões ilimitadas</span>
                 <span className="text-xs leading-relaxed text-slate-400">
-                  Estude sem limite diario e avance no seu ritmo.
+                  Estude sem limite diário e avance no seu ritmo.
                 </span>
               </div>
             </li>
@@ -139,7 +139,7 @@ export default function PremiumPage() {
               <div>
                 <span className="block font-bold text-white">Ciclo completo de 3 meses</span>
                 <span className="text-xs leading-relaxed text-slate-400">
-                  Ideal para manter constancia ate a prova.
+                  Ideal para manter constância até a prova.
                 </span>
               </div>
             </li>
@@ -149,7 +149,7 @@ export default function PremiumPage() {
               <div>
                 <span className="block font-bold text-white">Gamificacao completa</span>
                 <span className="text-xs leading-relaxed text-slate-400">
-                  Continue evoluindo com ranking, revisao e progresso salvo.
+                  Continue evoluindo com ranking, revisão e progresso salvo.
                 </span>
               </div>
             </li>
@@ -169,8 +169,8 @@ export default function PremiumPage() {
                 </h3>
 
                 <p className="mt-2 text-sm text-slate-400">
-                  Seu acesso Premium esta liberado
-                  {premiumAteFormatado ? ` ate ${premiumAteFormatado}` : ''}.
+                  Seu acesso Premium está liberado
+                  {premiumAteFormatado ? ` até ${premiumAteFormatado}` : ''}.
                 </p>
               </div>
 

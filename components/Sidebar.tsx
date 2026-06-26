@@ -5,13 +5,10 @@ import { usePathname } from 'next/navigation';
 import {
   BookOpen,
   CalendarDays,
-  CheckCircle2,
   Crown,
-  Flame,
   Grid2X2,
   Lock,
   Medal,
-  Star,
   Trophy,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
@@ -23,12 +20,12 @@ const navItems = [
     icon: Grid2X2,
   },
   {
-    label: 'Responder Questoes',
+    label: 'Responder Questões',
     href: '/play',
     icon: BookOpen,
   },
   {
-    label: 'Modo Revisao',
+    label: 'Modo Revisão',
     href: '/review',
     icon: CalendarDays,
   },
@@ -48,37 +45,37 @@ const BADGES = [
   {
     id: 'first_question',
     emoji: '\u{1F3AF}',
-    title: 'Primeira questao',
-    description: 'Responda sua primeira questao.',
+    title: 'Primeira questão',
+    description: 'Responda sua primeira questão.',
   },
   {
     id: 'ten_correct',
     emoji: '\u{2694}\u{FE0F}',
     title: '10 acertos',
-    description: 'Acerte 10 questoes.',
+    description: 'Acerte 10 questões.',
   },
   {
     id: 'fifty_correct',
     emoji: '\u{1F525}',
     title: '50 acertos',
-    description: 'Acerte 50 questoes.',
+    description: 'Acerte 50 questões.',
   },
   {
     id: 'hundred_correct',
     emoji: '\u{1F3C6}',
     title: '100 acertos',
-    description: 'Acerte 100 questoes.',
+    description: 'Acerte 100 questões.',
   },
   {
     id: 'reviewed_33',
     emoji: '\u{1F9E0}',
-    title: 'Revisou 33 Questoes',
-    description: 'Revise 33 questoes.',
+    title: 'Revisou 33 Questões',
+    description: 'Revise 33 questões.',
   },
   {
     id: 'twenty_five_review',
     emoji: '\u{1F6E1}\u{FE0F}',
-    title: 'Cacador de erros',
+    title: 'Caçador de erros',
     description: 'Acumule 25 erros para revisar.',
   },
   {
@@ -147,23 +144,27 @@ function badgeUnlocked(id: string, user: any) {
   }
 }
 
-function UserAvatar({ isPremium }: { isPremium: boolean }) {
-  if (isPremium) {
-    return (
-      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-amber-300/50 bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-3xl shadow-xl shadow-amber-950/20">
-        <span className="drop-shadow-sm">🦉</span>
-        <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-amber-200 bg-slate-950 text-sm shadow-lg">
-          👑
-        </span>
-      </div>
-    );
-  }
+function UserAvatar({ user }: { user: any }) {
+  const isPremium = Boolean(user?.isPremium);
+  const initial = String(user?.nome || user?.email || 'U').slice(0, 1).toUpperCase();
 
   return (
-    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-emerald-300/40 bg-gradient-to-br from-slate-100 via-emerald-100 to-white text-3xl shadow-xl shadow-black/10 dark:from-slate-800 dark:via-slate-900 dark:to-emerald-950">
-      <span className="drop-shadow-sm">🐢</span>
-      <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg">
-        F
+    <div
+      className={
+        isPremium
+          ? 'relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-amber-300/50 bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-xl font-black text-slate-950 shadow-xl shadow-amber-950/20'
+          : 'relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-emerald-300/40 bg-gradient-to-br from-slate-100 via-emerald-100 to-white text-xl font-black text-emerald-950 shadow-xl shadow-black/10 dark:from-slate-800 dark:via-slate-900 dark:to-emerald-950 dark:text-white'
+      }
+    >
+      {initial}
+      <span
+        className={
+          isPremium
+            ? 'absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-amber-200 bg-slate-950 text-xs font-black text-amber-200 shadow-lg'
+            : 'absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg'
+        }
+      >
+        {isPremium ? 'P' : 'F'}
       </span>
     </div>
   );
@@ -176,7 +177,7 @@ function AchievementMiniatures({ user }: { user: any }) {
     <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950/60">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-          Colecao
+          Coleção
         </p>
 
         <Link
@@ -252,7 +253,7 @@ function PlanStatus() {
 
           {isPremium && premiumAte && (
             <p className="mt-0.5 text-xs font-black text-emerald-700 dark:text-emerald-200">
-              Ate {premiumAte}
+              Até {premiumAte}
             </p>
           )}
         </div>
@@ -289,6 +290,9 @@ export default function Sidebar() {
 
   if (!user) return null;
 
+  const streak = Number(user?.streak || 1);
+  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
+
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[300px] shrink-0 overflow-y-auto border-r border-slate-200 bg-white px-5 py-6 text-slate-950 shadow-2xl shadow-black/5 md:block dark:border-white/10 dark:bg-slate-950 dark:text-white">
       <div className="flex min-h-full flex-col gap-5">
@@ -315,7 +319,7 @@ export default function Sidebar() {
             </div>
 
             <p className="mt-2 text-[10px] font-black uppercase leading-tight tracking-[0.22em] text-emerald-400">
-              Sua aprovacao
+              Sua aprovação
               <br />
               expressa
             </p>
@@ -324,11 +328,11 @@ export default function Sidebar() {
 
         <section className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-xl shadow-black/10 dark:border-white/10 dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            <UserAvatar isPremium={Boolean(user?.isPremium)} />
+            <UserAvatar user={user} />
 
             <div className="min-w-0">
               <p className="truncate text-sm font-black text-slate-950 dark:text-white">
-                {user?.nome || 'Usuario'}
+                {user?.nome || 'Usuário'}
               </p>
 
               <p className="text-xs font-black text-emerald-600 dark:text-emerald-300">
@@ -340,7 +344,7 @@ export default function Sidebar() {
           <AchievementMiniatures user={user} />
 
           <div className="mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">
-            {user?.streak || 1} dia ativo
+            {streak} {streakLabel}
           </div>
         </section>
 

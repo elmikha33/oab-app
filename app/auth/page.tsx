@@ -191,7 +191,7 @@ function AuthFormContent() {
         />
 
         <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-          Sua aprovacao expressa
+          Sua aprovação expressa
         </p>
 
         <p className="mt-3 text-sm leading-relaxed text-slate-400">

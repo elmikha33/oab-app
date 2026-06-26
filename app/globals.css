@@ -1,18 +1,9 @@
-/* ----------------------------------------------------------
- *  Fontes
- * ---------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
-/* ----------------------------------------------------------
- *  Tailwind layers
- * ---------------------------------------------------------- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ----------------------------------------------------------
- *  Tokens
- * ---------------------------------------------------------- */
 :root {
   --bg-base: #f8fafc;
   --bg-card: #0f172a;
@@ -28,9 +19,6 @@
   --text-base: #f8fafc;
 }
 
-/* ----------------------------------------------------------
- *  Base
- * ---------------------------------------------------------- */
 @layer base {
   body {
     background: var(--bg-base);
@@ -49,9 +37,6 @@
   }
 }
 
-/* ----------------------------------------------------------
- *  Scrollbar mÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­nima
- * ---------------------------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -67,13 +52,9 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, .8);
+  background: rgba(15, 118, 110, .8);
 }
 
-/* ----------------------------------------------------------
- *  BotÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Âµes premium corrigidos
- *  IMPORTANTE: sem ::before torto, sem halo desalinhado
- * ---------------------------------------------------------- */
 @layer components {
   .golden-action,
   .golden-nav-link {
@@ -81,7 +62,7 @@
     border: 1px solid rgba(251, 191, 36, 0.45);
     background:
       linear-gradient(#0f172a, #0f172a) padding-box,
-      linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(139, 92, 246, 0.55), rgba(251, 191, 36, 0.80)) border-box;
+      linear-gradient(135deg, rgba(251, 191, 36, 0.95), rgba(16, 185, 129, 0.55), rgba(251, 191, 36, 0.80)) border-box;
     box-shadow:
       0 0 0 1px rgba(251, 191, 36, 0.06),
       0 14px 35px rgba(0, 0, 0, .20);
@@ -111,197 +92,7 @@
     border-color: rgba(251, 191, 36, 0.78);
     background:
       linear-gradient(#111827, #111827) padding-box,
-      linear-gradient(135deg, #fbbf24, #8b5cf6, #fbbf24) border-box;
+      linear-gradient(135deg, #fbbf24, #10b981, #fbbf24) border-box;
     box-shadow: 0 18px 42px rgba(251, 191, 36, 0.12);
   }
 }
-
-/* === OAPlay sidebar light mode readability fix === */
-html:not(.dark) aside {
-  background: #ffffff !important;
-  border-color: #dbeafe !important;
-  color: #0f172a !important;
-}
-
-html:not(.dark) aside * {
-  text-shadow: none !important;
-}
-
-html:not(.dark) aside p,
-html:not(.dark) aside span,
-html:not(.dark) aside div,
-html:not(.dark) aside h1,
-html:not(.dark) aside h2,
-html:not(.dark) aside h3,
-html:not(.dark) aside h4,
-html:not(.dark) aside a,
-html:not(.dark) aside button {
-  color: #0f172a !important;
-}
-
-html:not(.dark) aside a,
-html:not(.dark) aside button {
-  border-color: #d1fae5 !important;
-}
-
-html:not(.dark) aside a:hover,
-html:not(.dark) aside button:hover {
-  background: #ecfdf5 !important;
-  color: #064e3b !important;
-}
-
-html:not(.dark) aside svg {
-  color: #059669 !important;
-  stroke: #059669 !important;
-}
-
-html:not(.dark) aside img {
-  filter: none !important;
-}
-
-html:not(.dark) aside [class*="bg-emerald"],
-html:not(.dark) aside [class*="bg-teal"] {
-  color: #06281f !important;
-}
-
-html:not(.dark) aside [class*="bg-emerald"] *,
-html:not(.dark) aside [class*="bg-teal"] * {
-  color: #06281f !important;
-}
-
-html:not(.dark) aside [class*="text-slate-400"],
-html:not(.dark) aside [class*="text-slate-300"],
-html:not(.dark) aside [class*="text-emerald-100"],
-html:not(.dark) aside [class*="text-emerald-200"],
-html:not(.dark) aside [class*="text-white"] {
-  color: #334155 !important;
-}
-
-html:not(.dark) aside [class*="bg-white"],
-html:not(.dark) aside [class*="bg-slate"],
-html:not(.dark) aside [class*="bg-black"] {
-  border-color: #d1fae5 !important;
-}
-
-html:not(.dark) aside .active,
-html:not(.dark) aside [aria-current="page"] {
-  background: linear-gradient(135deg, #6ee7b7, #34d399) !important;
-  color: #06281f !important;
-  border-color: #6ee7b7 !important;
-}
-
-html:not(.dark) aside .active *,
-html:not(.dark) aside [aria-current="page"] * {
-  color: #06281f !important;
-}
-/* === end OAPlay sidebar light mode readability fix === */
-
-/* === OAPlay mobile legacy overlay kill === */
-@media (max-width: 767px) {
-  nav.fixed.bottom-4,
-  nav.fixed.bottom-3,
-  nav.fixed.bottom-0,
-  button[aria-label="Sair"],
-  button[title="Sair"],
-  button[aria-label="Sair da conta"],
-  button[title="Sair da conta"] {
-    display: none !important;
-  }
-
-  header button[aria-label="Abrir menu"],
-  header button[aria-label="Ativar modo claro"],
-  header button[aria-label="Ativar modo escuro"],
-  aside button[aria-label="Fechar menu"],
-  aside button {
-    display: flex !important;
-  }
-}
-/* === end OAPlay mobile legacy overlay kill === */
-
-/* === OAPlay definitive mobile overlay kill === */
-@media (max-width: 767px) {
-  .fixed.bottom-0,
-  .fixed.bottom-1,
-  .fixed.bottom-2,
-  .fixed.bottom-3,
-  .fixed.bottom-4,
-  .fixed.bottom-5,
-  .fixed.bottom-6,
-  .fixed.bottom-8,
-  .fixed.bottom-10,
-  .fixed.bottom-12,
-  .fixed.bottom-16,
-  .fixed.bottom-20,
-  .fixed.bottom-24,
-  nav.fixed[class*="bottom-"],
-  a.fixed[class*="bottom-"],
-  button.fixed[class*="bottom-"],
-  div.fixed[class*="bottom-"] {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  header.fixed {
-    display: block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
-
-  header.fixed button,
-  header.fixed a,
-  header.fixed div {
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
-
-  div.fixed.inset-0,
-  div.fixed.inset-0 aside,
-  div.fixed.inset-0 button,
-  div.fixed.inset-0 a {
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
-
-  div.fixed.inset-0 {
-    display: block !important;
-  }
-}
-/* === end OAPlay definitive mobile overlay kill === */
-
-/* === OAPlay force new mobile nav === */
-@media (max-width: 767px) {
-  nav.fixed.bottom-0,
-  nav.fixed.bottom-1,
-  nav.fixed.bottom-2,
-  nav.fixed.bottom-3,
-  nav.fixed.bottom-4,
-  nav.fixed.bottom-5,
-  nav.fixed.bottom-6,
-  nav.fixed.bottom-8,
-  nav.fixed.bottom-10,
-  nav.fixed.bottom-12,
-  nav.fixed.bottom-16,
-  nav.fixed.bottom-20,
-  nav.fixed.bottom-24,
-  a.fixed[class*="bottom-"],
-  button.fixed[class*="bottom-"],
-  div.fixed[class*="bottom-"] {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-  }
-
-  header.fixed {
-    display: block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
-
-  div.fixed.inset-0 {
-    display: block !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
-  }
-}
-/* === end OAPlay force new mobile nav === */

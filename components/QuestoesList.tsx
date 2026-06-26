@@ -100,7 +100,7 @@ function normalizarTexto(valor: string) {
 }
 
 function getMateriaNome(questao: Questao) {
-  return String(questao.materia || 'Sem materia').trim();
+  return String(questao.materia || 'Sem matéria').trim();
 }
 
 function getTemaNome(questao: Questao) {
@@ -180,8 +180,8 @@ function extrairNumeroExame(questao: Questao) {
     }
 
     const match =
-      texto.match(/(?:prova|oab|exame|edicao|edicao|gabarito)[_\-\s]*(\d{1,3})/i) ||
-      texto.match(/(?:prova|oab|exame|edicao|edicao|gabarito).*?(\d{1,3})/i) ||
+      texto.match(/(?:prova|oab|exame|edicao|edição|gabarito)[_\-\s]*(\d{1,3})/i) ||
+      texto.match(/(?:prova|oab|exame|edicao|edição|gabarito).*?(\d{1,3})/i) ||
       texto.match(/\b(\d{2,3})\b/);
 
     if (match?.[1]) {
@@ -197,7 +197,7 @@ function getExameInfo(questao: Questao) {
   const numero = extrairNumeroExame(questao);
 
   if (!numero) {
-    return { key: 'sem-exame', label: 'Exame nao identificado', numero: 0 };
+    return { key: 'sem-exame', label: 'Exame não identificado', numero: 0 };
   }
 
   return { key: String(numero), label: `Exame (${numero}) ${numeroParaRomano(numero)}`, numero };
@@ -422,23 +422,23 @@ function QuestaoCard({
             </p>
           ) : (
             <p className="mb-3 text-sm font-black text-amber-800 dark:text-amber-100">
-              Gabarito nao identificado para esta questão.
+              Gabarito não identificado para esta questão.
             </p>
           )}
 
           <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
             <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
-              Comentario
+              Comentário
             </p>
             <p className="whitespace-pre-line text-left text-sm leading-6 tracking-normal text-slate-800 dark:text-slate-100 md:text-justify md:text-[15px] md:leading-8 md:tracking-wide">
-              {comentario || 'Comentario ainda nao cadastrado para esta questão.'}
+              {comentario || 'Comentário ainda não cadastrado para esta questão.'}
             </p>
           </div>
 
           {reviewSuccessPending && (
             <div className="mt-4 rounded-xl border border-emerald-300 bg-white p-3 dark:border-emerald-300/30 dark:bg-slate-950">
               <p className="text-sm font-bold leading-relaxed text-emerald-900 dark:text-emerald-100">
-                Voce acertou esta questão de revisão. Ela só será removida da revisão quando voce continuar.
+                Você acertou esta questão de revisão. Ela só será removida da revisão quando você continuar.
               </p>
 
               <button
@@ -576,13 +576,13 @@ function Summary({
         <div className="min-w-0">
           <h1 className="text-xl font-black leading-tight text-slate-950 dark:text-white md:text-2xl">
             {activeMateria === TODAS_AS_MATERIAS
-              ? 'Todas as materias'
+              ? 'Todas as matérias'
               : activeTema
                 ? `${activeMateria} · ${activeTema}`
                 : activeMateria}
           </h1>
           <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-sm">
-            Escolha uma materia ou estude tudo misturado.
+            Escolha uma matéria ou estude tudo misturado.
           </p>
         </div>
 
@@ -628,7 +628,7 @@ function Summary({
                   : 'border-emerald-300 bg-white text-emerald-950 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10'
               }`}
             >
-              {exame.label} · {exame.total} questoes
+              {exame.label} · {exame.total} questões
             </button>
           ))}
         </div>
@@ -639,7 +639,7 @@ function Summary({
           Todas · {questoesDoModoAtual.length}
         </button>
         <button type="button" onClick={() => onChangeAba('naoRespondidas')} className={`rounded-xl border px-2 py-2 text-xs font-black transition md:px-4 md:py-2.5 md:text-sm ${tabClass(aba === 'naoRespondidas')}`}>
-          Nao respondidas · {totalNaoRespondidas}
+          Não respondidas · {totalNaoRespondidas}
         </button>
         <button type="button" onClick={() => onChangeAba('feitas')} className={`rounded-xl border px-2 py-2 text-xs font-black transition md:px-4 md:py-2.5 md:text-sm ${tabClass(aba === 'feitas')}`}>
           Feitas · {totalFeitas}
@@ -650,7 +650,7 @@ function Summary({
           className="col-span-2 inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-rose-300 bg-white px-3 py-2 text-xs font-black text-rose-700 shadow-sm transition hover:border-rose-500 hover:bg-rose-50 dark:border-rose-300/40 dark:bg-slate-900 dark:text-rose-200 dark:hover:bg-rose-400/10 lg:col-span-1 md:min-h-10 md:px-4 md:py-2.5 md:text-sm"
         >
           <RotateCcw className="h-4 w-4" strokeWidth={3} />
-          Resetar {todasQuestoes.length} questoes
+          Resetar {todasQuestoes.length} questões
         </button>
       </div>
 
@@ -664,7 +664,7 @@ function Summary({
               Ordem sugerida na OAB
             </p>
             <p className="mt-0.5 text-xs font-semibold leading-relaxed text-emerald-900 dark:text-emerald-100 md:text-sm">
-              Etica primeiro, depois as materias de maior peso.
+              Ética primeiro, depois as matérias de maior peso.
             </p>
           </div>
         </div>
@@ -684,7 +684,7 @@ function Summary({
             className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-300 bg-white px-3 py-2.5 text-left text-sm font-black text-emerald-950 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10"
           >
             <span className="min-w-0">
-              🎯 Todas as materias · {questoesDoExame.length}
+              Todas as matérias · {questoesDoExame.length}
             </span>
 
             <span className="ml-auto rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-black text-emerald-900 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
@@ -702,7 +702,7 @@ function Summary({
           </div>
 
           <p className="mt-1.5 text-xs font-bold text-emerald-900 dark:text-emerald-100">
-            Estude todas as materias misturadas, simulando melhor o ritmo da prova.
+            Estude todas as matérias misturadas, simulando melhor o ritmo da prova.
           </p>
         </div>
 
@@ -767,7 +767,7 @@ function Summary({
               </div>
 
               <p className="mt-1.5 text-[11px] font-black text-slate-700 dark:text-slate-300">
-                Feitas: {item.feitas} · Nao respondidas: {item.naoRespondidas}
+                Feitas: {item.feitas} · Não respondidas: {item.naoRespondidas}
               </p>
 
               {isOpen && (
@@ -844,13 +844,13 @@ function removerQuestaoDaRevisaoLocal(idQuestao: number | string) {
     })
   );
 
-  window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+  window.dispatchEvent(new Event('oaplay-revisao-atualizada'));
   window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
 }
 
 
 function resetarAcertosDoDashboard() {
-  const keys = ['user-game-data', 'missao-oab:user', 'missao-oab-user'];
+  const keys = ['user-game-data', 'oaplay:user', 'oaplay-user'];
 
   for (const key of keys) {
     const raw = localStorage.getItem(key);
@@ -866,11 +866,11 @@ function resetarAcertosDoDashboard() {
 
       localStorage.setItem(key, JSON.stringify(next));
     } catch {
-      // ignora chaves que nao forem JSON
+      // ignora chaves que não forem JSON
     }
   }
 
-  window.dispatchEvent(new Event('missao-oab-reset-acertos'));
+  window.dispatchEvent(new Event('oaplay-reset-acertos'));
   window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
 }
 
@@ -937,8 +937,8 @@ export default function QuestoesList() {
         const res = await fetch(`/api/questoes?${params.toString()}`, { cache: 'no-store' });
         const json = await res.json().catch(() => null);
 
-        if (!res.ok) throw new Error(json?.error || `Falha ao buscar questoes (${res.status})`);
-        if (!Array.isArray(json)) throw new Error('Resposta inválida ao buscar questoes');
+        if (!res.ok) throw new Error(json?.error || `Falha ao buscar questões (${res.status})`);
+        if (!Array.isArray(json)) throw new Error('Resposta inválida ao buscar questões');
 
         const ordenadas = ordenarQuestoes(json);
 
@@ -952,7 +952,7 @@ export default function QuestoesList() {
       } catch (err: unknown) {
         if (!cancel) {
           setData([]);
-          setError(err instanceof Error ? err.message : 'Erro ao carregar questoes');
+          setError(err instanceof Error ? err.message : 'Erro ao carregar questões');
         }
       } finally {
         if (!cancel) setLoading(false);
@@ -1038,8 +1038,8 @@ export default function QuestoesList() {
 
         // No modo revisão, quando o usuário acerta, a questão precisa continuar
         // aparecendo até ele clicar em "Continuar e remover da revisão".
-        // Sem isso, a aba "Nao respondidas" remove a questão assim que a resposta
-        // é registrada e o usuário nao consegue ver gabarito nem comentario.
+        // Sem isso, a aba "Não respondidas" remove a questão assim que a resposta
+        // é registrada e o usuário não consegue ver gabarito nem comentário.
         return respostas[key] === undefined || Boolean(reviewSuccessPending[key]);
       });
     }
@@ -1107,7 +1107,7 @@ export default function QuestoesList() {
         })
       );
 
-      window.dispatchEvent(new Event('missao-oab-revisao-atualizada'));
+      window.dispatchEvent(new Event('oaplay-revisao-atualizada'));
       window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
     }
   }
@@ -1216,7 +1216,7 @@ export default function QuestoesList() {
       <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center p-4 text-slate-700 dark:text-slate-300">
         <p className="flex items-center gap-2">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Carregando questoes...
+          Carregando questões...
         </p>
       </div>
     );
@@ -1236,7 +1236,7 @@ export default function QuestoesList() {
     return (
       <div className="mx-auto max-w-5xl p-4">
         <div className="rounded-lg border border-slate-300 bg-white p-4 font-semibold text-slate-700 dark:border-white/15 dark:bg-slate-900 dark:text-slate-300">
-          Nenhuma questão disponivel.
+          Nenhuma questão disponível.
         </div>
       </div>
     );
@@ -1271,7 +1271,7 @@ export default function QuestoesList() {
               </p>
 
               <p className="mt-1 text-sm font-bold leading-relaxed">
-                Voce usou {freeDailyCount} de {FREE_DAILY_LIMIT} questoes gratis hoje.
+                Você usou {freeDailyCount} de {FREE_DAILY_LIMIT} questões grátis hoje.
               </p>
             </div>
 
@@ -1288,17 +1288,17 @@ export default function QuestoesList() {
       <section id="questoes-em-jogo" className="scroll-mt-24 rounded-2xl border border-slate-300 bg-white p-3 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-5">
         <div className="mb-4">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-800 dark:text-cyan-300">
-            Questoes em jogo
+            Questões em jogo
           </p>
           <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
             {activeMateria === TODAS_AS_MATERIAS
-              ? 'Todas as materias'
+              ? 'Todas as matérias'
               : activeTema
                 ? `${activeMateria} · ${activeTema}`
                 : activeMateria}
           </h2>
           <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-300">
-            Exibindo {questoesVisiveis.length} questão(ões) {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as materias' : activeTema ? `do tema ${activeTema}` : 'da materia selecionada'}.
+            Exibindo {questoesVisiveis.length} questão(ões) {activeMateria === TODAS_AS_MATERIAS ? 'misturadas de todas as matérias' : activeTema ? `do tema ${activeTema}` : 'da matéria selecionada'}.
           </p>
         </div>
 
@@ -1319,7 +1319,7 @@ export default function QuestoesList() {
           </div>
         ) : (
           <div className="rounded-xl border border-emerald-500 bg-emerald-50 p-4 text-sm font-black text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">
-            Nenhuma questão nesta seleção. Troque a edicao do exame, a materia ou a aba.
+            Nenhuma questão nesta seleção. Troque a edição do exame, a matéria ou a aba.
           </div>
         )}
       </section>
@@ -1329,7 +1329,7 @@ export default function QuestoesList() {
           <div className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white shadow-2xl shadow-black ring-1 ring-white/10">
             <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300" />
             <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-amber-300/10 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-24 -right-20 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-[-6rem] -right-20 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
 
             <div className="relative p-6 text-center md:p-8">
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-300/35 bg-amber-300/15 text-amber-200 shadow-lg shadow-black/30">
@@ -1341,18 +1341,18 @@ export default function QuestoesList() {
               </p>
 
               <h2 className="text-2xl font-black tracking-tight text-white md:text-3xl">
-                Limite diario atingido
+                Limite diário atingido
               </h2>
 
               <p className="mx-auto mt-4 max-w-sm text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
-                Voce respondeu suas {FREE_DAILY_LIMIT} questoes gratuitas de hoje. Assine o Premium para continuar estudando sem limite.
+                Você respondeu suas {FREE_DAILY_LIMIT} questões gratuitas de hoje. Assine o Premium para continuar estudando sem limite.
               </p>
 
               <div className="mt-6 grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-left">
                 <div className="rounded-xl bg-slate-950/60 p-3">
                   <p className="text-xl font-black text-amber-200">5</p>
                   <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                    gratis por dia
+                    grátis por dia
                   </p>
                 </div>
 
@@ -1366,7 +1366,7 @@ export default function QuestoesList() {
                 <div className="rounded-xl bg-slate-950/60 p-3">
                   <p className="text-xl font-black text-cyan-200">24h</p>
                   <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                    renova amanha
+                    renova amanhã
                   </p>
                 </div>
               </div>
@@ -1377,7 +1377,7 @@ export default function QuestoesList() {
                   onClick={() => setShowFreeLimitModal(false)}
                   className="min-h-12 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
                 >
-                  Continuar amanha
+                  Continuar amanhã
                 </button>
 
                 <a
@@ -1389,7 +1389,7 @@ export default function QuestoesList() {
               </div>
 
               <p className="mt-5 text-xs font-medium leading-relaxed text-slate-500">
-                Premium libera questoes ilimitadas e remove essa trava diaria.
+                Premium libera questões ilimitadas e remove essa trava diária.
               </p>
             </div>
           </div>
@@ -1407,15 +1407,15 @@ export default function QuestoesList() {
               </div>
 
               <h2 className="text-center text-xl font-black tracking-tight md:text-2xl">
-                Resetar todas as {data.length} questoes?
+                Resetar todas as {data.length} questões?
               </h2>
 
               <p className="mx-auto mt-3 max-w-sm text-center text-sm font-medium leading-relaxed text-slate-300">
-                Isso vai limpar suas respostas, acertos e revisão local. O ranking permanente nao será apagado.
+                Isso vai limpar suas respostas, acertos e revisão local. O ranking permanente não será apagado.
               </p>
 
               <div className="mt-5 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 py-3 text-center text-sm font-black text-rose-200">
-                Essa ação nao pode ser desfeita.
+                Essa ação não pode ser desfeita.
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">

@@ -3,10 +3,8 @@ import { create } from 'zustand';
 export interface GameState {
   level: number;
   xp: number;
-  coins: number;
   lives: number;
   incrementXP: (amount: number) => void;
-  spendCoins: (amount: number) => void;
   loseLife: () => void;
   reset: () => void;
 }
@@ -14,7 +12,6 @@ export interface GameState {
 export const useGameStore = create<GameState>((set) => ({
   level: 1,
   xp: 0,
-  coins: 0,
   lives: 3,
 
   incrementXP: (amount) =>
@@ -24,11 +21,8 @@ export const useGameStore = create<GameState>((set) => ({
       return { xp: totalXP, level };
     }),
 
-  spendCoins: (amount) =>
-    set((state) => ({ coins: Math.max(0, state.coins - amount) })),
-
   loseLife: () =>
     set((state) => ({ lives: Math.max(0, state.lives - 1) })),
 
-  reset: () => set({ level: 1, xp: 0, coins: 0, lives: 3 }),
+  reset: () => set({ level: 1, xp: 0, lives: 3 }),
 }));

@@ -96,14 +96,14 @@ async function checarDispositivoAtivo(accessToken: string) {
 const conquistas = [
   {
     id: 'badge_first',
-    titulo: 'Primeira questao',
-    descricao: 'Respondeu a primeira questao no OAPlay.',
+    titulo: 'Primeira questão',
+    descricao: 'Respondeu a primeira questão no OAPlay.',
     icone: 'award',
   },
   {
     id: 'badge_10_correct',
-    titulo: 'Sequencia inicial',
-    descricao: 'Acertou 10 questoes no total.',
+    titulo: 'Sequência inicial',
+    descricao: 'Acertou 10 questões no total.',
     icone: 'award',
   },
 ];
