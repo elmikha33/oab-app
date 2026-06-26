@@ -6,6 +6,12 @@ import { supabase } from '@/lib/supabase';
 
 const GameStateContext = createContext<any>(null);
 
+const MANUAL_PREMIUM_EMAILS = ['mi.psy.trance@gmail.com'];
+
+function emailPremiumManual(email?: string | null) {
+  return MANUAL_PREMIUM_EMAILS.includes(String(email || '').toLowerCase());
+}
+
 const DEVICE_ID_KEY = 'oaplay-active-device-id';
 
 function gerarDeviceId() {
@@ -336,10 +342,16 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
               ? savedLocal.nome
               : 'Candidato',
         avatar_url: profile?.avatar_url || authUser.user_metadata?.avatar_url || null,
-        isPremium: premiumEstaAtivo(profile),
-        premium_ate: profile?.premium_ate || null,
-        plano: profile?.plano || 'free',
-        subscription_status: profile?.subscription_status || null,
+        isPremium: emailPremiumManual(authUser.email) || premiumEstaAtivo(profile),
+        premium_ate: emailPremiumManual(authUser.email)
+          ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+          : profile?.premium_ate || null,
+        plano: emailPremiumManual(authUser.email)
+          ? 'premium_manual'
+          : profile?.plano || 'free',
+        subscription_status: emailPremiumManual(authUser.email)
+          ? 'manual_active'
+          : profile?.subscription_status || null,
         mercado_pago_subscription_id: profile?.mercado_pago_subscription_id || null,
         active_device_id: activeDeviceId,
       });

@@ -59,61 +59,6 @@ function MobileFloatingPremiumCard() {
 }
 
 
-function PlanStatusBadge({
-  user,
-  onRefresh,
-}: {
-  user: any;
-  onRefresh: () => void;
-}) {
-  const isPremium = Boolean(user?.isPremium);
-  const premiumAte = user?.premium_ate
-    ? new Date(user.premium_ate).toLocaleDateString('pt-BR')
-    : null;
-
-  return (
-    <div className="fixed bottom-6 left-6 z-[60] hidden w-[240px] rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-slate-900 shadow-2xl shadow-black/10 backdrop-blur-xl md:block dark:border-white/10 dark:bg-slate-950/95 dark:text-white">
-      <div className="flex items-center gap-3">
-        <div
-          className={
-            isPremium
-              ? 'flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-300/15 dark:text-emerald-200'
-              : 'flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-300/15 dark:text-amber-200'
-          }
-        >
-          {isPremium ? 'P' : 'F'}
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-            Plano atual
-          </p>
-
-          <p className="text-sm font-black text-slate-950 dark:text-white">
-            {isPremium ? 'Premium ativo' : 'Free'}
-          </p>
-
-          {isPremium && premiumAte && (
-            <p className="mt-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
-              Ate {premiumAte}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {!isPremium && (
-        <button
-          type="button"
-          onClick={onRefresh}
-          className="mt-3 w-full rounded-xl border border-emerald-300/40 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-200 dark:hover:bg-emerald-300/15"
-        >
-          Atualizar status
-        </button>
-      )}
-    </div>
-  );
-}
-
 function LogoutButton({
   mobile = false,
   onLogout,
@@ -166,8 +111,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   const hideLayout = pathname === '/' || pathname === '/auth';
   const showDesktopSidebar = pathname !== '/play';
-  const showPlanStatusBadge = pathname === '/dashboard';
-  const showLogoutButton = pathname === '/dashboard';
+    const showLogoutButton = pathname === '/dashboard';
 
   const showFloatingPremium =
     mounted &&
@@ -256,17 +200,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
           {false && <MobileFloatingPremiumCard />}
         </>
       )}
-
-      {showPlanStatusBadge && (
-        <PlanStatusBadge
-          user={user}
-          onRefresh={() => {
-            void refreshUser?.();
-          }}
-        />
-      )}
-
-      {showLogoutButton && (
+{showLogoutButton && (
         <>
           <LogoutButton onLogout={handleLogout} />
           <LogoutButton mobile onLogout={handleLogout} />

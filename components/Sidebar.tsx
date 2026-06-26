@@ -24,6 +24,7 @@ const links = [
 ];
 
 export default function Sidebar() {
+  const { user, refreshUser } = useGameState() || {};
   const pathname = usePathname();
   const { user } = useGameState();
 
@@ -61,6 +62,50 @@ export default function Sidebar() {
           </p>
         </div>
       </Link>
+
+        {/* STATUS DO PLANO - PRESO NA SIDEBAR */}
+        <div className="mt-3 rounded-2xl border border-emerald-300/20 bg-slate-900/80 p-4 text-white shadow-lg shadow-black/20 dark:bg-slate-900/80">
+          <div className="flex items-center gap-3">
+            <div
+              className={
+                user?.isPremium
+                  ? 'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-300 text-sm font-black text-emerald-950'
+                  : 'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-300/15 text-sm font-black text-amber-200'
+              }
+            >
+              {user?.isPremium ? 'P' : 'F'}
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Plano atual
+              </p>
+
+              <p className="text-sm font-black text-white">
+                {user?.isPremium ? 'Premium ativo' : 'Free'}
+              </p>
+
+              {user?.isPremium && user?.premium_ate && (
+                <p className="mt-0.5 text-xs font-semibold text-emerald-200">
+                  Ate {new Date(user.premium_ate).toLocaleDateString('pt-BR')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {!user?.isPremium && (
+            <button
+              type="button"
+              onClick={() => {
+                void refreshUser?.();
+              }}
+              className="mt-3 w-full rounded-xl border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-black text-emerald-200 transition hover:bg-emerald-300/15"
+            >
+              Atualizar status
+            </button>
+          )}
+        </div>
+
 
       <div className="mb-6 rounded-3xl border border-slate-200 dark:border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/20">
         <div className="mb-4 flex items-center gap-3">
