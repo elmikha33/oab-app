@@ -109,6 +109,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 
   const hideLayout = pathname === '/' || pathname === '/auth';
   const showDesktopSidebar = pathname !== '/play';
+  const showLogoutButton = pathname === '/dashboard';
 
   const showFloatingPremium =
     mounted &&
@@ -198,8 +199,12 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         </>
       )}
 
-      <LogoutButton onLogout={handleLogout} />
-      <LogoutButton mobile onLogout={handleLogout} />
+      {showLogoutButton && (
+        <>
+          <LogoutButton onLogout={handleLogout} />
+          <LogoutButton mobile onLogout={handleLogout} />
+        </>
+      )}
 
       {mounted && (
         <button
