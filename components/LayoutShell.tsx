@@ -189,7 +189,13 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       <div className="flex min-h-screen">
         {showDesktopSidebar && <Sidebar />}
 
-        <main className="min-w-0 flex-1 pb-28 pt-16 md:pb-0 md:pt-0">
+        <main
+          className={
+            showDesktopSidebar
+              ? 'min-w-0 flex-1 pb-28 pt-16 md:ml-[300px] md:pb-0 md:pt-0'
+              : 'min-w-0 flex-1 pb-28 pt-16 md:pb-0 md:pt-0'
+          }
+        >
           {children}
         </main>
       </div>
