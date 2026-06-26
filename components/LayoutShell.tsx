@@ -203,7 +203,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       {false && showFloatingPremium && (
         <>
           {false && <FloatingPremiumCard />}
-          {false && <MobileFloatingPremiumCard />}
+          {false &&}
         </>
       )}
 {showLogoutButton && (

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BookOpen,
   CalendarDays,
@@ -11,6 +11,8 @@ import {
   LogOut,
   Medal,
   Menu,
+  Moon,
+  Sun,
   Trophy,
   X,
 } from 'lucide-react';
@@ -18,38 +20,17 @@ import { useGameState } from '@/context/GameStateContext';
 import { supabase } from '@/lib/supabase';
 
 const navItems = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: Grid2X2,
-  },
-  {
-    label: 'Responder Questoes',
-    href: '/play',
-    icon: BookOpen,
-  },
-  {
-    label: 'Modo Revisao',
-    href: '/review',
-    icon: CalendarDays,
-  },
-  {
-    label: 'Conquistas',
-    href: '/achievements',
-    icon: Medal,
-  },
-  {
-    label: 'Ranking',
-    href: '/ranking',
-    icon: Trophy,
-  },
+  { label: 'Dashboard', href: '/dashboard', icon: Grid2X2 },
+  { label: 'Responder Questoes', href: '/play', icon: BookOpen },
+  { label: 'Modo Revisao', href: '/review', icon: CalendarDays },
+  { label: 'Conquistas', href: '/achievements', icon: Medal },
+  { label: 'Ranking', href: '/ranking', icon: Trophy },
 ];
 
 function formatarData(data?: string | null) {
   if (!data) return null;
 
   const date = new Date(data);
-
   if (Number.isNaN(date.getTime())) return null;
 
   return date.toLocaleDateString('pt-BR');
@@ -62,25 +43,25 @@ function LogoBlock({ onClick }: { onClick?: () => void }) {
       onClick={onClick}
       className="flex min-w-0 items-center gap-3"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
         <img
           src="/oaplay-icon-192.png"
           alt="OAPlay"
-          className="h-9 w-9 object-contain"
+          className="h-8 w-8 object-contain"
         />
       </div>
 
       <div className="min-w-0 leading-none">
         <div className="flex items-baseline">
-          <span className="text-2xl font-black tracking-tight text-white">
+          <span className="text-xl font-black tracking-tight text-white">
             OA
           </span>
-          <span className="text-2xl font-black tracking-tight text-emerald-300">
+          <span className="text-xl font-black tracking-tight text-emerald-300">
             Play
           </span>
         </div>
 
-        <p className="mt-1 text-[9px] font-black uppercase tracking-[0.22em] text-emerald-300">
+        <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
           aprovacao expressa
         </p>
       </div>
@@ -111,10 +92,27 @@ export default function MobileNav() {
 
   const [open, setOpen] = useState(false);
   const [saindo, setSaindo] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
 
   const premiumAte = formatarData(user?.premium_ate);
 
+  useEffect(() => {
+    const saved = localStorage.getItem('missao-oab-theme');
+    const initialDark = saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
+
+    setDarkMode(initialDark);
+    document.documentElement.classList.toggle('dark', initialDark);
+  }, []);
+
   if (!user) return null;
+
+  function toggleTheme() {
+    const next = !darkMode;
+
+    setDarkMode(next);
+    localStorage.setItem('missao-oab-theme', next ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', next);
+  }
 
   async function handleLogout() {
     if (saindo) return;
@@ -147,16 +145,32 @@ export default function MobileNav() {
   return (
     <>
       <header className="fixed left-0 right-0 top-0 z-[80] border-b border-white/10 bg-slate-950/95 px-4 py-3 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
-        <div className="flex items-center justify-between gap-3">
-          <LogoBlock />
-
+        <div className="grid grid-cols-[48px_1fr_48px] items-center gap-3">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
             aria-label="Abrir menu"
           >
             <Menu className="h-6 w-6" strokeWidth={3} />
+          </button>
+
+          <div className="flex justify-center overflow-hidden">
+            <LogoBlock />
+          </div>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/25 bg-white/5 text-emerald-200 shadow-lg shadow-black/20 active:scale-95"
+            aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            title={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+          >
+            {darkMode ? (
+              <Sun className="h-5 w-5" strokeWidth={3} />
+            ) : (
+              <Moon className="h-5 w-5" strokeWidth={3} />
+            )}
           </button>
         </div>
       </header>
