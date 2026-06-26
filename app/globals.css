@@ -50,7 +50,7 @@
 }
 
 /* ----------------------------------------------------------
- *  Scrollbar mÃ­nima
+ *  Scrollbar mÃƒÂ­nima
  * ---------------------------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;
@@ -71,7 +71,7 @@
 }
 
 /* ----------------------------------------------------------
- *  BotÃµes premium corrigidos
+ *  BotÃƒÂµes premium corrigidos
  *  IMPORTANTE: sem ::before torto, sem halo desalinhado
  * ---------------------------------------------------------- */
 @layer components {
@@ -195,3 +195,25 @@ html:not(.dark) aside [aria-current="page"] * {
   color: #06281f !important;
 }
 /* === end OAPlay sidebar light mode readability fix === */
+
+/* === OAPlay mobile legacy overlay kill === */
+@media (max-width: 767px) {
+  nav.fixed.bottom-4,
+  nav.fixed.bottom-3,
+  nav.fixed.bottom-0,
+  button[aria-label="Sair"],
+  button[title="Sair"],
+  button[aria-label="Sair da conta"],
+  button[title="Sair da conta"] {
+    display: none !important;
+  }
+
+  header button[aria-label="Abrir menu"],
+  header button[aria-label="Ativar modo claro"],
+  header button[aria-label="Ativar modo escuro"],
+  aside button[aria-label="Fechar menu"],
+  aside button {
+    display: flex !important;
+  }
+}
+/* === end OAPlay mobile legacy overlay kill === */
