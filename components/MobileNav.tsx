@@ -1,232 +1,369 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useGameState } from '../context/GameStateContext';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import {
-  Award,
+  BarChart3,
   BookOpen,
-  Calendar,
-  Coins,
+  CalendarDays,
   Crown,
-  Flame,
-  LayoutDashboard,
+  Grid2X2,
   LogOut,
-  ShieldCheck,
-  User2,
+  Menu,
+  Medal,
+  Trophy,
   X,
 } from 'lucide-react';
+import { useGameState } from '@/context/GameStateContext';
+import { supabase } from '@/lib/supabase';
+
+const navItems = [
+  {
+    label: 'Painel',
+    href: '/dashboard',
+    icon: Grid2X2,
+  },
+  {
+    label: 'Estudo',
+    href: '/play',
+    icon: BookOpen,
+  },
+  {
+    label: 'Revisar',
+    href: '/review',
+    icon: CalendarDays,
+  },
+  {
+    label: 'Perfil',
+    href: '/achievements',
+    icon: Medal,
+  },
+];
+
+const drawerItems = [
+  {
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: Grid2X2,
+  },
+  {
+    label: 'Responder Questoes',
+    href: '/play',
+    icon: BookOpen,
+  },
+  {
+    label: 'Modo Revisao',
+    href: '/review',
+    icon: CalendarDays,
+  },
+  {
+    label: 'Conquistas',
+    href: '/achievements',
+    icon: Medal,
+  },
+  {
+    label: 'Ranking',
+    href: '/ranking',
+    icon: Trophy,
+  },
+];
+
+function formatarData(data?: string | null) {
+  if (!data) return null;
+
+  const date = new Date(data);
+
+  if (Number.isNaN(date.getTime())) return null;
+
+  return date.toLocaleDateString('pt-BR');
+}
+
+function MobileAvatar({ user }: { user: any }) {
+  const letra = String(user?.nome || user?.email || 'U').slice(0, 1).toUpperCase();
+
+  return (
+    <div
+      className={
+        user?.isPremium
+          ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-sm font-black text-slate-950 shadow-lg shadow-black/20'
+          : 'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-sm font-black text-emerald-950 shadow-lg shadow-black/20'
+      }
+    >
+      {letra}
+    </div>
+  );
+}
 
 export default function MobileNav() {
   const pathname = usePathname();
-  const { user, logout } = useGameState();
-  const [menuAberto, setMenuAberto] = useState(false);
+  const router = useRouter();
+  const { user, logout, setUser, refreshUser } = useGameState() || {};
+  const [open, setOpen] = useState(false);
+  const [saindo, setSaindo] = useState(false);
+
+  const premiumAte = formatarData(user?.premium_ate);
 
   if (!user) return null;
 
-  const mainLinks = [
-    { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Estudo', href: '/play', icon: BookOpen },
-    { name: 'Revisar', href: '/review', icon: Calendar },
-  ];
+  async function handleLogout() {
+    if (saindo) return;
 
-  const initial = user.nome?.charAt(0)?.toUpperCase() || 'C';
-  const xpNecessario = user.xpNecessario || 100;
-  const xpPercent = Math.min(100, Math.max(0, Math.round((user.xp / xpNecessario) * 100)));
+    setSaindo(true);
+
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // continua logout local
+    }
+
+    try {
+      logout?.();
+    } catch {
+      // ignora
+    }
+
+    try {
+      setUser?.(null);
+    } catch {
+      // ignora
+    }
+
+    setOpen(false);
+    router.replace('/auth');
+    router.refresh();
+  }
 
   return (
-    <div className="md:hidden">
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-emerald-300/10 bg-slate-950/95 px-3 shadow-xl shadow-black/30 backdrop-blur-xl">
-        <Link
-          href="/dashboard"
-          className="flex min-w-0 items-center"
-          aria-label="Ir para o dashboard OAPlay"
-        >
-          <img
-            src="/oaplay-logo-horizontal-transparent-white.png"
-            alt="OAPlay"
-            className="h-9 w-auto max-w-[124px] object-contain"
-          />
-        </Link>
-
-        <div className="flex shrink-0 items-center gap-1.5 text-xs font-bold">
-          <div className="flex h-8 items-center gap-1 rounded-full border border-orange-400/15 bg-orange-400/10 px-2 text-orange-300">
-            <Flame className="h-3.5 w-3.5" />
-            <span>{user.streak}d</span>
-          </div>
-
-          <div className="flex h-8 items-center gap-1 rounded-full border border-yellow-400/15 bg-yellow-400/10 px-2 text-yellow-300">
-            <Coins className="h-3.5 w-3.5" />
-            <span>{user.moedas}</span>
-          </div>
-
+    <>
+      <header className="fixed left-0 right-0 top-0 z-[80] border-b border-white/10 bg-slate-950/90 px-4 py-3 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
+        <div className="flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => setMenuAberto(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg shadow-emerald-500/20"
-            aria-label="Abrir perfil"
+            onClick={() => setOpen(true)}
+            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
+            aria-label="Abrir menu"
           >
-            {initial}
+            <Menu className="h-6 w-6" strokeWidth={3} />
           </button>
+
+          <Link href="/dashboard" className="flex min-w-0 flex-1 items-center justify-center">
+            <div className="flex items-center gap-2">
+              <img
+                src="/oaplay-icon-192.png"
+                alt="OAPlay"
+                className="h-9 w-9 rounded-xl"
+              />
+
+              <div className="leading-none">
+                <p className="text-lg font-black text-white">
+                  OA<span className="text-emerald-300">Play</span>
+                </p>
+                <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
+                  aprovacao expressa
+                </p>
+              </div>
+            </div>
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <div className="rounded-2xl border border-orange-300/20 bg-orange-300/10 px-3 py-2 text-xs font-black text-orange-200">
+              {user?.streak || 1}d
+            </div>
+
+            <MobileAvatar user={user} />
+          </div>
         </div>
       </header>
 
-      {menuAberto && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/80 backdrop-blur-sm">
+      <nav className="fixed bottom-4 left-3 right-3 z-[80] rounded-[1.75rem] border border-emerald-300/15 bg-slate-950/92 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl md:hidden">
+        <div className="grid grid-cols-4 gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={
+                  active
+                    ? 'flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30'
+                    : 'flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl text-slate-400 transition active:scale-95'
+                }
+              >
+                <Icon className="h-5 w-5" strokeWidth={2.8} />
+                <span className="text-[11px] font-black">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
+      {open && (
+        <div className="fixed inset-0 z-[120] md:hidden">
           <button
             type="button"
+            className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
             aria-label="Fechar menu"
-            className="absolute inset-0"
-            onClick={() => setMenuAberto(false)}
+            onClick={() => setOpen(false)}
           />
 
-          <div className="relative flex h-full w-80 max-w-[85vw] flex-col justify-between border-l border-white/10 bg-slate-950 p-6 shadow-2xl shadow-black">
-            <div>
-              <div className="mb-6 flex items-center justify-between gap-4">
+          <aside className="absolute bottom-0 left-0 top-0 w-[86vw] max-w-[360px] overflow-y-auto border-r border-white/10 bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-black">
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3"
+              >
                 <img
-                  src="/oaplay-logo-horizontal-transparent-white.png"
+                  src="/oaplay-icon-192.png"
                   alt="OAPlay"
-                  className="h-10 w-auto max-w-[150px] object-contain"
+                  className="h-12 w-12 rounded-2xl"
                 />
 
-                <button
-                  type="button"
-                  onClick={() => setMenuAberto(false)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] text-slate-300 hover:text-white"
-                  aria-label="Fechar menu"
-                >
-                  <X className="h-5 w-5" strokeWidth={3} />
-                </button>
-              </div>
-
-              <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-300 text-lg font-black text-emerald-950">
-                    {initial}
-                  </div>
-
-                  <div className="min-w-0">
-                    <h4 className="truncate font-bold text-white">{user.nome}</h4>
-                    <span className="text-xs font-bold text-emerald-300">
-                      {user.nome === 'admin' ? 'Administrador' : 'Estudante'}
-                    </span>
-                  </div>
+                <div>
+                  <p className="text-xl font-black">
+                    OA<span className="text-emerald-300">Play</span>
+                  </p>
+                  <p className="mt-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300">
+                    sua aprovacao expressa
+                  </p>
                 </div>
+              </Link>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-slate-400">
-                    <span>
-                      Nível {user.nivel} {user.nome === 'admin' ? 'Mestre' : 'Estagiário'}
-                    </span>
-                    <span>{user.xp} XP</span>
-                  </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-200 active:scale-95"
+                aria-label="Fechar menu"
+              >
+                <X className="h-6 w-6" strokeWidth={3} />
+              </button>
+            </div>
 
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-emerald-300"
-                      style={{ width: `${xpPercent}%` }}
-                    />
-                  </div>
+            <section className="mb-5 rounded-[1.5rem] border border-white/10 bg-slate-900 p-4">
+              <div className="flex items-center gap-4">
+                <MobileAvatar user={user} />
+
+                <div className="min-w-0">
+                  <p className="truncate text-lg font-black text-white">
+                    {user?.nome || 'Usuario'}
+                  </p>
+
+                  <p className="text-sm font-black text-emerald-300">
+                    {user?.isPremium ? 'Premium' : 'Free'}
+                  </p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Link
-                  href="/achievements"
-                  onClick={() => setMenuAberto(false)}
-                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold ${
-                    pathname === '/achievements'
-                      ? 'bg-emerald-300/10 text-white'
-                      : 'text-slate-400 hover:bg-white/[0.05] hover:text-white'
-                  }`}
-                >
-                  <Award className="h-5 w-5 text-emerald-300" />
-                  <span>Conquistas</span>
-                </Link>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="rounded-2xl border border-orange-300/20 bg-orange-300/10 px-3 py-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-orange-200">
+                    Sequencia
+                  </p>
+                  <p className="mt-1 text-lg font-black text-white">
+                    {user?.streak || 1}d
+                  </p>
+                </div>
 
-                <Link
-                  href="/premium"
-                  onClick={() => setMenuAberto(false)}
-                  className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold ${
-                    pathname === '/premium'
-                      ? 'bg-yellow-400/10 text-white'
-                      : 'text-slate-400 hover:bg-white/[0.05] hover:text-white'
-                  }`}
-                >
-                  <Crown className="h-5 w-5 text-yellow-300" />
-                  <span className="flex items-center gap-2">
-                    Seja Premium
-                    {!user.isPremium && (
-                      <span className="rounded bg-yellow-300 px-1.5 py-0.5 text-[9px] font-black text-slate-950">
-                        PRO
-                      </span>
-                    )}
-                  </span>
-                </Link>
+                <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-emerald-200">
+                    Acertos
+                  </p>
+                  <p className="mt-1 text-lg font-black text-white">
+                    {user?.acertos || 0}
+                  </p>
+                </div>
+              </div>
+            </section>
 
-                {user.isAdmin && (
-                  <Link
-                    href="/admin"
-                    onClick={() => setMenuAberto(false)}
-                    className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold ${
-                      pathname === '/admin'
-                        ? 'bg-emerald-300/10 text-white'
-                        : 'text-slate-400 hover:bg-white/[0.05] hover:text-white'
-                    }`}
+            <section className="mb-5 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className={
+                    user?.isPremium
+                      ? 'flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-300 text-sm font-black text-emerald-950'
+                      : 'flex h-11 w-11 items-center justify-center rounded-xl bg-amber-300 text-sm font-black text-amber-950'
+                  }
+                >
+                  {user?.isPremium ? 'P' : 'F'}
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-200">
+                    Plano atual
+                  </p>
+                  <p className="text-sm font-black text-white">
+                    {user?.isPremium ? 'Premium' : 'Free'}
+                  </p>
+                  {user?.isPremium && premiumAte && (
+                    <p className="mt-0.5 text-xs font-bold text-emerald-200">
+                      Ate {premiumAte}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {!user?.isPremium && (
+                <div className="mt-3 grid gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void refreshUser?.();
+                    }}
+                    className="rounded-xl border border-emerald-300/25 bg-white/5 px-3 py-2 text-xs font-black text-emerald-200"
                   >
-                    <ShieldCheck className="h-5 w-5 text-emerald-300" />
-                    <span>Painel Admin</span>
+                    Atualizar status
+                  </button>
+
+                  <Link
+                    href="/premium"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-emerald-300 px-3 py-2.5 text-xs font-black text-emerald-950"
+                  >
+                    <Crown className="h-4 w-4" strokeWidth={3} />
+                    Conhecer Premium
                   </Link>
-                )}
-              </div>
+                </div>
+              )}
+            </section>
+
+            <div className="space-y-2">
+              {drawerItems.map((item) => {
+                const Icon = item.icon;
+                const active = pathname === item.href;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={
+                      active
+                        ? 'flex min-h-13 items-center gap-3 rounded-2xl bg-emerald-300 px-4 text-sm font-black text-emerald-950'
+                        : 'flex min-h-13 items-center gap-3 rounded-2xl px-4 text-sm font-black text-slate-300 transition hover:bg-white/5'
+                    }
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={2.7} />
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
 
             <button
               type="button"
-              onClick={() => {
-                setMenuAberto(false);
-                logout();
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-red-400/20 py-3 text-sm font-bold text-red-300 transition hover:bg-red-400/10"
+              onClick={handleLogout}
+              disabled={saindo}
+              className="mt-8 flex min-h-13 w-full items-center justify-center gap-3 rounded-2xl border border-rose-300/25 bg-rose-500/10 px-4 text-sm font-black text-rose-200 transition active:scale-95 disabled:opacity-60"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Sair da Conta</span>
+              <LogOut className="h-5 w-5" strokeWidth={2.7} />
+              Sair da conta
             </button>
-          </div>
+          </aside>
         </div>
       )}
-
-      <nav className="fixed bottom-4 left-4 right-4 z-40 flex h-16 items-center justify-around rounded-3xl border border-white/10 bg-slate-950/92 px-2 shadow-2xl shadow-black/50 backdrop-blur-xl">
-        {mainLinks.map((link) => {
-          const Icon = link.icon;
-          const isActive = pathname === link.href;
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex h-12 w-14 flex-col items-center justify-center rounded-2xl transition-all ${
-                isActive
-                  ? 'scale-105 bg-emerald-300 text-emerald-950'
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-            >
-              <Icon className="mb-0.5 h-5 w-5" strokeWidth={2.5} />
-              <span className="text-[10px] font-bold tracking-wide">{link.name}</span>
-            </Link>
-          );
-        })}
-
-        <button
-          type="button"
-          onClick={() => setMenuAberto(true)}
-          className="flex h-12 w-14 flex-col items-center justify-center rounded-2xl text-slate-500 hover:text-slate-300"
-        >
-          <User2 className="mb-0.5 h-5 w-5" strokeWidth={2.5} />
-          <span className="text-[10px] font-bold tracking-wide">Perfil</span>
-        </button>
-      </nav>
-    </div>
+    </>
   );
 }
