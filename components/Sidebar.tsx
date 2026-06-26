@@ -26,7 +26,6 @@ const links = [
 export default function Sidebar() {
   const { user, refreshUser } = useGameState() || {};
   const pathname = usePathname();
-  const { user } = useGameState();
 
   if (!user) return null;
 
