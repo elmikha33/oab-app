@@ -11,25 +11,39 @@ import {
   RefreshCcw,
   ShieldCheck,
   Target,
+  Wallet,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
 import RankingPreview from '@/components/RankingPreview';
 
+const TEXTOS = {
+  painel: 'Painel de treino',
+  subtitulo: 'Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.',
+  estudar: 'Estudar Agora',
+  estudarDescricao: 'Responda questões e mantenha sua evolução.',
+  consistencia: 'Mantenha a consistência.',
+  praticando: 'Continue praticando.',
+  evolucao: 'Evolução',
+  carteira: 'Carteira',
+  carteiraDescricao: 'moedas acumuladas no treino.',
+  entrando: 'Entrando no OAPlay',
+};
+
 const FRASES = [
   {
-    texto: 'Dominar a prova come\u00e7a por conhecer o padr\u00e3o dela.',
-    autor: 'Prov\u00e9rbio de Estudo',
+    texto: 'Dominar a prova começa por conhecer o padrão dela.',
+    autor: 'Provérbio de Estudo',
   },
   {
-    texto: 'Cada quest\u00e3o respondida deixa a pr\u00f3xima mais f\u00e1cil.',
+    texto: 'Cada questão respondida deixa a próxima mais fácil.',
     autor: 'OAPlay',
   },
   {
-    texto: 'Consist\u00eancia vence pressa. Um bloco por vez.',
-    autor: 'Rotina de Aprova\u00e7\u00e3o',
+    texto: 'Consistência vence pressa. Um bloco por vez.',
+    autor: 'Rotina de Aprovação',
   },
   {
-    texto: 'Errar, revisar e voltar mais forte tamb\u00e9m \u00e9 evoluir.',
+    texto: 'Errar, revisar e voltar mais forte também é evoluir.',
     autor: 'Treino Inteligente',
   },
 ];
@@ -58,6 +72,12 @@ export default function Dashboard() {
     }
   }, [user, router]);
 
+  const primeiroNome = useMemo(() => {
+    const nome = String(user?.nome || user?.email || 'Estudante').trim();
+
+    return nome.split(' ')[0] || 'Estudante';
+  }, [user]);
+
   const totalAcertos = numeroSeguro(user?.acertos, 0);
   const streak = numeroSeguro(user?.streak, 0);
   const moedas = numeroSeguro(user?.moedas, 0);
@@ -65,18 +85,10 @@ export default function Dashboard() {
   const xpNecessario = Math.max(numeroSeguro(user?.xpNecessario, 100), 1);
   const nivel = numeroSeguro(user?.nivel, 1);
 
-  const progressoNivel = useMemo(() => {
-    return Math.min(100, Math.max(0, Math.round((xp / xpNecessario) * 100)));
-  }, [xp, xpNecessario]);
-
-  const primeiroNome = useMemo(() => {
-    const nome = String(user?.nome || user?.email || 'Estudante').trim();
-
-    return nome.split(' ')[0] || 'Estudante';
-  }, [user]);
+  const progressoNivel = Math.min(100, Math.max(0, Math.round((xp / xpNecessario) * 100)));
 
   const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
-  const acertosLabel = totalAcertos === 1 ? 'quest\u00e3o correta' : 'quest\u00f5es corretas';
+  const acertosLabel = totalAcertos === 1 ? 'questão correta' : 'questões corretas';
 
   function refreshQuote() {
     let nova = FRASES[Math.floor(Math.random() * FRASES.length)];
@@ -97,7 +109,7 @@ export default function Dashboard() {
           <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-emerald-300/20 border-t-emerald-300" />
 
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
-            Entrando no OAPlay
+            {TEXTOS.entrando}
           </p>
         </div>
       </main>
@@ -106,29 +118,31 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-8">
+      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
         <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
 
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-center">
-          <div>
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-              <ShieldCheck className="h-4 w-4" strokeWidth={3} />
-              Painel de treino
+        <div className="relative z-10 grid gap-6 xl:grid-cols-[1fr_360px] xl:items-stretch">
+          <div className="flex flex-col justify-between gap-5">
+            <div>
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+                <ShieldCheck className="h-4 w-4" strokeWidth={3} />
+                {TEXTOS.painel}
+              </div>
+
+              <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+                Bem-vindo,{' '}
+                <span className="text-emerald-600 dark:text-emerald-300">
+                  {primeiroNome}
+                </span>
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
+                {TEXTOS.subtitulo}
+              </p>
             </div>
 
-            <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl">
-              Bem-vindo,{' '}
-              <span className="text-emerald-600 dark:text-emerald-300">
-                {primeiroNome}
-              </span>
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
-              Continue seu treino com foco, ritmo e quest\u00f5es organizadas para avan\u00e7ar todos os dias.
-            </p>
-
-            <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-slate-950/60">
+            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950/60 sm:p-5">
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950">
                   <Quote className="h-5 w-5" strokeWidth={3} />
@@ -157,7 +171,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
             <div className="rounded-[1.5rem] border border-orange-300/25 bg-orange-300/10 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -170,7 +184,7 @@ export default function Dashboard() {
                   </p>
 
                   <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Mantenha a consist\u00eancia.
+                    {TEXTOS.consistencia}
                   </p>
                 </div>
 
@@ -192,7 +206,7 @@ export default function Dashboard() {
                   </p>
 
                   <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    Continue praticando.
+                    {TEXTOS.praticando}
                   </p>
                 </div>
 
@@ -205,43 +219,43 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
+      <section className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <div className="grid gap-6">
           <button
             type="button"
             onClick={() => router.push('/play')}
-            className="group rounded-[2rem] border border-emerald-300/30 bg-gradient-to-br from-emerald-300 to-cyan-300 p-6 text-left text-emerald-950 shadow-xl shadow-emerald-950/10 transition hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-emerald-950/20"
+            className="group rounded-[2rem] border border-emerald-300/30 bg-slate-900 p-6 text-left text-white shadow-xl shadow-black/20 transition hover:-translate-y-0.5 hover:border-emerald-300/60 dark:bg-slate-900 sm:p-7"
           >
             <div className="flex items-center justify-between gap-5">
               <div>
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-950/10">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950">
                   <BookOpen className="h-7 w-7" strokeWidth={3} />
                 </div>
 
                 <h2 className="text-2xl font-black">
-                  Estudar Agora
+                  {TEXTOS.estudar}
                 </h2>
 
-                <p className="mt-2 max-w-xl text-sm font-bold text-emerald-950/75">
-                  Responda quest\u00f5es e mantenha sua evolu\u00e7\u00e3o.
+                <p className="mt-2 max-w-xl text-sm font-bold text-slate-300">
+                  {TEXTOS.estudarDescricao}
                 </p>
               </div>
 
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-emerald-300 transition group-hover:translate-x-1">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-300 text-emerald-950 transition group-hover:translate-x-1">
                 <ArrowRight className="h-6 w-6" strokeWidth={3} />
               </div>
             </div>
           </button>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-7">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
-                  Evolu\u00e7\u00e3o
+                  {TEXTOS.evolucao}
                 </p>
 
                 <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
-                  N\u00edvel {nivel}
+                  Nível {nivel}
                 </h2>
               </div>
 
@@ -266,16 +280,24 @@ export default function Dashboard() {
 
         <aside className="grid gap-6">
           <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
-              Carteira
-            </p>
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
+                  {TEXTOS.carteira}
+                </p>
 
-            <p className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
-              {moedas}
-            </p>
+                <p className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
+                  {moedas}
+                </p>
+              </div>
 
-            <p className="mt-2 text-sm font-bold text-slate-600 dark:text-slate-400">
-              moedas acumuladas no treino.
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                <Wallet className="h-6 w-6" strokeWidth={3} />
+              </div>
+            </div>
+
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">
+              {TEXTOS.carteiraDescricao}
             </p>
           </div>
 
