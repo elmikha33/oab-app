@@ -1,27 +1,101 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  Flame,
+  Quote,
+  RefreshCcw,
+  ShieldCheck,
+  Target,
+} from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
-import { BarChart3, BookOpen, ChevronRight, Flame, RefreshCcw } from 'lucide-react';
-import { QUOTES } from '@/data/quotes';
 import RankingPreview from '@/components/RankingPreview';
+
+const FRASES = [
+  {
+    texto: 'Dominar a prova come\u00e7a por conhecer o padr\u00e3o dela.',
+    autor: 'Prov\u00e9rbio de Estudo',
+  },
+  {
+    texto: 'Cada quest\u00e3o respondida deixa a pr\u00f3xima mais f\u00e1cil.',
+    autor: 'OAPlay',
+  },
+  {
+    texto: 'Consist\u00eancia vence pressa. Um bloco por vez.',
+    autor: 'Rotina de Aprova\u00e7\u00e3o',
+  },
+  {
+    texto: 'Errar, revisar e voltar mais forte tamb\u00e9m \u00e9 evoluir.',
+    autor: 'Treino Inteligente',
+  },
+];
+
+function numeroSeguro(valor: unknown, fallback = 0) {
+  const numero = Number(valor);
+
+  if (Number.isFinite(numero)) {
+    return numero;
+  }
+
+  return fallback;
+}
 
 export default function Dashboard() {
   const router = useRouter();
-const { user } = useGameState();
+  const { user } = useGameState();
+
+  const [quote, setQuote] = useState(() => {
+    return FRASES[Math.floor(Math.random() * FRASES.length)];
+  });
+
   useEffect(() => {
     if (!user) {
       router.replace('/auth');
     }
   }, [user, router]);
 
+  const totalAcertos = numeroSeguro(user?.acertos, 0);
+  const streak = numeroSeguro(user?.streak, 0);
+  const moedas = numeroSeguro(user?.moedas, 0);
+  const xp = numeroSeguro(user?.xp, 0);
+  const xpNecessario = Math.max(numeroSeguro(user?.xpNecessario, 100), 1);
+  const nivel = numeroSeguro(user?.nivel, 1);
+
+  const progressoNivel = useMemo(() => {
+    return Math.min(100, Math.max(0, Math.round((xp / xpNecessario) * 100)));
+  }, [xp, xpNecessario]);
+
+  const primeiroNome = useMemo(() => {
+    const nome = String(user?.nome || user?.email || 'Estudante').trim();
+
+    return nome.split(' ')[0] || 'Estudante';
+  }, [user]);
+
+  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
+  const acertosLabel = totalAcertos === 1 ? 'quest\u00e3o correta' : 'quest\u00f5es corretas';
+
+  function refreshQuote() {
+    let nova = FRASES[Math.floor(Math.random() * FRASES.length)];
+
+    if (FRASES.length > 1) {
+      while (nova.texto === quote.texto) {
+        nova = FRASES[Math.floor(Math.random() * FRASES.length)];
+      }
+    }
+
+    setQuote(nova);
+  }
+
   if (!user) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
         <div className="text-center">
           <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-emerald-300/20 border-t-emerald-300" />
+
           <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
             Entrando no OAPlay
           </p>
@@ -30,162 +104,184 @@ const { user } = useGameState();
     );
   }
 
-
-  const [quote, setQuote] = useState(() => {
-    return QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  });
-
-  function refreshQuote() {
-    let nova = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-
-    if (QUOTES.length > 1) {
-      while (nova.text === quote.text) {
-        nova = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-      }
-    }
-
-    setQuote(nova);
-  }
-const totalAcertos = user.acertos ?? 0;
-  const streak = user.streak || 0;
-  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
-
-  const goToStudy = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    router.push('/play');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-3 pb-10 pt-3 text-slate-950 transition-colors dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white sm:px-4 md:px-8 md:pt-8">
-      <div className="mx-auto max-w-6xl">
-        <section className="mb-4 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-xl shadow-emerald-950/5 dark:border-emerald-300/10 dark:bg-slate-900 md:hidden">
-          <div className="bg-slate-950 px-4 py-4">
-            <img
-              src="/oaplay-logo-horizontal-transparent-white.png"
-              alt="OAPlay"
-              className="h-10 w-auto object-contain"
-            />
-          </div>
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <section className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20 sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-emerald-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 left-10 h-56 w-56 rounded-full bg-cyan-300/10 blur-3xl" />
 
-          <div className="px-4 py-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
-              Painel de estudos
-            </p>
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-center">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+              <ShieldCheck className="h-4 w-4" strokeWidth={3} />
+              Painel de treino
+            </div>
 
-            <h1 className="mt-2 font-heading text-2xl font-black tracking-tight text-slate-950 dark:text-white">
-              Bem-vindo, {user.nome}
+            <h1 className="text-3xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+              Bem-vindo,{' '}
+              <span className="text-emerald-600 dark:text-emerald-300">
+                {primeiroNome}
+              </span>
             </h1>
 
-            <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-              Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
-            </p>
-          </div>
-        </section>
-
-        <header className="mb-4 hidden max-w-3xl md:mb-8 md:block">
-          <p className="mb-2 text-xs font-black uppercase tracking-[0.24em] text-emerald-700 dark:text-emerald-300">
-            Painel de estudos
-          </p>
-
-          <h1 className="font-heading text-5xl font-black tracking-tight text-slate-950 dark:text-white">
-            Bem-vindo, {user.nome}
-          </h1>
-
-          <p className="mt-3 text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-            Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
-          </p>
-        </header>
-
-        <section className="mb-4 rounded-3xl border border-emerald-100 bg-white p-4 shadow-xl shadow-emerald-950/5 dark:border-white/15 dark:bg-slate-900 md:mb-6 md:rounded-[2rem] md:p-6">
-          <p className="text-base italic leading-relaxed text-slate-800 dark:text-slate-100 md:text-lg">
-            &quot;{quote.text}&quot;
-          </p>
-
-          <div className="mt-4 flex items-center justify-between gap-3 md:mt-6">
-            <p className="text-[11px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-300 md:text-xs">
-              {quote.author}
+            <p className="mt-4 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 dark:text-slate-300 sm:text-lg">
+              Continue seu treino com foco, ritmo e quest\u00f5es organizadas para avan\u00e7ar todos os dias.
             </p>
 
-            <button
-              type="button"
-              onClick={refreshQuote}
-              title="Nova frase"
-              aria-label="Atualizar frase"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 shadow-md shadow-emerald-950/5 transition hover:scale-105 hover:bg-emerald-100 dark:bg-emerald-300/10 dark:text-emerald-300 md:h-11 md:w-11"
-            >
-              <RefreshCcw className="h-4 w-4 md:h-5 md:w-5" strokeWidth={3} />
-            </button>
-          </div>
-        </section>
+            <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-slate-950/60">
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950">
+                  <Quote className="h-5 w-5" strokeWidth={3} />
+                </div>
 
-        <section className="mb-4 grid grid-cols-2 gap-3 md:mb-6 md:grid-cols-2 md:gap-4">
-          <div className="rounded-3xl border border-emerald-100 bg-white p-4 shadow-xl shadow-emerald-950/5 dark:border-white/15 dark:bg-slate-900 md:rounded-[2rem] md:p-6">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300 md:mb-4 md:h-14 md:w-14">
-              <Flame className="h-5 w-5 md:h-7 md:w-7" />
-            </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-base font-black leading-relaxed text-slate-950 dark:text-white">
+                    &quot;{quote.texto}&quot;
+                  </p>
 
-            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">
-              {streak}
-            </p>
+                  <p className="mt-2 text-sm font-bold text-slate-500 dark:text-slate-400">
+                    {quote.autor}
+                  </p>
+                </div>
 
-            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              {streakLabel}
-            </p>
-
-            <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
-              Mantenha a consistÃªncia.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-emerald-100 bg-white p-4 shadow-xl shadow-emerald-950/5 dark:border-white/15 dark:bg-slate-900 md:rounded-[2rem] md:p-6">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-300 md:mb-4 md:h-14 md:w-14">
-              <BarChart3 className="h-5 w-5 md:h-7 md:w-7" />
-            </div>
-
-            <p className="text-3xl font-black text-slate-950 dark:text-white md:text-4xl">
-              {totalAcertos}
-            </p>
-
-            <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              questÃµes corretas
-            </p>
-
-            <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
-              Continue praticando.
-            </p>
-          </div>
-        </section>
-
-        <Link
-          href="/play"
-          onClick={goToStudy}
-          className="group mb-4 flex min-h-[104px] items-center rounded-3xl border border-emerald-200 bg-white p-4 text-slate-950 shadow-xl shadow-emerald-950/5 transition hover:-translate-y-1 hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-950/10 dark:border-emerald-400/40 dark:bg-gradient-to-br dark:from-emerald-700 dark:via-emerald-950 dark:to-slate-950 dark:text-white md:mb-6 md:min-h-[132px] md:rounded-[2rem] md:p-0 md:px-7"
-        >
-          <div className="flex w-full items-center justify-between gap-3 md:gap-5">
-            <div className="flex min-w-0 items-center gap-3 md:gap-5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 dark:bg-emerald-300/15 dark:text-emerald-200 md:h-16 md:w-16">
-                <BookOpen size={26} />
+                <button
+                  type="button"
+                  onClick={refreshQuote}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:border-emerald-300 hover:text-emerald-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-emerald-300"
+                  aria-label="Trocar frase"
+                  title="Trocar frase"
+                >
+                  <RefreshCcw className="h-4 w-4" strokeWidth={3} />
+                </button>
               </div>
+            </div>
+          </div>
 
-              <div className="min-w-0">
-                <h2 className="font-heading text-2xl font-black leading-tight tracking-tight text-slate-950 dark:text-white md:text-3xl">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="rounded-[1.5rem] border border-orange-300/25 bg-orange-300/10 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-4xl font-black text-slate-950 dark:text-white">
+                    {streak}
+                  </p>
+
+                  <p className="mt-1 text-sm font-black text-orange-700 dark:text-orange-200">
+                    {streakLabel}
+                  </p>
+
+                  <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    Mantenha a consist\u00eancia.
+                  </p>
+                </div>
+
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-300 text-orange-950">
+                  <Flame className="h-7 w-7" strokeWidth={3} />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-emerald-300/25 bg-emerald-300/10 p-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-4xl font-black text-slate-950 dark:text-white">
+                    {totalAcertos}
+                  </p>
+
+                  <p className="mt-1 text-sm font-black text-emerald-700 dark:text-emerald-200">
+                    {acertosLabel}
+                  </p>
+
+                  <p className="mt-3 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    Continue praticando.
+                  </p>
+                </div>
+
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950">
+                  <Target className="h-7 w-7" strokeWidth={3} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="grid gap-6">
+          <button
+            type="button"
+            onClick={() => router.push('/play')}
+            className="group rounded-[2rem] border border-emerald-300/30 bg-gradient-to-br from-emerald-300 to-cyan-300 p-6 text-left text-emerald-950 shadow-xl shadow-emerald-950/10 transition hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-emerald-950/20"
+          >
+            <div className="flex items-center justify-between gap-5">
+              <div>
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-950/10">
+                  <BookOpen className="h-7 w-7" strokeWidth={3} />
+                </div>
+
+                <h2 className="text-2xl font-black">
                   Estudar Agora
                 </h2>
 
-                <p className="mt-1 max-w-[210px] text-sm font-semibold leading-snug text-slate-600 dark:text-emerald-50/90 md:max-w-none md:text-base">
-                  Responda questÃµes e mantenha sua evoluÃ§Ã£o.
+                <p className="mt-2 max-w-xl text-sm font-bold text-emerald-950/75">
+                  Responda quest\u00f5es e mantenha sua evolu\u00e7\u00e3o.
                 </p>
+              </div>
+
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-950 text-emerald-300 transition group-hover:translate-x-1">
+                <ArrowRight className="h-6 w-6" strokeWidth={3} />
+              </div>
+            </div>
+          </button>
+
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
+                  Evolu\u00e7\u00e3o
+                </p>
+
+                <h2 className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
+                  N\u00edvel {nivel}
+                </h2>
+              </div>
+
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                <BarChart3 className="h-6 w-6" strokeWidth={3} />
               </div>
             </div>
 
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-500/30 transition group-hover:translate-x-1 dark:bg-emerald-300 dark:text-emerald-950 md:h-14 md:w-14">
-              <ChevronRight className="h-6 w-6" />
+            <div className="h-4 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-950">
+              <div
+                className="h-full rounded-full bg-emerald-300"
+                style={{ width: `${progressoNivel}%` }}
+              />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
+              <span>{xp} XP</span>
+              <span>{xpNecessario} XP</span>
             </div>
           </div>
-        </Link>
+        </div>
 
-        <RankingPreview />
-      </div>
+        <aside className="grid gap-6">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-950/5 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-300">
+              Carteira
+            </p>
+
+            <p className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
+              {moedas}
+            </p>
+
+            <p className="mt-2 text-sm font-bold text-slate-600 dark:text-slate-400">
+              moedas acumuladas no treino.
+            </p>
+          </div>
+
+          <RankingPreview />
+        </aside>
+      </section>
     </div>
   );
 }
