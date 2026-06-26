@@ -36,7 +36,7 @@ function formatarData(data?: string | null) {
   return date.toLocaleDateString('pt-BR');
 }
 
-function LogoMini() {
+function LogoTop() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2">
       <img
@@ -57,7 +57,7 @@ function LogoMini() {
   );
 }
 
-function LogoDrawer({ onClick }: { onClick?: () => void }) {
+function LogoMenu({ onClick }: { onClick?: () => void }) {
   return (
     <Link href="/dashboard" onClick={onClick} className="flex items-center gap-3">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
@@ -133,7 +133,7 @@ export default function MobileNav() {
     try {
       await supabase.auth.signOut();
     } catch {
-      // logout local continua
+      // segue logout local
     }
 
     try {
@@ -155,7 +155,7 @@ export default function MobileNav() {
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-[80] border-b border-white/10 bg-slate-950/95 px-3 py-2 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
+      <header className="fixed left-0 right-0 top-0 z-[90] border-b border-white/10 bg-slate-950/95 px-3 py-2 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
         <div className="grid h-14 grid-cols-[44px_1fr_44px] items-center gap-2">
           <button
             type="button"
@@ -168,7 +168,7 @@ export default function MobileNav() {
           </button>
 
           <div className="flex justify-center overflow-hidden">
-            <LogoMini />
+            <LogoTop />
           </div>
 
           <button
@@ -188,17 +188,17 @@ export default function MobileNav() {
       </header>
 
       {open && (
-        <div className="fixed inset-0 z-[120] md:hidden">
+        <div className="fixed inset-0 z-[9999] md:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
             aria-label="Fechar menu"
             onClick={() => setOpen(false)}
           />
 
           <aside className="absolute bottom-0 left-0 top-0 w-[88vw] max-w-[380px] overflow-y-auto border-r border-white/10 bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-black">
             <div className="mb-5 flex items-center justify-between gap-3">
-              <LogoDrawer onClick={() => setOpen(false)} />
+              <LogoMenu onClick={() => setOpen(false)} />
 
               <button
                 type="button"
