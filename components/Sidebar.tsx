@@ -75,7 +75,7 @@ function PlanStatus() {
           </p>
 
           <p className="text-sm font-black text-white">
-            {isPremium ? 'Premium ativo' : 'Free'}
+            {isPremium ? 'Premium' : 'Free'}
           </p>
 
           {isPremium && premiumAte && (
@@ -122,18 +122,18 @@ export default function Sidebar() {
       <div className="flex min-h-full flex-col gap-5">
         <Link
           href="/dashboard"
-          className="rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
+          className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
         >
           <img
             src="/oaplay-logo-horizontal-transparent-white.png"
             alt="OAPlay"
-            className="hidden h-16 w-auto object-contain dark:block"
+            className="hidden h-24 w-auto object-contain dark:block"
           />
 
           <img
             src="/oaplay-logo-horizontal-transparent-darktext.png"
             alt="OAPlay"
-            className="h-16 w-auto object-contain dark:hidden"
+            className="h-24 w-auto object-contain dark:hidden"
           />
         </Link>
 
