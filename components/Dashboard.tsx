@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useGameState } from '@/context/GameStateContext';
@@ -10,20 +10,26 @@ import RankingPreview from '@/components/RankingPreview';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user: rawUser } = useGameState();
-  const fallbackUser = {
-    nome: 'Estudante',
-    streak: 1,
-    acertos: 0,
-    moedas: 0,
-    xp: 0,
-    xpNecessario: 100,
-    nivel: 1,
-    isPremium: false,
-    isAdmin: false,
-  };
+const { user } = useGameState();
+  useEffect(() => {
+    if (!user) {
+      router.replace('/auth');
+    }
+  }, [user, router]);
 
-  const user = rawUser ?? fallbackUser;
+  if (!user) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
+        <div className="text-center">
+          <div className="mx-auto mb-5 h-12 w-12 animate-spin rounded-full border-4 border-emerald-300/20 border-t-emerald-300" />
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+            Entrando no OAPlay
+          </p>
+        </div>
+      </main>
+    );
+  }
+
 
   const [quote, setQuote] = useState(() => {
     return QUOTES[Math.floor(Math.random() * QUOTES.length)];
@@ -71,7 +77,7 @@ const totalAcertos = user.acertos ?? 0;
             </h1>
 
             <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-              Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
+              Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
             </p>
           </div>
         </section>
@@ -86,7 +92,7 @@ const totalAcertos = user.acertos ?? 0;
           </h1>
 
           <p className="mt-3 text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-            Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
+            Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
           </p>
         </header>
 
@@ -127,7 +133,7 @@ const totalAcertos = user.acertos ?? 0;
             </p>
 
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
-              Mantenha a consistência.
+              Mantenha a consistÃªncia.
             </p>
           </div>
 
@@ -141,7 +147,7 @@ const totalAcertos = user.acertos ?? 0;
             </p>
 
             <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              questões corretas
+              questÃµes corretas
             </p>
 
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
@@ -167,7 +173,7 @@ const totalAcertos = user.acertos ?? 0;
                 </h2>
 
                 <p className="mt-1 max-w-[210px] text-sm font-semibold leading-snug text-slate-600 dark:text-emerald-50/90 md:max-w-none md:text-base">
-                  Responda questões e mantenha sua evolução.
+                  Responda questÃµes e mantenha sua evoluÃ§Ã£o.
                 </p>
               </div>
             </div>
