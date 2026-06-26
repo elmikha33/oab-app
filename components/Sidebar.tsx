@@ -47,49 +47,49 @@ const navItems = [
 const BADGES = [
   {
     id: 'first_question',
-    emoji: '??',
+    emoji: '\u{1F3AF}',
     title: 'Primeira questao',
     description: 'Responda sua primeira questao.',
   },
   {
     id: 'ten_correct',
-    emoji: '??',
+    emoji: '\u{2694}\u{FE0F}',
     title: '10 acertos',
     description: 'Acerte 10 questoes.',
   },
   {
     id: 'fifty_correct',
-    emoji: '??',
+    emoji: '\u{1F525}',
     title: '50 acertos',
     description: 'Acerte 50 questoes.',
   },
   {
     id: 'hundred_correct',
-    emoji: '??',
+    emoji: '\u{1F3C6}',
     title: '100 acertos',
     description: 'Acerte 100 questoes.',
   },
   {
     id: 'first_review',
-    emoji: '??',
+    emoji: '\u{1F9E0}',
     title: 'Entrou na revisao',
     description: 'Tenha 1 questao em revisao.',
   },
   {
     id: 'five_review',
-    emoji: '???',
+    emoji: '\u{1F6E1}\u{FE0F}',
     title: 'Cacador de erros',
     description: 'Tenha 5 questoes em revisao.',
   },
   {
     id: 'seven_days',
-    emoji: '??',
+    emoji: '\u{1F4C5}',
     title: '7 dias ativos',
     description: 'Estude em 7 dias diferentes.',
   },
   {
     id: 'premium',
-    emoji: '??',
+    emoji: '\u{1F451}',
     title: 'Premium',
     description: 'Tenha uma conta Premium ativa.',
   },
@@ -167,11 +167,22 @@ function UserAvatar({ isPremium }: { isPremium: boolean }) {
 }
 
 function AchievementMiniatures({ user }: { user: any }) {
+  const unlockedCount = BADGES.filter((badge) => badgeUnlocked(badge.id, user)).length;
+
   return (
-    <div className="mt-4">
-      <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-        Colecao
-      </p>
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950/60">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          Colecao
+        </p>
+
+        <Link
+          href="/achievements"
+          className="rounded-full border border-emerald-300/35 bg-emerald-50 px-2 py-0.5 text-[10px] font-black text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-300/10 dark:text-emerald-200"
+        >
+          {unlockedCount}/{BADGES.length}
+        </Link>
+      </div>
 
       <div className="grid grid-cols-4 gap-2">
         {BADGES.map((badge) => {
@@ -184,11 +195,11 @@ function AchievementMiniatures({ user }: { user: any }) {
               title={badge.title}
               className={
                 unlocked
-                  ? 'flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-lg shadow-sm transition hover:scale-105 dark:border-emerald-300/30 dark:bg-emerald-300/10'
-                  : 'flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm opacity-60 grayscale transition hover:opacity-80 dark:border-white/10 dark:bg-slate-950'
+                  ? 'flex h-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-100 text-xl shadow-sm transition hover:scale-105 dark:border-emerald-300/35 dark:bg-emerald-300/15'
+                  : 'flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:border-slate-300 hover:text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-600'
               }
             >
-              {unlocked ? badge.emoji : <Lock className="h-4 w-4 text-slate-400" />}
+              {unlocked ? badge.emoji : <Lock className="h-4 w-4" strokeWidth={2.7} />}
             </Link>
           );
         })}
