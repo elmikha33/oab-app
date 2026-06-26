@@ -55,25 +55,13 @@ function formatarData(data?: string | null) {
   return date.toLocaleDateString('pt-BR');
 }
 
-function MobileAvatar({ user }: { user: any }) {
-  const letra = String(user?.nome || user?.email || 'U').slice(0, 1).toUpperCase();
-
+function LogoBlock({ onClick }: { onClick?: () => void }) {
   return (
-    <div
-      className={
-        user?.isPremium
-          ? 'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-lg font-black text-slate-950 shadow-lg shadow-black/20'
-          : 'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-lg font-black text-emerald-950 shadow-lg shadow-black/20'
-      }
+    <Link
+      href="/dashboard"
+      onClick={onClick}
+      className="flex min-w-0 items-center gap-3"
     >
-      {letra}
-    </div>
-  );
-}
-
-function LogoBlock() {
-  return (
-    <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
         <img
           src="/oaplay-icon-192.png"
@@ -100,10 +88,27 @@ function LogoBlock() {
   );
 }
 
+function MobileAvatar({ user }: { user: any }) {
+  const letra = String(user?.nome || user?.email || 'U').slice(0, 1).toUpperCase();
+
+  return (
+    <div
+      className={
+        user?.isPremium
+          ? 'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-lg font-black text-slate-950 shadow-lg shadow-black/20'
+          : 'flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-lg font-black text-emerald-950 shadow-lg shadow-black/20'
+      }
+    >
+      {letra}
+    </div>
+  );
+}
+
 export default function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, setUser, refreshUser } = useGameState() || {};
+
   const [open, setOpen] = useState(false);
   const [saindo, setSaindo] = useState(false);
 
@@ -165,9 +170,9 @@ export default function MobileNav() {
             onClick={() => setOpen(false)}
           />
 
-          <aside className="absolute bottom-0 right-0 top-0 w-[88vw] max-w-[380px] overflow-y-auto border-l border-white/10 bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-black">
+          <aside className="absolute bottom-0 left-0 top-0 w-[88vw] max-w-[380px] overflow-y-auto border-r border-white/10 bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-black">
             <div className="mb-5 flex items-center justify-between gap-3">
-              <LogoBlock />
+              <LogoBlock onClick={() => setOpen(false)} />
 
               <button
                 type="button"
