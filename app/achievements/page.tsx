@@ -128,7 +128,7 @@ export default function AchievementsPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-slate-950 p-6 text-white">
+      <main className="min-h-screen bg-white p-6 text-slate-950 dark:bg-white dark:bg-slate-950 dark:text-slate-950 dark:text-white">
         Carregando conquistas...
       </main>
     );
@@ -138,7 +138,7 @@ export default function AchievementsPage() {
   const total = ACHIEVEMENTS.length;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 text-white md:px-10">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-8 text-slate-950 md:px-10 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-slate-950 dark:text-white">
       <section className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -150,7 +150,7 @@ export default function AchievementsPage() {
               Suas Conquistas
             </h1>
 
-            <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+            <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-base">
               Libere badges automaticamente conforme responde questoes, acerta mais, revisa erros e evolui no app.
             </p>
           </div>
@@ -159,35 +159,35 @@ export default function AchievementsPage() {
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
               Progresso
             </p>
-            <p className="mt-1 text-3xl font-black text-white">
+            <p className="mt-1 text-3xl font-black text-slate-950 dark:text-white">
               {unlockedCount}/{total}
             </p>
           </div>
         </div>
 
         <div className="mb-8 grid gap-3 md:grid-cols-4">
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <BookOpen className="h-6 w-6 text-emerald-300" />
             <p className="mt-4 text-2xl font-black">{totalRespondidas(user)}</p>
-            <p className="text-sm font-bold text-slate-400">questoes respondidas</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">questoes respondidas</p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <CheckCircle2 className="h-6 w-6 text-emerald-300" />
             <p className="mt-4 text-2xl font-black">{user?.acertos || 0}</p>
-            <p className="text-sm font-bold text-slate-400">acertos</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">acertos</p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <RotateCcw className="h-6 w-6 text-amber-300" />
             <p className="mt-4 text-2xl font-black">{totalRevisao(user)}</p>
-            <p className="text-sm font-bold text-slate-400">em revisao</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">em revisao</p>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <Crown className="h-6 w-6 text-amber-300" />
             <p className="mt-4 text-2xl font-black">{user?.isPremium ? 'Premium' : 'Free'}</p>
-            <p className="text-sm font-bold text-slate-400">plano atual</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">plano atual</p>
           </div>
         </div>
 
@@ -201,8 +201,8 @@ export default function AchievementsPage() {
                 key={achievement.id}
                 className={
                   unlocked
-                    ? 'relative overflow-hidden rounded-3xl border border-emerald-300/35 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 p-5 shadow-xl shadow-emerald-950/20'
-                    : 'relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 p-5 opacity-70'
+                    ? 'relative overflow-hidden rounded-3xl border border-emerald-300/35 bg-gradient-to-br from-white via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 p-5 shadow-xl shadow-emerald-950/20'
+                    : 'relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 opacity-70'
                 }
               >
                 <div className="flex items-start justify-between gap-4">
@@ -210,7 +210,7 @@ export default function AchievementsPage() {
                     className={
                       unlocked
                         ? 'flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-300/35 bg-emerald-300/10 text-3xl'
-                        : 'flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-slate-950 text-slate-500'
+                        : 'flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-100 text-slate-500 dark:bg-slate-950 dark:text-slate-500 dark:text-slate-500'
                     }
                   >
                     {unlocked ? achievement.emoji : <Lock className="h-7 w-7" />}
@@ -227,19 +227,19 @@ export default function AchievementsPage() {
                   className={
                     unlocked
                       ? 'mt-5 h-5 w-5 text-emerald-300'
-                      : 'mt-5 h-5 w-5 text-slate-600'
+                      : 'mt-5 h-5 w-5 text-slate-600 dark:text-slate-600'
                   }
                 />
 
-                <h2 className="mt-3 text-xl font-black text-white">
+                <h2 className="mt-3 text-xl font-black text-slate-950 dark:text-white">
                   {achievement.title}
                 </h2>
 
-                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-400">
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-400">
                   {achievement.description}
                 </p>
 
-                <p className="mt-4 rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-400">
+                <p className="mt-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white dark:bg-slate-950/70 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-400">
                   {achievement.requirement}
                 </p>
               </article>
