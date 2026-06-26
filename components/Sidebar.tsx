@@ -47,37 +47,49 @@ const navItems = [
 const BADGES = [
   {
     id: 'first_question',
-    emoji: '🎯',
+    emoji: '??',
     title: 'Primeira questao',
     description: 'Responda sua primeira questao.',
   },
   {
     id: 'ten_correct',
-    emoji: '⚔️',
+    emoji: '??',
     title: '10 acertos',
     description: 'Acerte 10 questoes.',
   },
   {
     id: 'fifty_correct',
-    emoji: '🔥',
+    emoji: '??',
     title: '50 acertos',
     description: 'Acerte 50 questoes.',
   },
   {
     id: 'hundred_correct',
-    emoji: '🏆',
+    emoji: '??',
     title: '100 acertos',
     description: 'Acerte 100 questoes.',
   },
   {
+    id: 'first_review',
+    emoji: '??',
+    title: 'Entrou na revisao',
+    description: 'Tenha 1 questao em revisao.',
+  },
+  {
+    id: 'five_review',
+    emoji: '???',
+    title: 'Cacador de erros',
+    description: 'Tenha 5 questoes em revisao.',
+  },
+  {
     id: 'seven_days',
-    emoji: '📅',
+    emoji: '??',
     title: '7 dias ativos',
     description: 'Estude em 7 dias diferentes.',
   },
   {
     id: 'premium',
-    emoji: '👑',
+    emoji: '??',
     title: 'Premium',
     description: 'Tenha uma conta Premium ativa.',
   },
@@ -119,6 +131,10 @@ function badgeUnlocked(id: string, user: any) {
       return acertos >= 50;
     case 'hundred_correct':
       return acertos >= 100;
+    case 'first_review':
+      return revisao >= 1;
+    case 'five_review':
+      return revisao >= 5;
     case 'seven_days':
       return diasAtivos >= 7;
     case 'premium':
@@ -157,7 +173,7 @@ function AchievementMiniatures({ user }: { user: any }) {
         Colecao
       </p>
 
-      <div className="grid grid-cols-6 gap-1.5">
+      <div className="grid grid-cols-4 gap-2">
         {BADGES.map((badge) => {
           const unlocked = badgeUnlocked(badge.id, user);
 
@@ -168,8 +184,8 @@ function AchievementMiniatures({ user }: { user: any }) {
               title={badge.title}
               className={
                 unlocked
-                  ? 'flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-lg shadow-sm transition hover:scale-105 dark:border-emerald-300/30 dark:bg-emerald-300/10'
-                  : 'flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm opacity-60 grayscale transition hover:opacity-80 dark:border-white/10 dark:bg-slate-950'
+                  ? 'flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-lg shadow-sm transition hover:scale-105 dark:border-emerald-300/30 dark:bg-emerald-300/10'
+                  : 'flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm opacity-60 grayscale transition hover:opacity-80 dark:border-white/10 dark:bg-slate-950'
               }
             >
               {unlocked ? badge.emoji : <Lock className="h-4 w-4 text-slate-400" />}
