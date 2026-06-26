@@ -1,0 +1,136 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useGameState } from '@/context/GameStateContext';
+import { getProgressionInfo } from '@/lib/progression';
+import {
+  Award,
+  BookOpen,
+  Calendar,
+  Crown,
+  Flame,
+  LayoutDashboard,
+  Trophy,
+} from 'lucide-react';
+
+const links = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Responder Questoes', href: '/play', icon: BookOpen, featured: true },
+  { name: 'Modo Revisao', href: '/review', icon: Calendar },
+  { name: 'Classificacao', href: '/ranking', icon: Award },
+  { name: 'Ranking', href: '/ranking', icon: Trophy },
+  { name: 'Seja Premium', href: '/premium', icon: Crown },
+];
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const { user } = useGameState();
+
+  if (!user) return null;
+
+  const info = getProgressionInfo(user.streak || 0);
+
+  const streak = user.streak || 0;
+  const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
+
+  const initial = user.nome?.charAt(0)?.toUpperCase() || 'C';
+
+  return (
+    <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-emerald-300/10 bg-white dark:bg-slate-950/95 p-5 text-slate-800 dark:text-slate-200 shadow-2xl shadow-black/30 backdrop-blur-xl md:flex">
+      <Link
+        href="/dashboard"
+        className="mb-8 flex items-center gap-4 rounded-[2rem] border border-emerald-300/15 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-emerald-300/[0.05] px-4 py-4 shadow-xl shadow-black/25 transition hover:border-emerald-300/30 hover:bg-white/[0.07]"
+        aria-label="Ir para o dashboard OAPlay"
+      >
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-emerald-300/20 bg-white dark:bg-slate-900 shadow-lg shadow-emerald-500/10">
+          <img
+            src="/oaplay-icon-192.png"
+            alt="OAPlay"
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="min-w-0">
+          <h1 className="font-heading text-3xl font-black leading-none tracking-tight text-slate-950 dark:text-white">
+            OA<span className="text-emerald-300">Play</span>
+          </h1>
+
+          <p className="mt-2 text-[9px] font-black uppercase leading-tight tracking-[0.22em] text-emerald-200/70">
+            Sua aprovacao expressa
+          </p>
+        </div>
+      </Link>
+
+      <div className="mb-6 rounded-3xl border border-slate-200 dark:border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/20">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 font-black text-emerald-950 shadow-lg shadow-emerald-500/20">
+            {initial}
+          </div>
+
+          <div className="min-w-0">
+            <h4 className="truncate text-sm font-black text-slate-950 dark:text-white">{user.nome}</h4>
+
+            <p className="truncate text-xs font-bold text-emerald-300">
+              {info.title}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 font-bold text-emerald-200">
+          <Flame className="h-4 w-4" />
+
+          <span className="text-xs">
+            {streak} {streakLabel}
+          </span>
+        </div>
+      </div>
+
+      <nav className="flex-1 space-y-2">
+        {links.map(({ name, href, icon: Icon, featured }) => {
+          const active = pathname === href;
+
+          return (
+            <Link
+              key={name}
+              href={href}
+              className={`flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all ${
+                active
+                  ? 'bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-500/20'
+                  : featured
+                    ? 'border border-emerald-300/25 bg-emerald-300/10 font-black text-emerald-100 hover:bg-emerald-300/15'
+                    : 'font-bold text-slate-600 dark:text-slate-400 hover:bg-white/[0.06] hover:text-emerald-100'
+              }`}
+            >
+              <Icon
+                className={`h-5 w-5 ${
+                  active ? 'text-emerald-950' : 'text-emerald-300'
+                }`}
+                strokeWidth={2.5}
+              />
+
+              <span>{name}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="mt-6 rounded-3xl border border-emerald-300/20 bg-gradient-to-br from-emerald-300/15 via-emerald-500/5 to-slate-900 p-5">
+        <Crown className="mb-3 h-6 w-6 text-emerald-300" />
+
+        <p className="text-sm font-black text-slate-950 dark:text-white">Premium</p>
+
+        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400">
+          Desbloqueie recursos exclusivos e acelere seus estudos.
+        </p>
+
+        <Link
+          href="/premium"
+          className="mt-4 flex w-full items-center justify-center rounded-2xl bg-emerald-300 px-4 py-2.5 text-sm font-black text-emerald-950 transition hover:bg-emerald-200"
+        >
+          Conhecer plano
+        </Link>
+      </div>
+    </aside>
+  );
+}

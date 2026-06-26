@@ -191,10 +191,10 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
         </main>
       </div>
 
-      {showFloatingPremium && (
+      {false && showFloatingPremium && (
         <>
-          <FloatingPremiumCard />
-          <MobileFloatingPremiumCard />
+          {false && <FloatingPremiumCard />}
+          {false && <MobileFloatingPremiumCard />}
         </>
       )}
 

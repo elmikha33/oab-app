@@ -67,7 +67,7 @@ export default function Dashboard() {
             </h1>
 
             <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-              Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
+              Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
             </p>
           </div>
         </section>
@@ -82,7 +82,7 @@ export default function Dashboard() {
           </h1>
 
           <p className="mt-3 text-base font-medium leading-relaxed text-slate-600 dark:text-slate-300">
-            Continue seu treino com foco, ritmo e questÃµes organizadas para avanÃ§ar todos os dias.
+            Continue seu treino com foco, ritmo e questões organizadas para avançar todos os dias.
           </p>
         </header>
 
@@ -123,7 +123,7 @@ export default function Dashboard() {
             </p>
 
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
-              Mantenha a consistÃªncia.
+              Mantenha a consistência.
             </p>
           </div>
 
@@ -137,7 +137,7 @@ export default function Dashboard() {
             </p>
 
             <p className="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-              questÃµes corretas
+              questões corretas
             </p>
 
             <p className="mt-1 hidden text-xs font-medium text-slate-500 dark:text-slate-500 sm:block">
@@ -163,7 +163,7 @@ export default function Dashboard() {
                 </h2>
 
                 <p className="mt-1 max-w-[210px] text-sm font-semibold leading-snug text-slate-600 dark:text-emerald-50/90 md:max-w-none md:text-base">
-                  Responda questÃµes e mantenha sua evoluÃ§Ã£o.
+                  Responda questões e mantenha sua evolução.
                 </p>
               </div>
             </div>

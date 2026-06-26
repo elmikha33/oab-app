@@ -19,7 +19,7 @@ export default function AchievementsPage() {
     setMounted(true);
   }, []);
 
-  // Se nÃ£o estiver montado no navegador, ou se os dados nÃ£o existirem, nÃ£o renderiza
+  // Se não estiver montado no navegador, ou se os dados não existirem, não renderiza
   if (!mounted || !user || !conquistas) {
     return <div className="p-8 text-white min-h-screen bg-slate-950">Carregando conquistas...</div>;
   }

@@ -55,7 +55,7 @@ export default function RankingPreview() {
             </h2>
           </div>
           <p className="mt-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-            PontuaÃ§Ã£o vitalÃ­cia: presenÃ§a diÃ¡ria e questÃµes Ãºnicas.
+            Pontuação vitalícia: presença diária e questões únicas.
           </p>
         </div>
 

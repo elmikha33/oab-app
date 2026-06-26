@@ -105,9 +105,9 @@ export default function ReviewPage() {
 
     if (acertou) {
       // IMPORTANTE:
-      // No modo revisÃ£o, a questÃ£o NÃƒO pode sair da tela imediatamente.
-      // Primeiro mostramos o feedback, a resposta certa e o comentÃ¡rio.
-      // Ela sÃ³ sai quando o usuÃ¡rio clicar em "Continuar e remover da revisÃ£o".
+      // No modo revisão, a questão NÃO pode sair da tela imediatamente.
+      // Primeiro mostramos o feedback, a resposta certa e o comentário.
+      // Ela só sai quando o usuário clicar em "Continuar e remover da revisão".
       registrarAcerto?.(questao.id);
       return;
     }
@@ -172,7 +172,7 @@ export default function ReviewPage() {
         <div className="mx-auto flex min-h-[60vh] max-w-4xl items-center justify-center">
           <p className="flex items-center gap-2 font-bold text-slate-600 dark:text-slate-300">
             <Loader2 className="h-5 w-5 animate-spin" />
-            Carregando RevisÃ£o Inteligente...
+            Carregando Revisão Inteligente...
           </p>
         </div>
       </main>
@@ -185,13 +185,13 @@ export default function ReviewPage() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
-              Legâ… 
+              LegⅠ
             </p>
             <h1 className="mt-2 text-3xl font-black md:text-4xl">
-              RevisÃ£o Inteligente
+              Revisão Inteligente
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-medium text-slate-700 dark:text-slate-300">
-              Transforme seus erros em pontos fortes. QuestÃµes erradas ficam aqui atÃ© vocÃª recuperar.
+              Transforme seus erros em pontos fortes. Questões erradas ficam aqui até você recuperar.
             </p>
           </div>
 
@@ -234,13 +234,13 @@ export default function ReviewPage() {
             <Trophy className="mx-auto mb-4 h-10 w-10 text-emerald-600 dark:text-emerald-300" />
             <h2 className="text-2xl font-black">Nada para revisar agora</h2>
             <p className="mx-auto mt-2 max-w-xl text-sm font-medium text-slate-600 dark:text-slate-400">
-              Quando vocÃª errar uma questÃ£o, ela vai entrar automaticamente aqui.
+              Quando você errar uma questão, ela vai entrar automaticamente aqui.
             </p>
             <Link
               href="/play"
               className="mt-6 inline-flex rounded-xl bg-emerald-600 px-5 py-3 text-sm font-black text-white hover:bg-emerald-700"
             >
-              Responder questÃµes
+              Responder questões
             </Link>
           </section>
         ) : (
@@ -259,10 +259,10 @@ export default function ReviewPage() {
                 >
                   <div className="mb-4 flex flex-wrap gap-2 text-xs font-black uppercase">
                     <span className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">
-                      RevisÃ£o {index + 1} de {questoesRevisao.length}
+                      Revisão {index + 1} de {questoesRevisao.length}
                     </span>
                     <span className="rounded-md border border-slate-300 bg-slate-100 px-2.5 py-1 text-slate-700 dark:border-white/15 dark:bg-slate-800 dark:text-slate-200">
-                      {questao.materia || 'Sem matÃ©ria'}
+                      {questao.materia || 'Sem matéria'}
                     </span>
                   </div>
 
@@ -316,8 +316,8 @@ export default function ReviewPage() {
                         )}
                         <span>
                           {acertou
-                            ? 'Recuperado! Essa questÃ£o saiu da revisÃ£o.'
-                            : 'Ainda precisa revisar. Ela continuarÃ¡ na fila.'}
+                            ? 'Recuperado! Essa questão saiu da revisão.'
+                            : 'Ainda precisa revisar. Ela continuará na fila.'}
                         </span>
                       </div>
 
@@ -336,7 +336,7 @@ export default function ReviewPage() {
                       {questao.comentario && (
                         <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
                           <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
-                            ComentÃ¡rio
+                            Comentário
                           </p>
                           <p className="text-sm leading-relaxed text-slate-800 dark:text-slate-100">
                             {questao.comentario}
@@ -350,7 +350,7 @@ export default function ReviewPage() {
                           onClick={() => removerDaRevisaoDepoisDoFeedback(questao.id)}
                           className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-black text-white transition hover:bg-emerald-700 md:w-auto"
                         >
-                          Continuar e remover da revisÃ£o
+                          Continuar e remover da revisão
                         </button>
                       )}
                     </section>
