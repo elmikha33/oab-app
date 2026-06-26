@@ -59,12 +59,12 @@ const ACHIEVEMENTS = [
     requirement: '33 questoes revisadas',
   },
   {
-    id: 'five_review',
+    id: 'twenty_five_review',
     emoji: '🛡️',
     icon: ShieldCheck,
     title: 'Caçador de erros',
-    description: 'Acumule 5 questoes para revisar.',
-    requirement: '5 questoes em revisao',
+    description: 'Acumule 25 erros para revisar.',
+    requirement: '25 erros em revisao',
   },
   {
     id: 'seven_days',
@@ -115,8 +115,8 @@ function isUnlocked(id: string, user: any) {
       return acertos >= 100;
     case 'reviewed_33':
       return Number(user?.lifetimeReviewed || 0) >= 33;
-    case 'five_review':
-      return revisao >= 5;
+    case 'twenty_five_review':
+      return revisao >= 25;
     case 'seven_days':
       return diasAtivos >= 7;
     case 'premium':
@@ -204,8 +204,8 @@ export default function AchievementsPage() {
                 key={achievement.id}
                 className={
                   unlocked
-                    ? 'relative overflow-hidden rounded-3xl border border-emerald-300/35 bg-gradient-to-br from-white via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 p-5 shadow-xl shadow-emerald-950/20'
-                    : 'relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 opacity-80'
+                    ? 'relative overflow-hidden rounded-3xl border border-emerald-300/45 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-xl shadow-emerald-950/10 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 dark:shadow-emerald-950/20'
+                    : 'relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 opacity-90 dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none'
                 }
               >
                 <div className="flex items-start justify-between gap-4">
@@ -242,7 +242,13 @@ export default function AchievementsPage() {
                   {achievement.description}
                 </p>
 
-                <p className="mt-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white dark:bg-slate-950/70 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-600 dark:text-slate-400">
+                <p
+                  className={
+                    unlocked
+                      ? 'mt-4 inline-flex rounded-full border border-emerald-300/35 bg-emerald-300/10 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-700 dark:text-emerald-200'
+                      : 'mt-4 inline-flex rounded-full border border-slate-300/60 bg-slate-100 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 dark:border-white/10 dark:bg-slate-950/70 dark:text-slate-500'
+                  }
+                >
                   {achievement.requirement}
                 </p>
               </article>

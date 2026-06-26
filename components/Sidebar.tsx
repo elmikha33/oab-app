@@ -76,10 +76,10 @@ const BADGES = [
     description: 'Revise 33 questoes.',
   },
   {
-    id: 'five_review',
+    id: 'twenty_five_review',
     emoji: '\u{1F6E1}\u{FE0F}',
     title: 'Cacador de erros',
-    description: 'Tenha 5 questoes em revisao.',
+    description: 'Acumule 25 erros para revisar.',
   },
   {
     id: 'seven_days',
@@ -136,8 +136,8 @@ function badgeUnlocked(id: string, user: any) {
       return acertos >= 100;
     case 'reviewed_33':
       return Number(user?.lifetimeReviewed || 0) >= 33;
-    case 'five_review':
-      return revisao >= 5;
+    case 'twenty_five_review':
+      return revisao >= 25;
     case 'seven_days':
       return diasAtivos >= 7;
     case 'premium':
