@@ -36,33 +36,44 @@ function formatarData(data?: string | null) {
   return date.toLocaleDateString('pt-BR');
 }
 
-function LogoBlock({ onClick }: { onClick?: () => void }) {
+function LogoMini() {
   return (
-    <Link
-      href="/dashboard"
-      onClick={onClick}
-      className="flex min-w-0 items-center gap-3"
-    >
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
+    <Link href="/dashboard" className="flex items-center gap-2">
+      <img
+        src="/oaplay-icon-192.png"
+        alt="OAPlay"
+        className="h-9 w-9 rounded-xl object-contain"
+      />
+
+      <div className="leading-none">
+        <p className="text-lg font-black tracking-tight text-white">
+          OA<span className="text-emerald-300">Play</span>
+        </p>
+        <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
+          aprovacao expressa
+        </p>
+      </div>
+    </Link>
+  );
+}
+
+function LogoDrawer({ onClick }: { onClick?: () => void }) {
+  return (
+    <Link href="/dashboard" onClick={onClick} className="flex items-center gap-3">
+      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
         <img
           src="/oaplay-icon-192.png"
           alt="OAPlay"
-          className="h-8 w-8 object-contain"
+          className="h-10 w-10 object-contain"
         />
       </div>
 
-      <div className="min-w-0 leading-none">
-        <div className="flex items-baseline">
-          <span className="text-xl font-black tracking-tight text-white">
-            OA
-          </span>
-          <span className="text-xl font-black tracking-tight text-emerald-300">
-            Play
-          </span>
-        </div>
-
-        <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
-          aprovacao expressa
+      <div className="leading-none">
+        <p className="text-2xl font-black tracking-tight text-white">
+          OA<span className="text-emerald-300">Play</span>
+        </p>
+        <p className="mt-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300">
+          sua aprovacao expressa
         </p>
       </div>
     </Link>
@@ -122,7 +133,7 @@ export default function MobileNav() {
     try {
       await supabase.auth.signOut();
     } catch {
-      // continua logout local
+      // logout local continua
     }
 
     try {
@@ -144,25 +155,25 @@ export default function MobileNav() {
 
   return (
     <>
-      <header className="fixed left-0 right-0 top-0 z-[80] border-b border-white/10 bg-slate-950/95 px-4 py-3 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
-        <div className="grid grid-cols-[48px_1fr_48px] items-center gap-3">
+      <header className="fixed left-0 right-0 top-0 z-[80] border-b border-white/10 bg-slate-950/95 px-3 py-2 shadow-xl shadow-black/30 backdrop-blur-xl md:hidden">
+        <div className="grid h-14 grid-cols-[44px_1fr_44px] items-center gap-2">
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
             aria-label="Abrir menu"
           >
             <Menu className="h-6 w-6" strokeWidth={3} />
           </button>
 
           <div className="flex justify-center overflow-hidden">
-            <LogoBlock />
+            <LogoMini />
           </div>
 
           <button
             type="button"
             onClick={toggleTheme}
-            className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/25 bg-white/5 text-emerald-200 shadow-lg shadow-black/20 active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-white/5 text-emerald-200 shadow-lg shadow-black/20 active:scale-95"
             aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
             title={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
           >
@@ -186,7 +197,7 @@ export default function MobileNav() {
 
           <aside className="absolute bottom-0 left-0 top-0 w-[88vw] max-w-[380px] overflow-y-auto border-r border-white/10 bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-black">
             <div className="mb-5 flex items-center justify-between gap-3">
-              <LogoBlock onClick={() => setOpen(false)} />
+              <LogoDrawer onClick={() => setOpen(false)} />
 
               <button
                 type="button"
