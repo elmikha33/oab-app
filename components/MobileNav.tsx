@@ -10,8 +10,8 @@ import {
   Grid2X2,
   LogOut,
   Medal,
-  SlidersHorizontal,
   Moon,
+  SlidersHorizontal,
   Sun,
   Trophy,
   X,
@@ -160,10 +160,11 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/90 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
-            aria-label="Abrir menu"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/95 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
+            aria-label="Abrir opcoes"
+            title="Abrir opcoes"
           >
-            <Menu className="h-6 w-6" strokeWidth={3} />
+            <SlidersHorizontal className="h-6 w-6" strokeWidth={2.8} />
           </button>
 
           <div className="flex justify-center overflow-hidden">
@@ -173,7 +174,7 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={toggleTheme}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-white/5 text-emerald-200 shadow-lg shadow-black/20 active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/95 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
             aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
             title={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
           >
