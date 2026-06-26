@@ -209,7 +209,6 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
 {showLogoutButton && (
         <>
           <LogoutButton onLogout={handleLogout} />
-          <LogoutButton mobile onLogout={handleLogout} />
         </>
       )}
 
