@@ -202,11 +202,6 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       {false && showFloatingPremium && (
         <></>
       )}
-{showLogoutButton && (
-        <>
-          <LogoutButton onLogout={handleLogout} />
-        </>
-      )}
 
       {mounted && (
         <button

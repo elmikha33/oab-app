@@ -50,7 +50,7 @@
 }
 
 /* ----------------------------------------------------------
- *  Scrollbar mÃƒÂ­nima
+ *  Scrollbar mÃƒÆ’Ã‚Â­nima
  * ---------------------------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;
@@ -71,7 +71,7 @@
 }
 
 /* ----------------------------------------------------------
- *  BotÃƒÂµes premium corrigidos
+ *  BotÃƒÆ’Ã‚Âµes premium corrigidos
  *  IMPORTANTE: sem ::before torto, sem halo desalinhado
  * ---------------------------------------------------------- */
 @layer components {
@@ -217,3 +217,54 @@ html:not(.dark) aside [aria-current="page"] * {
   }
 }
 /* === end OAPlay mobile legacy overlay kill === */
+
+/* === OAPlay definitive mobile overlay kill === */
+@media (max-width: 767px) {
+  .fixed.bottom-0,
+  .fixed.bottom-1,
+  .fixed.bottom-2,
+  .fixed.bottom-3,
+  .fixed.bottom-4,
+  .fixed.bottom-5,
+  .fixed.bottom-6,
+  .fixed.bottom-8,
+  .fixed.bottom-10,
+  .fixed.bottom-12,
+  .fixed.bottom-16,
+  .fixed.bottom-20,
+  .fixed.bottom-24,
+  nav.fixed[class*="bottom-"],
+  a.fixed[class*="bottom-"],
+  button.fixed[class*="bottom-"],
+  div.fixed[class*="bottom-"] {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+  header.fixed {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  header.fixed button,
+  header.fixed a,
+  header.fixed div {
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  div.fixed.inset-0,
+  div.fixed.inset-0 aside,
+  div.fixed.inset-0 button,
+  div.fixed.inset-0 a {
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  div.fixed.inset-0 {
+    display: block !important;
+  }
+}
+/* === end OAPlay definitive mobile overlay kill === */
