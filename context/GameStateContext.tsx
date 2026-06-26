@@ -222,6 +222,10 @@ function criarUsuario(base: any = {}) {
       Array.isArray(base.revisaoIds) ? base.revisaoIds.length : 0,
       Array.isArray(base.questoesErradas) ? base.questoesErradas.length : 0
     ),
+    lifetimeReviewed: base.lifetimeReviewed || 0,
+    reviewedQuestionIds: Array.isArray(base.reviewedQuestionIds)
+      ? base.reviewedQuestionIds.map(String)
+      : [],
     lifetimeActiveDays: base.lifetimeActiveDays || base.rankingActiveDays || base.streak || 1,
 
     rankingScore: base.rankingScore || 0,
@@ -577,6 +581,27 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ),
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: novasErradas,
+      };
+    });
+  }, []);
+
+  const registrarQuestaoRevisada = useCallback((questaoId: number | string) => {
+    setUser((prev: any) => {
+      if (!prev) return prev;
+
+      const id = String(questaoId);
+      const reviewedQuestionIds = Array.isArray(prev.reviewedQuestionIds)
+        ? prev.reviewedQuestionIds.map(String)
+        : [];
+
+      if (reviewedQuestionIds.includes(id)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        reviewedQuestionIds: [...reviewedQuestionIds, id],
+        lifetimeReviewed: (prev.lifetimeReviewed || 0) + 1,
       };
     });
   }, []);

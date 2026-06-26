@@ -51,12 +51,12 @@ const ACHIEVEMENTS = [
     requirement: '100 acertos',
   },
   {
-    id: 'first_review',
+    id: 'reviewed_33',
     emoji: '🧠',
     icon: RotateCcw,
-    title: 'Entrou na revisao',
-    description: 'Tenha questoes para revisar.',
-    requirement: '1 questao em revisao',
+    title: 'Revisou 33 Questoes',
+    description: 'Revise 33 questoes no modo revisao.',
+    requirement: '33 questoes revisadas',
   },
   {
     id: 'five_review',
@@ -113,8 +113,8 @@ function isUnlocked(id: string, user: any) {
       return acertos >= 50;
     case 'hundred_correct':
       return acertos >= 100;
-    case 'first_review':
-      return revisao >= 1;
+    case 'reviewed_33':
+      return Number(user?.lifetimeReviewed || 0) >= 33;
     case 'five_review':
       return revisao >= 5;
     case 'seven_days':
@@ -154,13 +154,13 @@ export default function AchievementsPage() {
             </h1>
 
             <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-base">
-              Libere badges automaticamente conforme responde questoes, acerta mais, revisa erros e evolui no app.
+              Sua colecao cresce no seu ritmo. Cada tentativa conta, cada revisao fortalece e cada badge marca uma etapa da sua evolucao.
             </p>
           </div>
 
           <div className="rounded-3xl border border-emerald-300/25 bg-emerald-300/10 px-5 py-4">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
-              Progresso
+              Colecao liberada
             </p>
             <p className="mt-1 text-3xl font-black text-slate-950 dark:text-white">
               {unlockedCount}/{total}
@@ -169,10 +169,10 @@ export default function AchievementsPage() {
         </div>
 
         <div className="mb-8 grid gap-3 md:grid-cols-4">
-          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
-            <BookOpen className="h-6 w-6 text-emerald-300" />
-            <p className="mt-4 text-2xl font-black">{totalRespondidas(user)}</p>
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">questoes respondidas</p>
+          <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-sm shadow-emerald-950/5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
+            <BookOpen className="h-6 w-6 text-emerald-500 dark:text-emerald-300" />
+            <p className="mt-4 text-2xl font-black text-slate-950 dark:text-white">Em movimento</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">cada questao conta</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
@@ -205,7 +205,7 @@ export default function AchievementsPage() {
                 className={
                   unlocked
                     ? 'relative overflow-hidden rounded-3xl border border-emerald-300/35 bg-gradient-to-br from-white via-emerald-50 to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 p-5 shadow-xl shadow-emerald-950/20'
-                    : 'relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 opacity-70'
+                    : 'relative overflow-hidden rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/70 p-5 opacity-80'
                 }
               >
                 <div className="flex items-start justify-between gap-4">

@@ -910,7 +910,7 @@ export default function QuestoesList() {
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
 
-  const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, resetarAcertos } = useGameState() || {};
+  const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
 
   const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
     ? user?.freeDailyAnswers?.count || 0
@@ -1056,6 +1056,12 @@ export default function QuestoesList() {
       return;
     }
 
+    const estaRevisandoQuestao = isReviewMode || questaoEstaEmRevisaoLocal(questao.id);
+
+    if (estaRevisandoQuestao) {
+      registrarQuestaoRevisada?.(questao.id);
+    }
+
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
     window.setTimeout(() => {
       document.getElementById(`questao-${questao.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1065,7 +1071,7 @@ export default function QuestoesList() {
     const correct = normalizarGabarito(questao.gabarito);
 
     if (correct !== null && alternativaIndex === correct) {
-      if (isReviewMode || questaoEstaEmRevisaoLocal(questao.id)) {
+      if (estaRevisandoQuestao) {
         setReviewSuccessPending((current) => ({ ...current, [key]: true }));
         return;
       }

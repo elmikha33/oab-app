@@ -70,10 +70,10 @@ const BADGES = [
     description: 'Acerte 100 questoes.',
   },
   {
-    id: 'first_review',
+    id: 'reviewed_33',
     emoji: '\u{1F9E0}',
-    title: 'Entrou na revisao',
-    description: 'Tenha 1 questao em revisao.',
+    title: 'Revisou 33 Questoes',
+    description: 'Revise 33 questoes.',
   },
   {
     id: 'five_review',
@@ -134,8 +134,8 @@ function badgeUnlocked(id: string, user: any) {
       return acertos >= 50;
     case 'hundred_correct':
       return acertos >= 100;
-    case 'first_review':
-      return revisao >= 1;
+    case 'reviewed_33':
+      return Number(user?.lifetimeReviewed || 0) >= 33;
     case 'five_review':
       return revisao >= 5;
     case 'seven_days':
