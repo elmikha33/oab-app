@@ -25,13 +25,13 @@ export default function AdminPage() {
 
   return (
     <div className="flex-1 p-6 md:p-8 bg-slate-950 min-h-screen">
-      <h1 className="text-2xl font-bold text-white mb-6">Painel Administrativo - Questões OAB</h1>
+      <h1 className="text-2xl font-bold text-white mb-6">Painel Administrativo - QuestÃµes OAB</h1>
       
       <div className="overflow-x-auto bg-slate-900 rounded-xl border border-slate-800">
         <table className="w-full text-left">
           <thead className="bg-slate-950 text-slate-400 text-xs uppercase">
             <tr>
-              <th className="py-3 px-4">Matéria</th>
+              <th className="py-3 px-4">MatÃ©ria</th>
               <th className="py-3 px-4">Tema</th>
               <th className="py-3 px-4">Enunciado</th>
               <th className="py-3 px-4">Gabarito</th>

@@ -83,7 +83,7 @@ function LogoutButton({
     <button
       type="button"
       onClick={onLogout}
-      className="fixed bottom-4 left-4 z-[9999] hidden w-[248px] items-center justify-center gap-2 rounded-2xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm font-black text-slate-300 shadow-2xl shadow-black/40 backdrop-blur-xl transition hover:border-rose-300/35 hover:bg-rose-500/10 hover:text-rose-200 md:inline-flex"
+      className="fixed right-20 top-4 z-[9999] hidden w-auto items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/95 px-4 py-2.5 text-sm font-black text-slate-700 shadow-2xl shadow-black/40 backdrop-blur-xl transition hover:border-rose-300/60 hover:bg-rose-50 hover:text-rose-700 md:inline-flex dark:border-white/10 dark:bg-slate-950/90 dark:text-slate-300 dark:hover:border-rose-300/35 dark:hover:bg-rose-500/10 dark:hover:text-rose-200"
       aria-label="Sair da conta"
       title="Sair da conta"
     >

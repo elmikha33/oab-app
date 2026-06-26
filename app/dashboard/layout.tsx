@@ -16,8 +16,8 @@ import {
 
 const links = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Responder Questões', href: '/play', icon: BookOpen },
-  { name: 'Modo Revisão', href: '/review', icon: Calendar },
+  { name: 'Responder QuestÃµes', href: '/play', icon: BookOpen },
+  { name: 'Modo RevisÃ£o', href: '/review', icon: Calendar },
   { name: 'Ranking', href: '/ranking', icon: Award },
   { name: 'Seja Premium', href: '/premium', icon: Crown },
 ];
@@ -59,10 +59,10 @@ export default function DashboardLayout({
 
                 <div>
                   <p className="text-2xl font-black text-slate-950 dark:text-white">
-                    Leg<span className="text-emerald-600">Ⅰ</span>
+                    Leg<span className="text-emerald-600">â… </span>
                   </p>
                   <p className="text-[11px] font-black uppercase tracking-[0.22em] text-slate-500">
-                    Missão OAB
+                    MissÃ£o OAB
                   </p>
                 </div>
               </Link>

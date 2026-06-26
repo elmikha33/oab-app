@@ -8,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 function getSupabase() {
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Variáveis do Supabase ausentes');
+    throw new Error('VariÃ¡veis do Supabase ausentes');
   }
 
   return createClient(supabaseUrl, supabaseAnonKey, {
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         error:
           error instanceof Error
             ? error.message
-            : 'Erro inesperado ao buscar questões',
+            : 'Erro inesperado ao buscar questÃµes',
       },
       { status: 500 }
     );

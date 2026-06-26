@@ -11,26 +11,26 @@ export default function StatsPage() {
     setIsClient(true);
   }, []);
 
-  // BLINDAGEM TOTAL: Se não for o cliente (build), não tenta acessar stats
+  // BLINDAGEM TOTAL: Se nÃ£o for o cliente (build), nÃ£o tenta acessar stats
   if (!isClient || typeof window === 'undefined') {
     return (
       <div className="flex-1 p-8 bg-slate-950 min-h-screen text-white">
-        <h1 className="text-2xl font-bold mb-4">Estatísticas</h1>
+        <h1 className="text-2xl font-bold mb-4">EstatÃ­sticas</h1>
         <p className="text-slate-400">Carregando...</p>
       </div>
     );
   }
 
-  // Segurança: se context for nulo, garantimos que stats é um objeto vazio {}
+  // SeguranÃ§a: se context for nulo, garantimos que stats Ã© um objeto vazio {}
   const stats = context?.stats ?? {};
   const statsEntries = Object.entries(stats);
 
   return (
     <div className="flex-1 p-6 md:p-8 bg-slate-950 min-h-screen text-white">
-      <h1 className="text-3xl font-bold mb-8">Estatísticas de Estudo</h1>
+      <h1 className="text-3xl font-bold mb-8">EstatÃ­sticas de Estudo</h1>
 
       {statsEntries.length === 0 ? (
-        <p className="text-slate-500 italic">Nenhum dado disponível.</p>
+        <p className="text-slate-500 italic">Nenhum dado disponÃ­vel.</p>
       ) : (
         <div className="grid gap-4">
           {statsEntries.map(([materia, valor]) => (

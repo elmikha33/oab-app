@@ -49,7 +49,7 @@ export default function PlayPage() {
       <Suspense
         fallback={
           <div className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center p-4 text-slate-700 dark:text-slate-300">
-            Carregando questões...
+            Carregando questÃµes...
           </div>
         }
       >

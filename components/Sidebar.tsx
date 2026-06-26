@@ -37,13 +37,13 @@ export default function Sidebar() {
   const initial = user.nome?.charAt(0)?.toUpperCase() || 'C';
 
   return (
-    <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-emerald-300/10 bg-slate-950/95 p-5 text-slate-200 shadow-2xl shadow-black/30 backdrop-blur-xl md:flex">
+    <aside className="hidden min-h-screen w-72 shrink-0 flex-col border-r border-emerald-300/10 bg-white dark:bg-slate-950/95 p-5 text-slate-800 dark:text-slate-200 shadow-2xl shadow-black/30 backdrop-blur-xl md:flex">
       <Link
         href="/dashboard"
         className="mb-8 flex items-center gap-4 rounded-[2rem] border border-emerald-300/15 bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-emerald-300/[0.05] px-4 py-4 shadow-xl shadow-black/25 transition hover:border-emerald-300/30 hover:bg-white/[0.07]"
         aria-label="Ir para o dashboard OAPlay"
       >
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-emerald-300/20 bg-slate-900 shadow-lg shadow-emerald-500/10">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-emerald-300/20 bg-white dark:bg-slate-900 shadow-lg shadow-emerald-500/10">
           <img
             src="/oaplay-icon-192.png"
             alt="OAPlay"
@@ -52,7 +52,7 @@ export default function Sidebar() {
         </div>
 
         <div className="min-w-0">
-          <h1 className="font-heading text-3xl font-black leading-none tracking-tight text-white">
+          <h1 className="font-heading text-3xl font-black leading-none tracking-tight text-slate-950 dark:text-white">
             OA<span className="text-emerald-300">Play</span>
           </h1>
 
@@ -62,14 +62,14 @@ export default function Sidebar() {
         </div>
       </Link>
 
-      <div className="mb-6 rounded-3xl border border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/20">
+      <div className="mb-6 rounded-3xl border border-slate-200 dark:border-white/10 bg-white/[0.04] p-4 shadow-xl shadow-black/20">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400 font-black text-emerald-950 shadow-lg shadow-emerald-500/20">
             {initial}
           </div>
 
           <div className="min-w-0">
-            <h4 className="truncate text-sm font-black text-white">{user.nome}</h4>
+            <h4 className="truncate text-sm font-black text-slate-950 dark:text-white">{user.nome}</h4>
 
             <p className="truncate text-xs font-bold text-emerald-300">
               {info.title}
@@ -99,7 +99,7 @@ export default function Sidebar() {
                   ? 'bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-500/20'
                   : featured
                     ? 'border border-emerald-300/25 bg-emerald-300/10 font-black text-emerald-100 hover:bg-emerald-300/15'
-                    : 'font-bold text-slate-400 hover:bg-white/[0.06] hover:text-emerald-100'
+                    : 'font-bold text-slate-600 dark:text-slate-400 hover:bg-white/[0.06] hover:text-emerald-100'
               }`}
             >
               <Icon
@@ -118,9 +118,9 @@ export default function Sidebar() {
       <div className="mt-6 rounded-3xl border border-emerald-300/20 bg-gradient-to-br from-emerald-300/15 via-emerald-500/5 to-slate-900 p-5">
         <Crown className="mb-3 h-6 w-6 text-emerald-300" />
 
-        <p className="text-sm font-black text-white">Premium</p>
+        <p className="text-sm font-black text-slate-950 dark:text-white">Premium</p>
 
-        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-400">
+        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400">
           Desbloqueie recursos exclusivos e acelere seus estudos.
         </p>
 

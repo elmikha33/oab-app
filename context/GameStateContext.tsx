@@ -6,6 +6,87 @@ import { supabase } from '@/lib/supabase';
 
 const GameStateContext = createContext<any>(null);
 
+const DEVICE_ID_KEY = 'oaplay-active-device-id';
+
+function gerarDeviceId() {
+  if (typeof window === 'undefined') return '';
+
+  const existente = localStorage.getItem(DEVICE_ID_KEY);
+  if (existente) return existente;
+
+  const novo =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `device-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  localStorage.setItem(DEVICE_ID_KEY, novo);
+  return novo;
+}
+
+function getDeviceName() {
+  if (typeof window === 'undefined') return 'Dispositivo';
+
+  const ua = navigator.userAgent || '';
+
+  if (/mobile|android|iphone|ipad/i.test(ua)) {
+    return 'Celular ou tablet';
+  }
+
+  if (/windows/i.test(ua)) return 'Computador Windows';
+  if (/mac/i.test(ua)) return 'Computador Mac';
+  if (/linux/i.test(ua)) return 'Computador Linux';
+
+  return 'Navegador';
+}
+
+async function registrarDispositivoAtivo(accessToken: string) {
+  const deviceId = gerarDeviceId();
+
+  if (!deviceId) return null;
+
+  const res = await fetch('/api/auth/device', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      deviceId,
+      deviceName: getDeviceName(),
+    }),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Erro ao registrar dispositivo.');
+  }
+
+  return deviceId;
+}
+
+async function checarDispositivoAtivo(accessToken: string) {
+  const deviceId = gerarDeviceId();
+
+  if (!deviceId) return { active: true };
+
+  const params = new URLSearchParams({ deviceId });
+
+  const res = await fetch(`/api/auth/device?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Erro ao verificar dispositivo.');
+  }
+
+  return res.json();
+}
+
 const conquistas = [
   {
     id: 'badge_first',
@@ -227,6 +308,14 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         console.warn('Nao foi possivel carregar profile. Usando dados do Supabase Auth.', profileError);
       }
 
+      let activeDeviceId: string | null = null;
+
+      try {
+        activeDeviceId = await registrarDispositivoAtivo(sessao.access_token);
+      } catch (deviceError) {
+        console.warn('Nao foi possivel registrar dispositivo ativo.', deviceError);
+      }
+
       let savedLocal: any = {};
       try {
         const raw = localStorage.getItem('user-game-data');
@@ -252,6 +341,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         plano: profile?.plano || 'free',
         subscription_status: profile?.subscription_status || null,
         mercado_pago_subscription_id: profile?.mercado_pago_subscription_id || null,
+        active_device_id: activeDeviceId,
       });
 
       setUser(mergedUser);
@@ -299,6 +389,56 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   const refreshUser = useCallback(async () => {
     await carregarUsuario();
   }, [carregarUsuario]);
+  useEffect(() => {
+    const accessToken = session?.access_token || '';
+
+    if (!user || !accessToken) return;
+
+    let cancelado = false;
+    let verificando = false;
+
+    async function verificarDispositivo() {
+      if (cancelado || verificando) return;
+
+      verificando = true;
+
+      try {
+        const result = await checarDispositivoAtivo(accessToken);
+
+        if (!cancelado && result?.active === false) {
+          alert('Sua conta foi aberta em outro dispositivo. Por seguranca, este acesso sera encerrado.');
+
+          localStorage.removeItem('user-game-data');
+          setUser(null);
+          setSession(null);
+
+          await supabase.auth.signOut();
+          window.location.href = '/auth';
+        }
+      } catch (error) {
+        console.warn('Nao foi possivel verificar dispositivo ativo.', error);
+      } finally {
+        verificando = false;
+      }
+    }
+
+    const interval = window.setInterval(verificarDispositivo, 60000);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void verificarDispositivo();
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      cancelado = true;
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [user, session?.access_token]);
+
 
   const loginMock = useCallback((nome: string) => {
     setUser(criarUsuario({ nome }));

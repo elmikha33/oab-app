@@ -117,7 +117,7 @@ export default function MobileNav() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs text-slate-400">
                     <span>
-                      Nível {user.nivel} {user.nome === 'admin' ? 'Mestre' : 'Estagiário'}
+                      NÃ­vel {user.nivel} {user.nome === 'admin' ? 'Mestre' : 'EstagiÃ¡rio'}
                     </span>
                     <span>{user.xp} XP</span>
                   </div>

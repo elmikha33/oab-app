@@ -59,13 +59,13 @@ export default function RankingPage() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
-              LegⅠ
+              Legâ… 
             </p>
             <h1 className="mt-2 text-3xl font-black md:text-4xl">
               Ranking de Assiduidade
             </h1>
             <p className="mt-2 max-w-2xl text-sm font-medium text-slate-700 dark:text-slate-300">
-              Ranking vitalício. Ele não reseta quando o aluno reinicia questões.
+              Ranking vitalÃ­cio. Ele nÃ£o reseta quando o aluno reinicia questÃµes.
             </p>
           </div>
 
@@ -97,10 +97,10 @@ export default function RankingPage() {
                   <div className="min-w-0">
                     <p className="truncate text-base font-black">
                       {item.nome}
-                      {item.atual ? ' · você' : ''}
+                      {item.atual ? ' Â· vocÃª' : ''}
                     </p>
                     <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                      {item.rankingActiveDays} dias ativos · {item.rankingQuestions} questões únicas
+                      {item.rankingActiveDays} dias ativos Â· {item.rankingQuestions} questÃµes Ãºnicas
                     </p>
                   </div>
                 </div>
