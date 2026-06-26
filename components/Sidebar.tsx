@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BarChart3,
   BookOpen,
   CalendarDays,
+  CheckCircle2,
   Crown,
+  Flame,
   Grid2X2,
+  Lock,
   Medal,
+  Star,
   Trophy,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
@@ -30,7 +33,7 @@ const navItems = [
     icon: CalendarDays,
   },
   {
-    label: 'Classificacao',
+    label: 'Conquistas',
     href: '/achievements',
     icon: Medal,
   },
@@ -38,6 +41,45 @@ const navItems = [
     label: 'Ranking',
     href: '/ranking',
     icon: Trophy,
+  },
+];
+
+const BADGES = [
+  {
+    id: 'first_question',
+    emoji: '🎯',
+    title: 'Primeira questao',
+    description: 'Responda sua primeira questao.',
+  },
+  {
+    id: 'ten_correct',
+    emoji: '⚔️',
+    title: '10 acertos',
+    description: 'Acerte 10 questoes.',
+  },
+  {
+    id: 'fifty_correct',
+    emoji: '🔥',
+    title: '50 acertos',
+    description: 'Acerte 50 questoes.',
+  },
+  {
+    id: 'hundred_correct',
+    emoji: '🏆',
+    title: '100 acertos',
+    description: 'Acerte 100 questoes.',
+  },
+  {
+    id: 'seven_days',
+    emoji: '📅',
+    title: '7 dias ativos',
+    description: 'Estude em 7 dias diferentes.',
+  },
+  {
+    id: 'premium',
+    emoji: '👑',
+    title: 'Premium',
+    description: 'Tenha uma conta Premium ativa.',
   },
 ];
 
@@ -51,35 +93,135 @@ function formatarData(data?: string | null) {
   return date.toLocaleDateString('pt-BR');
 }
 
+function totalRespondidas(user: any) {
+  return Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0;
+}
+
+function totalRevisao(user: any) {
+  const revisao = Array.isArray(user?.revisaoIds) ? user.revisaoIds.length : 0;
+  const erradas = Array.isArray(user?.questoesErradas) ? user.questoesErradas.length : 0;
+
+  return revisao + erradas;
+}
+
+function badgeUnlocked(id: string, user: any) {
+  const acertos = Number(user?.acertos || 0);
+  const respondidas = totalRespondidas(user);
+  const diasAtivos = Math.max(Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
+  const revisao = totalRevisao(user);
+
+  switch (id) {
+    case 'first_question':
+      return respondidas >= 1 || acertos >= 1;
+    case 'ten_correct':
+      return acertos >= 10;
+    case 'fifty_correct':
+      return acertos >= 50;
+    case 'hundred_correct':
+      return acertos >= 100;
+    case 'seven_days':
+      return diasAtivos >= 7;
+    case 'premium':
+      return Boolean(user?.isPremium);
+    default:
+      return false;
+  }
+}
+
+function UserAvatar({ isPremium }: { isPremium: boolean }) {
+  if (isPremium) {
+    return (
+      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-amber-300/50 bg-gradient-to-br from-amber-200 via-emerald-300 to-cyan-300 text-3xl shadow-xl shadow-amber-950/20">
+        <span className="drop-shadow-sm">🦉</span>
+        <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-amber-200 bg-slate-950 text-sm shadow-lg">
+          👑
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.35rem] border border-emerald-300/40 bg-gradient-to-br from-slate-100 via-emerald-100 to-white text-3xl shadow-xl shadow-black/10 dark:from-slate-800 dark:via-slate-900 dark:to-emerald-950">
+      <span className="drop-shadow-sm">🐢</span>
+      <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300 text-xs font-black text-emerald-950 shadow-lg">
+        F
+      </span>
+    </div>
+  );
+}
+
+function AchievementMiniatures({ user }: { user: any }) {
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+        Colecao
+      </p>
+
+      <div className="grid grid-cols-6 gap-1.5">
+        {BADGES.map((badge) => {
+          const unlocked = badgeUnlocked(badge.id, user);
+
+          return (
+            <Link
+              key={badge.id}
+              href="/achievements"
+              title={badge.title}
+              className={
+                unlocked
+                  ? 'flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-lg shadow-sm transition hover:scale-105 dark:border-emerald-300/30 dark:bg-emerald-300/10'
+                  : 'flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-sm opacity-60 grayscale transition hover:opacity-80 dark:border-white/10 dark:bg-slate-950'
+              }
+            >
+              {unlocked ? badge.emoji : <Lock className="h-4 w-4 text-slate-400" />}
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function PlanStatus() {
   const { user, refreshUser } = useGameState() || {};
   const isPremium = Boolean(user?.isPremium);
   const premiumAte = formatarData(user?.premium_ate);
 
   return (
-    <div className="mt-2 rounded-2xl border border-emerald-300/20 bg-slate-900/80 p-4 text-white shadow-lg shadow-black/20">
+    <div
+      className={
+        isPremium
+          ? 'mt-2 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-emerald-950 shadow-xl shadow-emerald-950/10 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-white'
+          : 'mt-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 shadow-xl shadow-amber-950/10 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-white'
+      }
+    >
       <div className="flex items-center gap-3">
         <div
           className={
             isPremium
-              ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-300 text-sm font-black text-emerald-950'
-              : 'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-300/15 text-sm font-black text-amber-200'
+              ? 'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-sm font-black text-white shadow-lg shadow-emerald-500/20 dark:bg-emerald-300 dark:text-emerald-950'
+              : 'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-sm font-black text-white shadow-lg shadow-amber-500/20 dark:bg-amber-300 dark:text-amber-950'
           }
         >
           {isPremium ? 'P' : 'F'}
         </div>
 
         <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+          <p
+            className={
+              isPremium
+                ? 'text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-200'
+                : 'text-[10px] font-black uppercase tracking-[0.2em] text-amber-700 dark:text-amber-200'
+            }
+          >
             Plano atual
           </p>
 
-          <p className="text-sm font-black text-white">
+          <p className="text-sm font-black text-slate-950 dark:text-white">
             {isPremium ? 'Premium' : 'Free'}
           </p>
 
           {isPremium && premiumAte && (
-            <p className="mt-0.5 text-xs font-semibold text-emerald-200">
+            <p className="mt-0.5 text-xs font-black text-emerald-700 dark:text-emerald-200">
               Ate {premiumAte}
             </p>
           )}
@@ -93,14 +235,14 @@ function PlanStatus() {
             onClick={() => {
               void refreshUser?.();
             }}
-            className="w-full rounded-xl border border-emerald-300/25 bg-emerald-300/10 px-3 py-2 text-xs font-black text-emerald-200 transition hover:bg-emerald-300/15"
+            className="w-full rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-black text-emerald-800 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-200 dark:hover:bg-emerald-300/15"
           >
             Atualizar status
           </button>
 
           <Link
             href="/premium"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-300 px-3 py-2.5 text-xs font-black text-emerald-950 transition hover:bg-emerald-200"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-3 py-2.5 text-xs font-black text-white transition hover:bg-emerald-600 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
           >
             <Crown className="h-4 w-4" strokeWidth={3} />
             Conhecer Premium
@@ -152,9 +294,7 @@ export default function Sidebar() {
 
         <section className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-xl shadow-black/10 dark:border-white/10 dark:bg-slate-900">
           <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-300 text-lg font-black text-emerald-950">
-              {String(user?.nome || 'U').slice(0, 1).toUpperCase()}
-            </div>
+            <UserAvatar isPremium={Boolean(user?.isPremium)} />
 
             <div className="min-w-0">
               <p className="truncate text-sm font-black text-slate-950 dark:text-white">
@@ -162,13 +302,15 @@ export default function Sidebar() {
               </p>
 
               <p className="text-xs font-black text-emerald-600 dark:text-emerald-300">
-                {user?.isPremium ? 'Premium' : 'Iniciante'}
+                {user?.isPremium ? 'Premium' : 'Free'}
               </p>
             </div>
           </div>
 
+          <AchievementMiniatures user={user} />
+
           <div className="mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-700 dark:bg-emerald-300/10 dark:text-emerald-200">
-            1 dia ativo
+            {user?.streak || 1} dia ativo
           </div>
         </section>
 
