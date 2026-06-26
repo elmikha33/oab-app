@@ -50,7 +50,7 @@
 }
 
 /* ----------------------------------------------------------
- *  Scrollbar mínima
+ *  Scrollbar mÃ­nima
  * ---------------------------------------------------------- */
 ::-webkit-scrollbar {
   width: 6px;
@@ -71,7 +71,7 @@
 }
 
 /* ----------------------------------------------------------
- *  Botões premium corrigidos
+ *  BotÃµes premium corrigidos
  *  IMPORTANTE: sem ::before torto, sem halo desalinhado
  * ---------------------------------------------------------- */
 @layer components {
@@ -115,3 +115,83 @@
     box-shadow: 0 18px 42px rgba(251, 191, 36, 0.12);
   }
 }
+
+/* === OAPlay sidebar light mode readability fix === */
+html:not(.dark) aside {
+  background: #ffffff !important;
+  border-color: #dbeafe !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) aside * {
+  text-shadow: none !important;
+}
+
+html:not(.dark) aside p,
+html:not(.dark) aside span,
+html:not(.dark) aside div,
+html:not(.dark) aside h1,
+html:not(.dark) aside h2,
+html:not(.dark) aside h3,
+html:not(.dark) aside h4,
+html:not(.dark) aside a,
+html:not(.dark) aside button {
+  color: #0f172a !important;
+}
+
+html:not(.dark) aside a,
+html:not(.dark) aside button {
+  border-color: #d1fae5 !important;
+}
+
+html:not(.dark) aside a:hover,
+html:not(.dark) aside button:hover {
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+}
+
+html:not(.dark) aside svg {
+  color: #059669 !important;
+  stroke: #059669 !important;
+}
+
+html:not(.dark) aside img {
+  filter: none !important;
+}
+
+html:not(.dark) aside [class*="bg-emerald"],
+html:not(.dark) aside [class*="bg-teal"] {
+  color: #06281f !important;
+}
+
+html:not(.dark) aside [class*="bg-emerald"] *,
+html:not(.dark) aside [class*="bg-teal"] * {
+  color: #06281f !important;
+}
+
+html:not(.dark) aside [class*="text-slate-400"],
+html:not(.dark) aside [class*="text-slate-300"],
+html:not(.dark) aside [class*="text-emerald-100"],
+html:not(.dark) aside [class*="text-emerald-200"],
+html:not(.dark) aside [class*="text-white"] {
+  color: #334155 !important;
+}
+
+html:not(.dark) aside [class*="bg-white"],
+html:not(.dark) aside [class*="bg-slate"],
+html:not(.dark) aside [class*="bg-black"] {
+  border-color: #d1fae5 !important;
+}
+
+html:not(.dark) aside .active,
+html:not(.dark) aside [aria-current="page"] {
+  background: linear-gradient(135deg, #6ee7b7, #34d399) !important;
+  color: #06281f !important;
+  border-color: #6ee7b7 !important;
+}
+
+html:not(.dark) aside .active *,
+html:not(.dark) aside [aria-current="page"] * {
+  color: #06281f !important;
+}
+/* === end OAPlay sidebar light mode readability fix === */

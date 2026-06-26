@@ -1319,39 +1319,72 @@ export default function QuestoesList() {
       </section>
 
       {showFreeLimitModal && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/85 px-4 backdrop-blur-lg">
-          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950/60 text-white shadow-2xl shadow-black ring-1 ring-white/10">
-            <div className="relative p-5 md:p-6">
-              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-amber-400 via-emerald-300 to-cyan-300" />
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/90 px-4 backdrop-blur-xl">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-amber-300/30 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white shadow-2xl shadow-black ring-1 ring-white/10">
+            <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-amber-300 via-emerald-300 to-cyan-300" />
+            <div className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-amber-300/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 -right-20 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
 
-              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-300/35 bg-amber-500/15 text-3xl shadow-lg shadow-black/30">
-                ??
+            <div className="relative p-6 text-center md:p-8">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-amber-300/35 bg-amber-300/15 text-amber-200 shadow-lg shadow-black/30">
+                <AlertTriangle className="h-8 w-8" strokeWidth={2.8} />
               </div>
 
-              <h2 className="text-center text-xl font-black tracking-tight md:text-2xl">
-                Limite gratis atingido
-              </h2>
-
-              <p className="mx-auto mt-3 max-w-sm text-center text-sm font-medium leading-relaxed text-slate-300">
-                Voce respondeu {FREE_DAILY_LIMIT} questoes gratis hoje. Assine o Premium para continuar estudando sem limite.
+              <p className="mb-2 text-xs font-black uppercase tracking-[0.24em] text-amber-200">
+                Plano gratuito
               </p>
 
-              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <h2 className="text-2xl font-black tracking-tight text-white md:text-3xl">
+                Limite diario atingido
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-sm text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+                Voce respondeu suas {FREE_DAILY_LIMIT} questoes gratuitas de hoje. Assine o Premium para continuar estudando sem limite.
+              </p>
+
+              <div className="mt-6 grid grid-cols-3 gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 text-left">
+                <div className="rounded-xl bg-slate-950/60 p-3">
+                  <p className="text-xl font-black text-amber-200">5</p>
+                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                    gratis por dia
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-slate-950/60 p-3">
+                  <p className="text-xl font-black text-emerald-200">?</p>
+                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                    no Premium
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-slate-950/60 p-3">
+                  <p className="text-xl font-black text-cyan-200">24h</p>
+                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                    renova amanha
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => setShowFreeLimitModal(false)}
                   className="min-h-12 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
                 >
-                  Agora nao
+                  Continuar amanha
                 </button>
 
                 <a
                   href="/premium"
-                  className="flex min-h-12 items-center justify-center rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-400 to-yellow-300 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-amber-950/30 transition hover:from-amber-300 hover:to-yellow-200"
+                  className="flex min-h-12 items-center justify-center rounded-2xl border border-emerald-200/40 bg-gradient-to-r from-emerald-300 to-cyan-300 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-emerald-950/30 transition hover:from-emerald-200 hover:to-cyan-200"
                 >
-                  Conhecer Premium
+                  Desbloquear Premium
                 </a>
               </div>
+
+              <p className="mt-5 text-xs font-medium leading-relaxed text-slate-500">
+                Premium libera questoes ilimitadas e remove essa trava diaria.
+              </p>
             </div>
           </div>
         </div>
