@@ -122,19 +122,32 @@ export default function Sidebar() {
       <div className="flex min-h-full flex-col gap-5">
         <Link
           href="/dashboard"
-          className="rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
+          className="flex items-center gap-4 rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-xl shadow-black/10 transition hover:-translate-y-0.5 hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
         >
-          <img
-            src="/oaplay-logo-horizontal-transparent-white.png"
-            alt="OAPlay"
-            className="hidden h-24 w-auto object-contain dark:block"
-          />
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-950 shadow-lg shadow-black/20">
+            <img
+              src="/oaplay-icon-192.png"
+              alt="OAPlay"
+              className="h-12 w-12 object-contain"
+            />
+          </div>
 
-          <img
-            src="/oaplay-logo-horizontal-transparent-darktext.png"
-            alt="OAPlay"
-            className="h-24 w-auto object-contain dark:hidden"
-          />
+          <div className="min-w-0">
+            <div className="flex items-baseline leading-none">
+              <span className="text-[2rem] font-black tracking-tight text-slate-950 dark:text-white">
+                OA
+              </span>
+              <span className="text-[2rem] font-black tracking-tight text-emerald-400">
+                Play
+              </span>
+            </div>
+
+            <p className="mt-2 text-[10px] font-black uppercase leading-tight tracking-[0.22em] text-emerald-400">
+              Sua aprovacao
+              <br />
+              expressa
+            </p>
+          </div>
         </Link>
 
         <section className="rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-xl shadow-black/10 dark:border-white/10 dark:bg-slate-900">
