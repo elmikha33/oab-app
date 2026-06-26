@@ -17,6 +17,24 @@ function getAdminClient() {
   });
 }
 
+async function getData<T = any>(query: PromiseLike<{ data: T; error: any }>) {
+  const { data, error } = await query;
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function expectSuccess(query: PromiseLike<{ error: any }>) {
+  const { error } = await query;
+
+  if (error) {
+    throw error;
+  }
+}
+
 function addThreeMonthsFrom(baseDate?: string | null) {
   const now = new Date();
   const base =
@@ -26,6 +44,16 @@ function addThreeMonthsFrom(baseDate?: string | null) {
 
   base.setMonth(base.getMonth() + 3);
   return base.toISOString();
+}
+
+function getPaymentPreapprovalId(payment: any) {
+  return (
+    payment?.preapproval_id ||
+    payment?.point_of_interaction?.transaction_data?.subscription_id ||
+    payment?.metadata?.preapproval_id ||
+    payment?.metadata?.preapprovalId ||
+    null
+  );
 }
 
 async function mercadoPagoGet(path: string) {
@@ -48,27 +76,79 @@ async function mercadoPagoGet(path: string) {
   return data;
 }
 
-async function ativarPremium(adminClient: any, userId: string, rawEvent: any, paymentId?: string | null) {
-  const { data: profile } = await adminClient
+async function buscarUserIdPorPreapproval(adminClient: any, preapprovalId?: string | null) {
+  if (!preapprovalId) return null;
+
+  const order = await getData(
+    adminClient
+    .from('premium_orders')
+    .select('user_id')
+    .eq('mercado_pago_preapproval_id', preapprovalId)
+    .not('user_id', 'is', null)
+    .limit(1)
+      .maybeSingle()
+  );
+
+  if (order?.user_id) {
+    return order.user_id;
+  }
+
+  const preapproval = await mercadoPagoGet(`/preapproval/${preapprovalId}`);
+  return preapproval?.external_reference || null;
+}
+
+async function buscarLiberacaoRecente(adminClient: any, userId: string, preapprovalId?: string | null) {
+  if (!preapprovalId) return null;
+
+  const desde = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
+
+  const data = await getData(
+    adminClient
+    .from('premium_orders')
+    .select('id, paid_at')
+    .eq('user_id', userId)
+    .eq('mercado_pago_preapproval_id', preapprovalId)
+    .in('status', ['authorized', 'approved'])
+    .gte('paid_at', desde)
+    .limit(1)
+      .maybeSingle()
+  );
+
+  return data || null;
+}
+
+async function ativarPremium(
+  adminClient: any,
+  userId: string,
+  rawEvent: any,
+  paymentId?: string | null,
+  preapprovalId?: string | null
+) {
+  const profile = await getData(
+    adminClient
     .from('profiles')
     .select('premium_ate')
     .eq('id', userId)
-    .maybeSingle();
+      .maybeSingle()
+  );
 
   const novoPremiumAte = addThreeMonthsFrom(profile?.premium_ate || null);
 
-  await adminClient
+  await expectSuccess(
+    adminClient
     .from('profiles')
     .update({
       is_premium: true,
       premium_ate: novoPremiumAte,
       plano: 'premium_trimestral',
       subscription_status: 'authorized',
+      mercado_pago_subscription_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', userId);
+      .eq('id', userId)
+  );
 
-  await adminClient.from('premium_orders').insert({
+  await expectSuccess(adminClient.from('premium_orders').insert({
     user_id: userId,
     email: rawEvent?.payer_email || rawEvent?.payer?.email || null,
     valor: 99.9,
@@ -77,11 +157,11 @@ async function ativarPremium(adminClient: any, userId: string, rawEvent: any, pa
     tipo: 'subscription',
     premium_dias: 90,
     mercado_pago_payment_id: paymentId || rawEvent?.id || null,
-    mercado_pago_preapproval_id: rawEvent?.preapproval_id || rawEvent?.id || null,
-    mercado_pago_subscription_id: rawEvent?.preapproval_id || rawEvent?.id || null,
+    mercado_pago_preapproval_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
+    mercado_pago_subscription_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
     raw_event: rawEvent,
     paid_at: new Date().toISOString(),
-  });
+  }));
 }
 
 export async function POST(request: Request) {
@@ -115,28 +195,33 @@ export async function POST(request: Request) {
       const status = preapproval.status;
 
       if (userId) {
-        await adminClient
+        await expectSuccess(
+          adminClient
           .from('profiles')
           .update({
             mercado_pago_subscription_id: preapproval.id,
             subscription_status: status,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', userId);
+            .eq('id', userId)
+        );
 
         if (status === 'authorized') {
-          const { data: profile } = await adminClient
+          const profile = await getData(
+            adminClient
             .from('profiles')
             .select('premium_ate')
             .eq('id', userId)
-            .maybeSingle();
+              .maybeSingle()
+          );
 
           const premiumAte =
             profile?.premium_ate && new Date(profile.premium_ate).getTime() > Date.now()
               ? profile.premium_ate
               : addThreeMonthsFrom(null);
 
-          await adminClient
+          await expectSuccess(
+            adminClient
             .from('profiles')
             .update({
               is_premium: true,
@@ -145,11 +230,12 @@ export async function POST(request: Request) {
               subscription_status: status,
               updated_at: new Date().toISOString(),
             })
-            .eq('id', userId);
+              .eq('id', userId)
+          );
         }
       }
 
-      await adminClient.from('premium_orders').insert({
+      await expectSuccess(adminClient.from('premium_orders').insert({
         user_id: userId || null,
         email: preapproval.payer_email || null,
         valor: 99.9,
@@ -161,7 +247,7 @@ export async function POST(request: Request) {
         mercado_pago_subscription_id: preapproval.id || null,
         raw_event: preapproval,
         paid_at: status === 'authorized' ? new Date().toISOString() : null,
-      });
+      }));
 
       return NextResponse.json({ ok: true });
     }
@@ -174,12 +260,15 @@ export async function POST(request: Request) {
       }
 
       const paymentId = String(payment.id);
+      const preapprovalId = getPaymentPreapprovalId(payment);
 
-      const { data: existing } = await adminClient
+      const existing = await getData(
+        adminClient
         .from('premium_orders')
         .select('id')
         .eq('mercado_pago_payment_id', paymentId)
-        .maybeSingle();
+          .maybeSingle()
+      );
 
       if (existing?.id) {
         return NextResponse.json({ ok: true, duplicated: true });
@@ -189,12 +278,29 @@ export async function POST(request: Request) {
         payment.external_reference ||
         payment.metadata?.user_id ||
         payment.metadata?.userId ||
-        null;
+        (await buscarUserIdPorPreapproval(adminClient, preapprovalId));
 
       if (userId) {
-        await ativarPremium(adminClient, userId, payment, paymentId);
+        const liberacaoRecente = await buscarLiberacaoRecente(adminClient, userId, preapprovalId);
+
+        if (liberacaoRecente?.id) {
+          await expectSuccess(
+            adminClient
+            .from('premium_orders')
+            .update({
+              status: payment.status || 'approved',
+              mercado_pago_payment_id: paymentId,
+              raw_event: payment,
+            })
+              .eq('id', liberacaoRecente.id)
+          );
+
+          return NextResponse.json({ ok: true, linked_to_preapproval: true });
+        }
+
+        await ativarPremium(adminClient, userId, payment, paymentId, preapprovalId);
       } else {
-        await adminClient.from('premium_orders').insert({
+        await expectSuccess(adminClient.from('premium_orders').insert({
           user_id: null,
           email: payment.payer?.email || null,
           valor: payment.transaction_amount || 99.9,
@@ -203,11 +309,11 @@ export async function POST(request: Request) {
           tipo: 'subscription',
           premium_dias: 90,
           mercado_pago_payment_id: paymentId,
-          mercado_pago_preapproval_id: payment.preapproval_id || null,
-          mercado_pago_subscription_id: payment.preapproval_id || null,
+          mercado_pago_preapproval_id: preapprovalId || null,
+          mercado_pago_subscription_id: preapprovalId || null,
           raw_event: payment,
           paid_at: new Date().toISOString(),
-        });
+        }));
       }
 
       return NextResponse.json({ ok: true });

@@ -1,20 +1,30 @@
-# Missão OAB – Setup Rápido
+# OAPlay
 
-1. **Pré‑requisitos**
+## Setup rapido
+
+1. Instale as dependencias:
    ```bash
-   volta install node@20  # ou nvm use 20
-   pnpm i -g pnpm
+   pnpm install
    ```
 
-2. **Instalação**
+2. Crie o `.env.local` a partir do exemplo:
    ```bash
-   pnpm i
-   cp .env.example .env.local   # preencha suas chaves
+   copy .env.example .env.local
    ```
 
-3. **Rodando**
+3. Configure as variaveis obrigatorias para Premium com Mercado Pago:
    ```bash
-   pnpm dev        # ambiente de desenvolvimento
-   pnpm build      # build de produção
-   pnpm start      # servidor local
+   NEXT_PUBLIC_SITE_URL=https://seu-dominio.vercel.app
+   MERCADO_PAGO_ACCESS_TOKEN=
+   SUPABASE_SERVICE_ROLE_KEY=
+   ```
+
+4. Rode localmente:
+   ```bash
+   pnpm.cmd run dev
+   ```
+
+5. Build de producao:
+   ```bash
+   pnpm.cmd run build
    ```

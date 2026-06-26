@@ -21,8 +21,8 @@ import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: Grid2X2 },
-  { label: 'Responder Questões', href: '/play', icon: BookOpen },
-  { label: 'Modo Revisão', href: '/review', icon: CalendarDays },
+  { label: 'Responder QuestÃµes', href: '/play', icon: BookOpen },
+  { label: 'Modo RevisÃ£o', href: '/review', icon: CalendarDays },
   { label: 'Conquistas', href: '/achievements', icon: Medal },
   { label: 'Ranking', href: '/ranking', icon: Trophy },
 ];
@@ -50,7 +50,7 @@ function LogoTop() {
           OA<span className="text-emerald-300">Play</span>
         </p>
         <p className="mt-1 text-[8px] font-black uppercase tracking-[0.18em] text-emerald-300">
-          aprovação expressa
+          aprovaÃ§Ã£o expressa
         </p>
       </div>
     </Link>
@@ -73,7 +73,7 @@ function LogoMenu({ onClick }: { onClick?: () => void }) {
           OA<span className="text-emerald-300">Play</span>
         </p>
         <p className="mt-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-300">
-          sua aprovação expressa
+          sua aprovaÃ§Ã£o expressa
         </p>
       </div>
     </Link>
@@ -163,8 +163,8 @@ export default function MobileNav() {
             type="button"
             onClick={() => setOpen(true)}
             className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/95 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
-            aria-label="Abrir opções"
-            title="Abrir opções"
+            aria-label="Abrir opÃ§Ãµes"
+            title="Abrir opÃ§Ãµes"
           >
             <SlidersHorizontal className="h-6 w-6" strokeWidth={2.8} />
           </button>
@@ -218,7 +218,7 @@ export default function MobileNav() {
 
                 <div className="min-w-0">
                   <p className="truncate text-lg font-black text-white">
-                    {user?.nome || 'Usuário'}
+                    {user?.nome || 'UsuÃ¡rio'}
                   </p>
 
                   <p className="text-sm font-black text-emerald-300">
@@ -284,7 +284,7 @@ export default function MobileNav() {
 
                   {user?.isPremium && premiumAte && (
                     <p className="mt-0.5 text-xs font-bold text-emerald-200">
-                      Até {premiumAte}
+                      AtÃ© {premiumAte}
                     </p>
                   )}
                 </div>

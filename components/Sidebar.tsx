@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 import { usePathname } from 'next/navigation';
 import {
   BookOpen,
@@ -12,7 +13,6 @@ import {
   Trophy,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
-
 const navItems = [
   {
     label: 'Dashboard',
@@ -20,12 +20,12 @@ const navItems = [
     icon: Grid2X2,
   },
   {
-    label: 'Responder Questões',
+    label: 'Responder QuestÃƒÆ’Ã‚Âµes',
     href: '/play',
     icon: BookOpen,
   },
   {
-    label: 'Modo Revisão',
+    label: 'Modo RevisÃƒÆ’Ã‚Â£o',
     href: '/review',
     icon: CalendarDays,
   },
@@ -45,37 +45,37 @@ const BADGES = [
   {
     id: 'first_question',
     emoji: '\u{1F3AF}',
-    title: 'Primeira questão',
-    description: 'Responda sua primeira questão.',
+    title: 'Primeira questÃƒÆ’Ã‚Â£o',
+    description: 'Responda sua primeira questÃƒÆ’Ã‚Â£o.',
   },
   {
     id: 'ten_correct',
     emoji: '\u{2694}\u{FE0F}',
     title: '10 acertos',
-    description: 'Acerte 10 questões.',
+    description: 'Acerte 10 questÃƒÆ’Ã‚Âµes.',
   },
   {
     id: 'fifty_correct',
     emoji: '\u{1F525}',
     title: '50 acertos',
-    description: 'Acerte 50 questões.',
+    description: 'Acerte 50 questÃƒÆ’Ã‚Âµes.',
   },
   {
     id: 'hundred_correct',
     emoji: '\u{1F3C6}',
     title: '100 acertos',
-    description: 'Acerte 100 questões.',
+    description: 'Acerte 100 questÃƒÆ’Ã‚Âµes.',
   },
   {
     id: 'reviewed_33',
     emoji: '\u{1F9E0}',
-    title: 'Revisou 33 Questões',
-    description: 'Revise 33 questões.',
+    title: 'Revisou 33 QuestÃƒÆ’Ã‚Âµes',
+    description: 'Revise 33 questÃƒÆ’Ã‚Âµes.',
   },
   {
     id: 'twenty_five_review',
     emoji: '\u{1F6E1}\u{FE0F}',
-    title: 'Caçador de erros',
+    title: 'CaÃƒÆ’Ã‚Â§ador de erros',
     description: 'Acumule 25 erros para revisar.',
   },
   {
@@ -177,7 +177,7 @@ function AchievementMiniatures({ user }: { user: any }) {
     <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950/60">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-          Coleção
+          ColeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
         </p>
 
         <Link
@@ -253,7 +253,7 @@ function PlanStatus() {
 
           {isPremium && premiumAte && (
             <p className="mt-0.5 text-xs font-black text-emerald-700 dark:text-emerald-200">
-              Até {premiumAte}
+              AtÃƒÆ’Ã‚Â© {premiumAte}
             </p>
           )}
         </div>
@@ -319,7 +319,7 @@ export default function Sidebar() {
             </div>
 
             <p className="mt-2 text-[10px] font-black uppercase leading-tight tracking-[0.22em] text-emerald-400">
-              Sua aprovação
+              Sua aprovaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
               <br />
               expressa
             </p>
@@ -332,7 +332,7 @@ export default function Sidebar() {
 
             <div className="min-w-0">
               <p className="truncate text-sm font-black text-slate-950 dark:text-white">
-                {user?.nome || 'Usuário'}
+                {user?.nome || 'UsuÃƒÆ’Ã‚Â¡rio'}
               </p>
 
               <p className="text-xs font-black text-emerald-600 dark:text-emerald-300">
@@ -372,6 +372,9 @@ export default function Sidebar() {
           <PlanStatus />
         </nav>
       </div>
-    </aside>
+            <div className="sidebar-theme-toggle mt-4 rounded-2xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
+          <ThemeToggle />
+        </div>
+      </aside>
   );
 }

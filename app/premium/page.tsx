@@ -25,6 +25,8 @@ export default function PremiumPage() {
 
   const [carregando, setCarregando] = useState(false);
   const [sucesso, setSucesso] = useState(false);
+  const [retornoMercadoPago, setRetornoMercadoPago] = useState(false);
+  const [verificandoPremium, setVerificandoPremium] = useState(false);
   const [erro, setErro] = useState('');
 
   const premiumAteFormatado = useMemo(() => formatarData(user?.premium_ate), [user?.premium_ate]);
@@ -34,9 +36,47 @@ export default function PremiumPage() {
 
     if (params.get('mp') === 'success') {
       setSucesso(true);
-      void refreshUser();
+      setRetornoMercadoPago(true);
     }
-  }, [refreshUser]);
+  }, []);
+
+  useEffect(() => {
+    if (!retornoMercadoPago) return;
+
+    if (user?.isPremium) {
+      setVerificandoPremium(false);
+      return;
+    }
+
+    let cancelado = false;
+    let tentativas = 0;
+    setVerificandoPremium(true);
+
+    async function sincronizarPremium() {
+      tentativas += 1;
+      await refreshUser();
+
+      if (!cancelado && tentativas >= 12) {
+        setVerificandoPremium(false);
+      }
+    }
+
+    void sincronizarPremium();
+
+    const interval = window.setInterval(() => {
+      if (cancelado || tentativas >= 12) {
+        window.clearInterval(interval);
+        return;
+      }
+
+      void sincronizarPremium();
+    }, 5000);
+
+    return () => {
+      cancelado = true;
+      window.clearInterval(interval);
+    };
+  }, [refreshUser, retornoMercadoPago, user?.isPremium]);
 
   async function handleAssinar() {
     setCarregando(true);
@@ -100,7 +140,11 @@ export default function PremiumPage() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 pb-10 pt-4 md:px-0">
       {sucesso && (
         <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-5 text-center text-sm font-bold text-emerald-100">
-          Recebemos seu retorno do Mercado Pago. A liberação final acontece quando o webhook confirmar o pagamento.
+          {user?.isPremium
+            ? 'Premium ativado. Seu perfil já foi atualizado.'
+            : verificandoPremium
+              ? 'Recebemos seu retorno do Mercado Pago. Estamos sincronizando a confirmação do pagamento.'
+              : 'Recebemos seu retorno do Mercado Pago. A liberação final acontece quando o webhook confirmar o pagamento.'}
         </div>
       )}
 
