@@ -10,7 +10,7 @@ import {
   Grid2X2,
   LogOut,
   Medal,
-  Menu,
+  SlidersHorizontal,
   Moon,
   Sun,
   Trophy,
@@ -160,7 +160,7 @@ export default function MobileNav() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-300 text-emerald-950 shadow-lg shadow-emerald-950/30 active:scale-95"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/25 bg-slate-900/90 text-emerald-300 shadow-lg shadow-black/25 ring-1 ring-white/5 active:scale-95"
             aria-label="Abrir menu"
           >
             <Menu className="h-6 w-6" strokeWidth={3} />
