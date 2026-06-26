@@ -72,7 +72,7 @@ function PlanStatusBadge({
     : null;
 
   return (
-    <div className="fixed left-6 top-4 z-[9999] hidden max-w-[280px] rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-slate-900 shadow-2xl shadow-black/10 backdrop-blur-xl md:block dark:border-white/10 dark:bg-slate-950/95 dark:text-white">
+    <div className="fixed bottom-6 left-6 z-[60] hidden w-[240px] rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-slate-900 shadow-2xl shadow-black/10 backdrop-blur-xl md:block dark:border-white/10 dark:bg-slate-950/95 dark:text-white">
       <div className="flex items-center gap-3">
         <div
           className={
