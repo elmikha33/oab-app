@@ -10,7 +10,20 @@ import RankingPreview from '@/components/RankingPreview';
 
 export default function Dashboard() {
   const router = useRouter();
-  const { user } = useGameState();
+  const { user: rawUser } = useGameState();
+  const fallbackUser = {
+    nome: 'Estudante',
+    streak: 1,
+    acertos: 0,
+    moedas: 0,
+    xp: 0,
+    xpNecessario: 100,
+    nivel: 1,
+    isPremium: false,
+    isAdmin: false,
+  };
+
+  const user = rawUser ?? fallbackUser;
 
   const [quote, setQuote] = useState(() => {
     return QUOTES[Math.floor(Math.random() * QUOTES.length)];
@@ -27,16 +40,7 @@ export default function Dashboard() {
 
     setQuote(nova);
   }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-8 text-slate-950 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white">
-        Carregando...
-      </div>
-    );
-  }
-
-  const totalAcertos = user.acertos ?? 0;
+const totalAcertos = user.acertos ?? 0;
   const streak = user.streak || 0;
   const streakLabel = streak === 1 ? 'dia ativo' : 'dias ativos';
 
