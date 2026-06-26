@@ -106,7 +106,10 @@ function formatarData(data?: string | null) {
 }
 
 function totalRespondidas(user: any) {
-  return Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0;
+  return Math.max(
+    Number(user?.lifetimeQuestions || 0),
+    Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0
+  );
 }
 
 function totalRevisao(user: any) {
@@ -117,10 +120,10 @@ function totalRevisao(user: any) {
 }
 
 function badgeUnlocked(id: string, user: any) {
-  const acertos = Number(user?.acertos || 0);
+  const acertos = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
   const respondidas = totalRespondidas(user);
-  const diasAtivos = Math.max(Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
-  const revisao = totalRevisao(user);
+  const diasAtivos = Math.max(Number(user?.lifetimeActiveDays || 0), Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
+  const revisao = Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user));
 
   switch (id) {
     case 'first_question':

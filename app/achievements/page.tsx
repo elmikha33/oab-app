@@ -85,7 +85,10 @@ const ACHIEVEMENTS = [
 ];
 
 function totalRespondidas(user: any) {
-  return Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0;
+  return Math.max(
+    Number(user?.lifetimeQuestions || 0),
+    Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0
+  );
 }
 
 function totalRevisao(user: any) {
@@ -96,10 +99,10 @@ function totalRevisao(user: any) {
 }
 
 function isUnlocked(id: string, user: any) {
-  const acertos = Number(user?.acertos || 0);
+  const acertos = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
   const respondidas = totalRespondidas(user);
-  const revisao = totalRevisao(user);
-  const diasAtivos = Math.max(Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
+  const revisao = Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user));
+  const diasAtivos = Math.max(Number(user?.lifetimeActiveDays || 0), Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
 
   switch (id) {
     case 'first_question':
@@ -174,13 +177,13 @@ export default function AchievementsPage() {
 
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <CheckCircle2 className="h-6 w-6 text-emerald-300" />
-            <p className="mt-4 text-2xl font-black">{user?.acertos || 0}</p>
+            <p className="mt-4 text-2xl font-black">{Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0))}</p>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">acertos</p>
           </div>
 
           <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
             <RotateCcw className="h-6 w-6 text-amber-300" />
-            <p className="mt-4 text-2xl font-black">{totalRevisao(user)}</p>
+            <p className="mt-4 text-2xl font-black">{Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user))}</p>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">em revisao</p>
           </div>
 

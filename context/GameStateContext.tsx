@@ -216,6 +216,14 @@ function criarUsuario(base: any = {}) {
       nome.toLowerCase() === 'admin' ||
       Boolean(adminEmail && email && email.toLowerCase() === adminEmail.toLowerCase()),
 
+    lifetimeQuestions: base.lifetimeQuestions || base.rankingQuestions || questoesRespondidas.length || 0,
+    lifetimeCorrect: base.lifetimeCorrect || base.acertos || 0,
+    lifetimeReview: base.lifetimeReview || Math.max(
+      Array.isArray(base.revisaoIds) ? base.revisaoIds.length : 0,
+      Array.isArray(base.questoesErradas) ? base.questoesErradas.length : 0
+    ),
+    lifetimeActiveDays: base.lifetimeActiveDays || base.rankingActiveDays || base.streak || 1,
+
     rankingScore: base.rankingScore || 0,
     rankingQuestions: base.rankingQuestions || 0,
     rankingActiveDays: base.rankingActiveDays || 0,
@@ -518,6 +526,17 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ...comRanking,
         acertos,
         respostasQuestoes,
+        lifetimeQuestions: jaRespondida
+          ? prev.lifetimeQuestions || 0
+          : (prev.lifetimeQuestions || 0) + ids.length,
+        lifetimeCorrect: jaRespondida
+          ? prev.lifetimeCorrect || 0
+          : (prev.lifetimeCorrect || 0) + 1,
+        lifetimeActiveDays: Math.max(
+          prev.lifetimeActiveDays || 1,
+          comRanking.rankingActiveDays || 1,
+          prev.streak || 1
+        ),
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: (prev.questoesErradas || []).filter((id: number | string) =>
           !ids.includes(String(id))
@@ -542,11 +561,22 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ...lerRespostasQuestoesLocal(),
       };
 
+      const respondidasAtuais = (prev.questoesRespondidas || []).map(String);
+      const novosIds = ids.filter((id) => !respondidasAtuais.includes(id));
+      const novasErradas = [...new Set([...(prev.questoesErradas || []).map(String), ...ids])];
+
       return {
         ...comRanking,
         respostasQuestoes,
-        questoesRespondidas: [...new Set([...(prev.questoesRespondidas || []).map(String), ...ids])],
-        questoesErradas: [...new Set([...(prev.questoesErradas || []).map(String), ...ids])],
+        lifetimeQuestions: (prev.lifetimeQuestions || 0) + novosIds.length,
+        lifetimeReview: Math.max(prev.lifetimeReview || 0, novasErradas.length),
+        lifetimeActiveDays: Math.max(
+          prev.lifetimeActiveDays || 1,
+          comRanking.rankingActiveDays || 1,
+          prev.streak || 1
+        ),
+        questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
+        questoesErradas: novasErradas,
       };
     });
   }, []);
@@ -564,7 +594,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         questoesErradas: [],
         revisaoIds: [],
         respostasQuestoes: {},
-        conquistasDesbloqueadas: [],
+        conquistasDesbloqueadas: prev.conquistasDesbloqueadas || [],
       };
     });
   }, []);
