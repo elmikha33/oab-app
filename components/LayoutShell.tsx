@@ -58,7 +58,6 @@ function MobileFloatingPremiumCard() {
   );
 }
 
-
 function LogoutButton({
   mobile = false,
   onLogout,
@@ -201,10 +200,7 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
       </div>
 
       {false && showFloatingPremium && (
-        <>
-          {false && <FloatingPremiumCard />}
-          {false &&}
-        </>
+        <></>
       )}
 {showLogoutButton && (
         <>
