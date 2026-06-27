@@ -10,12 +10,22 @@ const GameStateContext = createContext<any>(null);
 const OWNER_ADMIN_EMAIL = 'mi.psy.trance@gmail.com';
 const MANUAL_PREMIUM_EMAILS = [OWNER_ADMIN_EMAIL];
 
+function normalizarEmail(email?: string | null) {
+  return String(email || '').trim().toLowerCase();
+}
+
 function emailAdmin(email?: string | null) {
-  return String(email || '').toLowerCase() === OWNER_ADMIN_EMAIL;
+  const normalizedEmail = normalizarEmail(email);
+  const adminEmail = normalizarEmail(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
+
+  return Boolean(
+    normalizedEmail &&
+      (normalizedEmail === OWNER_ADMIN_EMAIL || (adminEmail && normalizedEmail === adminEmail))
+  );
 }
 
 function emailPremiumManual(email?: string | null) {
-  return MANUAL_PREMIUM_EMAILS.includes(String(email || '').toLowerCase());
+  return MANUAL_PREMIUM_EMAILS.includes(normalizarEmail(email));
 }
 
 const DEVICE_ID_KEY = 'oaplay-active-device-id';
@@ -143,6 +153,7 @@ function premiumEstaAtivo(profile: any) {
 
 function nomeDoAuthUser(authUser?: SupabaseUser | null) {
   if (!authUser) return 'Candidato';
+  if (emailAdmin(authUser.email)) return 'Admin';
 
   const metadata = authUser.user_metadata || {};
 
@@ -180,7 +191,8 @@ function criarUsuario(base: any = {}) {
 
   const email = base.email || null;
   const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-  const nome = emailAdmin(email) ? 'Admin' : base.nome || 'Candidato';
+  const contaAdmin = emailAdmin(email);
+  const nome = contaAdmin ? 'Admin' : base.nome || 'Candidato';
 
   const user = {
     id: base.id || null,
@@ -218,9 +230,10 @@ function criarUsuario(base: any = {}) {
     mercado_pago_subscription_id: base.mercado_pago_subscription_id || null,
 
     isAdmin:
+      contaAdmin ||
       Boolean(base.isAdmin) ||
       nome.toLowerCase() === 'admin' ||
-      Boolean(adminEmail && email && email.toLowerCase() === adminEmail.toLowerCase()),
+      Boolean(adminEmail && email && normalizarEmail(email) === normalizarEmail(adminEmail)),
 
     lifetimeQuestions: base.lifetimeQuestions || base.rankingQuestions || questoesRespondidas.length || 0,
     lifetimeCorrect: base.lifetimeCorrect || base.acertos || 0,
@@ -314,6 +327,11 @@ function comConquistasPermanentes(user: any) {
   };
 }
 
+type AtualizarPerfilPayload = {
+  nome?: string;
+  avatar_url?: string | null;
+};
+
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -371,7 +389,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
             : nomeValido(savedLocal.nome)
               ? savedLocal.nome
               : 'Candidato',
-        avatar_url: profile?.avatar_url || authUser.user_metadata?.avatar_url || null,
+        avatar_url: profile?.avatar_url || authUser.user_metadata?.avatar_url || savedLocal.avatar_url || null,
         isPremium: emailPremiumManual(authUser.email) || premiumEstaAtivo(profile),
         premium_ate: emailPremiumManual(authUser.email)
           ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
@@ -431,6 +449,40 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   const refreshUser = useCallback(async () => {
     await carregarUsuario();
   }, [carregarUsuario]);
+
+  const atualizarPerfil = useCallback(async ({ nome, avatar_url }: AtualizarPerfilPayload) => {
+    if (!session?.access_token) {
+      throw new Error('Sessao expirada. Entre novamente para atualizar o perfil.');
+    }
+
+    const res = await fetch('/api/auth/profile', {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ nome, avatar_url }),
+    });
+
+    const profile = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(profile?.error || 'Nao foi possivel atualizar o perfil.');
+    }
+
+    setUser((prev: any) => {
+      if (!prev) return prev;
+
+      return criarUsuario({
+        ...prev,
+        nome: profile?.nome || prev.nome,
+        avatar_url: profile?.avatar_url ?? prev.avatar_url ?? null,
+      });
+    });
+
+    return profile;
+  }, [session?.access_token]);
+
   useEffect(() => {
     const accessToken = session?.access_token || '';
 
@@ -684,6 +736,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         session,
         loading,
         refreshUser,
+        atualizarPerfil,
         loginMock,
         logout,
         comprarPremium,

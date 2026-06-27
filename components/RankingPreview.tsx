@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { ChevronDown, Crown, Medal, Trophy } from 'lucide-react';
+import UserAvatar from '@/components/UserAvatar';
 import { useGameState } from '@/context/GameStateContext';
 
 const BASE_RANKING = [
@@ -28,6 +29,7 @@ export default function RankingPreview() {
       rankingScore: user?.rankingScore || 0,
       rankingQuestions: user?.rankingQuestions || 0,
       rankingActiveDays: user?.rankingActiveDays || 0,
+      avatar_url: user?.avatar_url || null,
       sigla: nome.slice(0, 2).toUpperCase(),
       atual: true,
     };
@@ -77,9 +79,12 @@ export default function RankingPreview() {
                 : 'border-slate-200 bg-white dark:border-white/10 dark:bg-slate-950'
             }`}
           >
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-lg font-black text-white shadow-lg dark:bg-emerald-300 dark:text-emerald-950">
-              {item.sigla}
-            </div>
+            <UserAvatar
+              nome={item.nome}
+              avatar={(item as any).avatar_url}
+              className="mx-auto mb-3 h-14 w-14 rounded-full text-lg shadow-lg dark:bg-emerald-300 dark:text-emerald-950"
+              textClassName={(item as any).avatar_url ? 'text-2xl' : ''}
+            />
 
             <div className="mb-2 flex justify-center">
               {index === 0 ? (
@@ -108,9 +113,12 @@ export default function RankingPreview() {
             >
               <div className="flex min-w-0 items-center gap-3">
                 <span className="w-6 shrink-0 text-sm font-black text-slate-500">#{index + 4}</span>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-black text-emerald-700 dark:bg-emerald-300/15 dark:text-emerald-200">
-                  {item.sigla}
-                </span>
+                <UserAvatar
+                  nome={item.nome}
+                  avatar={(item as any).avatar_url}
+                  className="h-7 w-7 rounded-full bg-emerald-100 text-xs text-emerald-700 dark:bg-emerald-300/15 dark:text-emerald-200"
+                  textClassName={(item as any).avatar_url ? 'text-base' : ''}
+                />
                 <span className="truncate font-bold text-slate-800 dark:text-slate-100">{item.nome}</span>
               </div>
               <span className="shrink-0 font-black text-slate-600 dark:text-slate-300">

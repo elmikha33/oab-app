@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Trophy,
 } from 'lucide-react';
+import ProfileEditor from '@/components/ProfileEditor';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useGameState } from '@/context/GameStateContext';
 import { ACHIEVEMENTS, countUnlockedAchievements, isAchievementUnlocked } from '@/lib/achievements';
@@ -23,16 +24,6 @@ const navItems = [
   { href: '/achievements', label: 'Conquistas', icon: Trophy },
   { href: '/ranking', label: 'Ranking', icon: BarChart3 },
 ];
-
-function getInitials(nome?: string | null) {
-  const parts = String(nome || 'Candidato')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!parts.length) return 'OA';
-  return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('');
-}
 
 function formatDate(date?: string | null) {
   if (!date) return null;
@@ -134,38 +125,26 @@ export default function Sidebar() {
       <div className="flex min-h-full w-full flex-col gap-5">
         <Link
           href="/dashboard"
-          className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm transition hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
+          className="group rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm transition hover:border-emerald-300 hover:shadow-emerald-950/10 dark:border-white/10 dark:bg-slate-900"
+          aria-label="OAPlay"
         >
-          <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-lg font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
-              OA
-            </span>
-            <div>
-              <p className="text-xl font-black tracking-tight">OAPlay</p>
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400">treino inteligente OAB</p>
-            </div>
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-3 dark:border-emerald-300/20 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/70">
+            <img
+              src="/oaplay-logo-horizontal-transparent-darktext.png"
+              alt="OAPlay"
+              className="h-14 w-auto object-contain transition group-hover:scale-[1.02] dark:hidden"
+            />
+            <img
+              src="/oaplay-logo-horizontal-transparent-white.png"
+              alt="OAPlay"
+              className="hidden h-14 w-auto object-contain transition group-hover:scale-[1.02] dark:block"
+            />
           </div>
         </Link>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">
-              {getInitials(user?.nome)}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-black text-slate-950 dark:text-white">
-                {user?.nome || 'Candidato'}
-              </p>
-              <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                {user?.email || 'Usuário OAPlay'}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <AchievementMiniatures user={user} />
-          </div>
-        </div>
+        <ProfileEditor>
+          <AchievementMiniatures user={user} />
+        </ProfileEditor>
 
         <nav className="space-y-2">
           {navItems.map((item) => {

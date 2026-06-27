@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowLeft, Crown, Medal, Trophy } from 'lucide-react';
+import UserAvatar from '@/components/UserAvatar';
 import { useGameState } from '@/context/GameStateContext';
 
 type RankingItem = {
@@ -9,6 +10,7 @@ type RankingItem = {
   rankingScore: number;
   rankingQuestions: number;
   rankingActiveDays: number;
+  avatar_url?: string | null;
   atual?: boolean;
 };
 
@@ -45,6 +47,7 @@ export default function RankingPage() {
       rankingScore: user?.rankingScore || 0,
       rankingQuestions: user?.rankingQuestions || 0,
       rankingActiveDays: user?.rankingActiveDays || 0,
+      avatar_url: user?.avatar_url || null,
       atual: true,
     },
   ].sort((a, b) => {
@@ -93,6 +96,13 @@ export default function RankingPage() {
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-white dark:border-white/10 dark:bg-slate-900">
                     {icon(index)}
                   </div>
+
+                  <UserAvatar
+                    nome={item.nome}
+                    avatar={item.avatar_url}
+                    className="h-11 w-11"
+                    textClassName={item.avatar_url ? 'text-xl' : ''}
+                  />
 
                   <div className="min-w-0">
                     <p className="truncate text-base font-black">

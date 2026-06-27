@@ -16,6 +16,7 @@ import {
   Trophy,
   X,
 } from 'lucide-react';
+import ProfileEditor from '@/components/ProfileEditor';
 import { useGameState } from '@/context/GameStateContext';
 
 const navItems = [
@@ -27,16 +28,6 @@ const navItems = [
 ];
 
 const THEME_KEY = 'oaplay-theme';
-
-function getInitials(nome?: string | null) {
-  const parts = String(nome || 'Candidato')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!parts.length) return 'OA';
-  return parts.slice(0, 2).map((part) => part[0]?.toUpperCase()).join('');
-}
 
 function formatDate(date?: string | null) {
   if (!date) return null;
@@ -98,11 +89,17 @@ export default function MobileNav() {
             <Menu className="h-5 w-5" strokeWidth={2.8} />
           </button>
 
-          <Link href="/dashboard" className="mx-auto flex items-center gap-2" aria-label="OAPlay">
-            <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-emerald-600 text-sm font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
-              OA
-            </span>
-            <span className="text-lg font-black tracking-tight">OAPlay</span>
+          <Link href="/dashboard" className="mx-auto flex items-center justify-center" aria-label="OAPlay">
+            <img
+              src="/oaplay-logo-horizontal-transparent-darktext.png"
+              alt="OAPlay"
+              className="h-9 w-auto object-contain dark:hidden"
+            />
+            <img
+              src="/oaplay-logo-horizontal-transparent-white.png"
+              alt="OAPlay"
+              className="hidden h-9 w-auto object-contain dark:block"
+            />
           </Link>
 
           <button
@@ -132,14 +129,21 @@ export default function MobileNav() {
 
           <aside className="relative flex h-full w-[86vw] max-w-[340px] flex-col border-r border-slate-200 bg-slate-50 p-4 text-slate-950 shadow-2xl dark:border-white/10 dark:bg-slate-950 dark:text-white">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-sm font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
-                  OA
-                </span>
-                <div>
-                  <p className="text-lg font-black">OAPlay</p>
-                  <p className="text-xs font-bold text-slate-500 dark:text-slate-400">treino inteligente OAB</p>
-                </div>
+              <Link
+                href="/dashboard"
+                className="rounded-2xl border border-emerald-200 bg-white px-3 py-2 dark:border-emerald-300/20 dark:bg-slate-900"
+                aria-label="OAPlay"
+              >
+                <img
+                  src="/oaplay-logo-horizontal-transparent-darktext.png"
+                  alt="OAPlay"
+                  className="h-10 w-auto object-contain dark:hidden"
+                />
+                <img
+                  src="/oaplay-logo-horizontal-transparent-white.png"
+                  alt="OAPlay"
+                  className="hidden h-10 w-auto object-contain dark:block"
+                />
               </Link>
 
               <button
@@ -152,20 +156,8 @@ export default function MobileNav() {
               </button>
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-slate-900">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950">
-                  {getInitials(user?.nome)}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-black">{user?.nome || 'Candidato'}</p>
-                  <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-                    {user?.email || 'Usuário OAPlay'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
+            <ProfileEditor>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
                 <div className="flex items-center gap-2">
                   <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
                   <p className="text-sm font-black">{user?.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
@@ -178,7 +170,7 @@ export default function MobileNav() {
                   </Link>
                 )}
               </div>
-            </div>
+            </ProfileEditor>
 
             <nav className="mt-4 min-h-0 flex-1 space-y-1 overflow-y-auto">
               {navItems.map((item) => {
