@@ -130,8 +130,8 @@ export default function Sidebar() {
   const { user, logout } = useGameState() || {};
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[300px] border-r border-slate-200 bg-slate-50 px-4 py-5 text-slate-950 md:flex dark:border-white/10 dark:bg-slate-950 dark:text-white">
-      <div className="flex min-h-0 w-full flex-col gap-4">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[330px] overflow-y-auto border-r border-slate-200 bg-slate-50 px-5 py-6 text-slate-950 md:flex dark:border-white/10 dark:bg-slate-950 dark:text-white">
+      <div className="flex min-h-full w-full flex-col gap-5">
         <Link
           href="/dashboard"
           className="rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm transition hover:border-emerald-300 dark:border-white/10 dark:bg-slate-900"
@@ -167,7 +167,7 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1">
+        <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -189,7 +189,7 @@ export default function Sidebar() {
           })}
         </nav>
 
-        <div className="space-y-3">
+        <div className="mt-auto space-y-3 pt-1">
           <PlanStatus user={user} />
           <ThemeToggle />
 

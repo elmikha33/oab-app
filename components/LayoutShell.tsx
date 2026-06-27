@@ -32,7 +32,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
         <MobileNav />
       </div>
 
-      <main className="min-h-screen px-4 pb-8 pt-16 sm:px-5 md:ml-[300px] md:px-8 md:pb-10 md:pt-8">
+      <main className="min-h-screen px-4 pb-8 pt-16 sm:px-5 md:ml-[330px] md:px-8 md:pb-10 md:pt-8">
         {children}
       </main>
     </div>
