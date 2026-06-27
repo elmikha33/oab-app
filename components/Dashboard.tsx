@@ -73,11 +73,6 @@ export default function Dashboard() {
     Number(user?.lifetimeQuestions || 0),
     countUnique(user?.questoesRespondidas)
   );
-  const reviewCount = Math.max(
-    Number(user?.lifetimeReview || 0),
-    countUnique(user?.revisaoIds),
-    countUnique(user?.questoesErradas)
-  );
 
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -156,14 +151,16 @@ export default function Dashboard() {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">em revisão</p>
-          <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{reviewCount}</p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">plano atual</p>
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
             {user?.isPremium ? 'Premium' : 'Free'}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">foco do dia</p>
+          <p className="mt-2 text-base font-black leading-relaxed text-slate-950 dark:text-white">
+            Uma rodada com atenção já deixa o treino mais forte.
           </p>
         </div>
       </section>

@@ -185,7 +185,7 @@ export default function ReviewPage() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
-              LegⅠ
+              OAPlay
             </p>
             <h1 className="mt-2 text-3xl font-black md:text-4xl">
               Revisão Inteligente

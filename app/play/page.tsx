@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowUp } from 'lucide-react';
 import QuestoesList from '@/components/QuestoesList';
-import ThemeToggle from '@/components/ThemeToggle';
 
 const SHOW_OFFSET = 300;
 
@@ -33,7 +32,7 @@ export default function PlayPage() {
   return (
     <main className="relative min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
       <div className="sticky top-0 z-30 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/90">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
           <Link
             href="/dashboard"
             className="inline-flex items-center gap-2 rounded-full border border-amber-400 bg-amber-100 px-3 py-2 text-sm font-black text-amber-950 shadow-sm transition hover:-translate-y-0.5 hover:bg-amber-200 dark:border-amber-300/35 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15"
@@ -41,8 +40,6 @@ export default function PlayPage() {
             <ArrowLeft className="h-4 w-4" strokeWidth={3} />
             Voltar para dashboard
           </Link>
-
-          <ThemeToggle />
         </div>
       </div>
 

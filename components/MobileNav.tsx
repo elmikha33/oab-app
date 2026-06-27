@@ -168,7 +168,7 @@ export default function MobileNav() {
               <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
                 <div className="flex items-center gap-2">
                   <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
-                  <p className="text-sm font-black">{user?.isPremium ? 'Premium ativo' : 'Plano Free'}</p>
+                  <p className="text-sm font-black">{user?.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
                 </div>
                 {user?.isPremium && premiumUntil ? (
                   <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">Até {premiumUntil}</p>

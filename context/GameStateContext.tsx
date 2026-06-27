@@ -472,7 +472,14 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     localStorage.removeItem('user-game-data');
     setUser(null);
     setSession(null);
-    await supabase.auth.signOut();
+
+    try {
+      await supabase.auth.signOut();
+    } finally {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth';
+      }
+    }
   }, []);
 
   const comprarPremium = useCallback(() => {

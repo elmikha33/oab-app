@@ -1,151 +1,31 @@
 'use client';
 
 import Link from 'next/link';
-import {
-  ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Crown,
-  Flame,
-  Lock,
-  Medal,
-  RotateCcw,
-  ShieldCheck,
-  Star,
-  Target,
-  Trophy,
-} from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, Crown, Lock, Trophy } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
-
-const ACHIEVEMENTS = [
-  {
-    id: 'first_question',
-    emoji: '🎯',
-    icon: Target,
-    title: 'Primeira questão',
-    description: 'Responda sua primeira questão no OAPlay.',
-    requirement: 'Responder 1 questão',
-  },
-  {
-    id: 'ten_correct',
-    emoji: '⚔️',
-    icon: CheckCircle2,
-    title: 'Sequência inicial',
-    description: 'Acerte 10 questões no total.',
-    requirement: '10 acertos',
-  },
-  {
-    id: 'fifty_correct',
-    emoji: '🔥',
-    icon: Flame,
-    title: 'Ritmo de prova',
-    description: 'Acerte 50 questões no total.',
-    requirement: '50 acertos',
-  },
-  {
-    id: 'hundred_correct',
-    emoji: '🏆',
-    icon: Trophy,
-    title: 'Maratonista OAB',
-    description: 'Acerte 100 questões no total.',
-    requirement: '100 acertos',
-  },
-  {
-    id: 'reviewed_33',
-    emoji: '🧠',
-    icon: RotateCcw,
-    title: 'Revisou 33 Questões',
-    description: 'Revise 33 questões no modo revisão.',
-    requirement: '33 questões revisadas',
-  },
-  {
-    id: 'twenty_five_review',
-    emoji: '🛡️',
-    icon: ShieldCheck,
-    title: 'Caçador de erros',
-    description: 'Acumule 25 erros para revisar.',
-    requirement: '25 erros em revisão',
-  },
-  {
-    id: 'seven_days',
-    emoji: '📅',
-    icon: Flame,
-    title: 'Constância semanal',
-    description: 'Estude em 7 dias ativos.',
-    requirement: '7 dias ativos',
-  },
-  {
-    id: 'premium',
-    emoji: '👑',
-    icon: Crown,
-    title: 'Aluno Premium',
-    description: 'Desbloqueie o plano Premium.',
-    requirement: 'Conta Premium ativa',
-  },
-];
-
-function totalRespondidas(user: any) {
-  return Math.max(
-    Number(user?.lifetimeQuestions || 0),
-    Array.isArray(user?.questoesRespondidas) ? user.questoesRespondidas.length : 0
-  );
-}
-
-function totalRevisao(user: any) {
-  const revisao = Array.isArray(user?.revisaoIds) ? user.revisaoIds.length : 0;
-  const erradas = Array.isArray(user?.questoesErradas) ? user.questoesErradas.length : 0;
-
-  return revisao + erradas;
-}
-
-function isUnlocked(id: string, user: any) {
-  const acertos = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
-  const respondidas = totalRespondidas(user);
-  const revisao = Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user));
-  const diasAtivos = Math.max(Number(user?.lifetimeActiveDays || 0), Number(user?.rankingActiveDays || 0), Number(user?.streak || 0));
-
-  switch (id) {
-    case 'first_question':
-      return respondidas >= 1 || acertos >= 1;
-    case 'ten_correct':
-      return acertos >= 10;
-    case 'fifty_correct':
-      return acertos >= 50;
-    case 'hundred_correct':
-      return acertos >= 100;
-    case 'reviewed_33':
-      return Number(user?.lifetimeReviewed || 0) >= 33;
-    case 'twenty_five_review':
-      return revisao >= 25;
-    case 'seven_days':
-      return diasAtivos >= 7;
-    case 'premium':
-      return Boolean(user?.isPremium);
-    default:
-      return false;
-  }
-}
+import { ACHIEVEMENTS, countUnlockedAchievements, isAchievementUnlocked } from '@/lib/achievements';
 
 export default function AchievementsPage() {
   const { user } = useGameState() || {};
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-white p-6 text-slate-950 dark:bg-white dark:bg-slate-950 dark:text-slate-950 dark:text-white">
+      <main className="min-h-screen bg-white p-6 text-slate-950 dark:bg-slate-950 dark:text-white">
         Carregando conquistas...
       </main>
     );
   }
 
-  const unlockedCount = ACHIEVEMENTS.filter((item) => isUnlocked(item.id, user)).length;
+  const unlockedCount = countUnlockedAchievements(user);
   const total = ACHIEVEMENTS.length;
+  const totalCorrect = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-8 text-slate-950 md:px-10 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-slate-950 dark:text-white">
+    <main className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-8 text-slate-950 md:px-10 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950 dark:text-white">
       <section className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-600 dark:text-emerald-300">
               Coleção OAPlay
             </p>
 
@@ -154,12 +34,12 @@ export default function AchievementsPage() {
             </h1>
 
             <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-base">
-              Sua coleção cresce no seu ritmo. Cada tentativa conta, cada revisão fortalece e cada badge marca uma etapa da sua evolução.
+              Sua coleção cresce no seu ritmo. Cada tentativa conta, cada retorno fortalece e cada badge marca uma etapa do treino.
             </p>
           </div>
 
-          <div className="rounded-3xl border border-emerald-300/25 bg-emerald-300/10 px-5 py-4">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
+          <div className="rounded-3xl border border-emerald-200 bg-white px-5 py-4 shadow-sm dark:border-emerald-300/25 dark:bg-emerald-300/10">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-200">
               Coleção liberada
             </p>
             <p className="mt-1 text-3xl font-black text-slate-950 dark:text-white">
@@ -175,20 +55,20 @@ export default function AchievementsPage() {
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">cada questão conta</p>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
-            <CheckCircle2 className="h-6 w-6 text-emerald-300" />
-            <p className="mt-4 text-2xl font-black">{Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0))}</p>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+            <CheckCircle2 className="h-6 w-6 text-emerald-500 dark:text-emerald-300" />
+            <p className="mt-4 text-2xl font-black">{totalCorrect}</p>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">acertos</p>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
-            <RotateCcw className="h-6 w-6 text-amber-300" />
-            <p className="mt-4 text-2xl font-black">{Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user))}</p>
-            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">em revisão</p>
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+            <Trophy className="h-6 w-6 text-emerald-500 dark:text-emerald-300" />
+            <p className="mt-4 text-2xl font-black">{unlockedCount}/{total}</p>
+            <p className="text-sm font-bold text-slate-600 dark:text-slate-400">coleção liberada</p>
           </div>
 
-          <div className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-5">
-            <Crown className="h-6 w-6 text-amber-300" />
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
+            <Crown className="h-6 w-6 text-amber-500 dark:text-amber-300" />
             <p className="mt-4 text-2xl font-black">{user?.isPremium ? 'Premium' : 'Free'}</p>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">plano atual</p>
           </div>
@@ -196,7 +76,7 @@ export default function AchievementsPage() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {ACHIEVEMENTS.map((achievement) => {
-            const unlocked = isUnlocked(achievement.id, user);
+            const unlocked = isAchievementUnlocked(achievement.id, user);
             const Icon = achievement.icon;
 
             return (
@@ -213,14 +93,14 @@ export default function AchievementsPage() {
                     className={
                       unlocked
                         ? 'flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-300/35 bg-emerald-300/10 text-3xl'
-                        : 'flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-100 text-slate-500 dark:bg-slate-950 dark:text-slate-500 dark:text-slate-500'
+                        : 'flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 dark:border-white/10 dark:bg-slate-950 dark:text-slate-500'
                     }
                   >
                     {unlocked ? achievement.emoji : <Lock className="h-7 w-7" />}
                   </div>
 
                   {unlocked && (
-                    <div className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-200">
+                    <div className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-700 dark:text-emerald-200">
                       Liberada
                     </div>
                   )}
@@ -229,8 +109,8 @@ export default function AchievementsPage() {
                 <Icon
                   className={
                     unlocked
-                      ? 'mt-5 h-5 w-5 text-emerald-300'
-                      : 'mt-5 h-5 w-5 text-slate-600 dark:text-slate-600'
+                      ? 'mt-5 h-5 w-5 text-emerald-600 dark:text-emerald-300'
+                      : 'mt-5 h-5 w-5 text-slate-600'
                   }
                 />
 

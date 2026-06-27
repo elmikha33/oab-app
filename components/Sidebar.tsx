@@ -7,14 +7,14 @@ import {
   BookOpen,
   Crown,
   LayoutDashboard,
+  Lock,
   LogOut,
   RotateCcw,
-  ShieldCheck,
-  Sparkles,
   Trophy,
 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useGameState } from '@/context/GameStateContext';
+import { ACHIEVEMENTS, countUnlockedAchievements, isAchievementUnlocked } from '@/lib/achievements';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -47,38 +47,47 @@ function formatDate(date?: string | null) {
 }
 
 function AchievementMiniatures({ user }: { user: any }) {
-  const totalCorrect = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
-  const activeDays = Math.max(
-    Number(user?.lifetimeActiveDays || 0),
-    Number(user?.rankingActiveDays || 0),
-    Number(user?.streak || 0)
-  );
-  const reviewed = Math.max(Number(user?.lifetimeReviewed || 0), Number(user?.lifetimeReview || 0));
-
-  const badges = [
-    { label: 'Questões', value: totalCorrect, icon: ShieldCheck },
-    { label: 'Constância', value: activeDays, icon: Sparkles },
-    { label: 'Revisão', value: reviewed, icon: RotateCcw },
-  ];
+  const unlockedCount = countUnlockedAchievements(user);
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {badges.map((badge) => {
-        const Icon = badge.icon;
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          Coleção
+        </p>
+        <Link
+          href="/achievements"
+          className="rounded-full border border-emerald-200 bg-white px-2 py-0.5 text-[10px] font-black text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-200"
+        >
+          {unlockedCount}/{ACHIEVEMENTS.length}
+        </Link>
+      </div>
 
-        return (
-          <div
-            key={badge.label}
-            className="rounded-2xl border border-slate-200 bg-white p-3 text-center shadow-sm dark:border-white/10 dark:bg-slate-950"
-          >
-            <Icon className="mx-auto h-4 w-4 text-emerald-600 dark:text-emerald-300" strokeWidth={2.6} />
-            <p className="mt-2 text-base font-black text-slate-950 dark:text-white">{badge.value}</p>
-            <p className="mt-0.5 truncate text-[10px] font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {badge.label}
-            </p>
-          </div>
-        );
-      })}
+      <div className="grid grid-cols-4 gap-2">
+        {ACHIEVEMENTS.map((achievement) => {
+          const unlocked = isAchievementUnlocked(achievement.id, user);
+
+          return (
+            <Link
+              key={achievement.id}
+              href="/achievements"
+              title={achievement.title}
+              aria-label={achievement.title}
+              className={
+                unlocked
+                  ? 'flex h-10 items-center justify-center rounded-xl border border-emerald-200 bg-white text-xl shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 dark:border-emerald-300/30 dark:bg-emerald-300/10'
+                  : 'flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:border-slate-300 dark:border-white/10 dark:bg-slate-900 dark:text-slate-600'
+              }
+            >
+              {unlocked ? (
+                <span aria-hidden="true">{achievement.emoji}</span>
+              ) : (
+                <Lock className="h-4 w-4" strokeWidth={2.7} />
+              )}
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -91,7 +100,7 @@ function PlanStatus({ user }: { user: any }) {
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100">
         <div className="flex items-center gap-2">
           <Crown className="h-5 w-5 text-emerald-700 dark:text-emerald-200" strokeWidth={2.8} />
-          <p className="text-sm font-black">Premium ativo</p>
+          <p className="text-sm font-black">Plano Premium</p>
         </div>
         {premiumUntil && (
           <p className="mt-2 text-xs font-bold text-emerald-800 dark:text-emerald-200">
