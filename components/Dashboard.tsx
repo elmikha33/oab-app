@@ -144,7 +144,7 @@ export default function Dashboard() {
                     <p className="text-sm font-bold text-slate-500 dark:text-slate-400">dias ativos</p>
                     <p className="mt-1 text-3xl font-black text-slate-950 dark:text-white">{activeDays}</p>
                   </div>
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 dark:bg-orange-300/10 dark:text-orange-200">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-50 text-orange-600">
                     <Flame className="h-6 w-6" strokeWidth={2.8} />
                   </span>
                 </div>
