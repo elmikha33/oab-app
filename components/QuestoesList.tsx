@@ -13,6 +13,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
+import useSoundEffects from '@/hooks/useSoundEffects';
 
 const LIMIT_QUESTOES = 10000;
 const FREE_DAILY_LIMIT = 5;
@@ -911,6 +912,7 @@ export default function QuestoesList() {
   const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
 
   const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
+  const { playSuccess, playError } = useSoundEffects();
 
   const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
     ? user?.freeDailyAnswers?.count || 0
@@ -1071,6 +1073,8 @@ export default function QuestoesList() {
     const correct = normalizarGabarito(questao.gabarito);
 
     if (correct !== null && alternativaIndex === correct) {
+      playSuccess();
+
       if (estaRevisandoQuestao) {
         setReviewSuccessPending((current) => ({ ...current, [key]: true }));
         return;
@@ -1078,6 +1082,8 @@ export default function QuestoesList() {
 
       registrarAcerto?.(questao.id);
     } else {
+      playError();
+
       setReviewSuccessPending((current) => {
         const next = { ...current };
         delete next[key];

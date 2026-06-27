@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, CheckCircle2, Flame, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
 import RankingPreview from '@/components/RankingPreview';
+import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useGameState } from '@/context/GameStateContext';
 import { ACHIEVEMENTS, isAchievementUnlocked } from '@/lib/achievements';
@@ -94,7 +95,8 @@ export default function Dashboard() {
 
   return (
     <main className="mx-auto flex max-w-7xl flex-col gap-6">
-      <div className="hidden justify-end md:flex">
+      <div className="hidden justify-end gap-2 md:flex">
+        <SoundToggle compact className="rounded-full" />
         <ThemeToggle compact className="rounded-full" />
       </div>
 

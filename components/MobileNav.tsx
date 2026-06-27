@@ -16,7 +16,9 @@ import {
   Trophy,
   X,
 } from 'lucide-react';
+import AchievementMiniatures from '@/components/AchievementMiniatures';
 import ProfileEditor from '@/components/ProfileEditor';
+import SoundToggle from '@/components/SoundToggle';
 import { useGameState } from '@/context/GameStateContext';
 import useSyncedTheme from '@/hooks/useSyncedTheme';
 
@@ -63,7 +65,7 @@ export default function MobileNav() {
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/95 text-slate-950 shadow-sm backdrop-blur-xl md:hidden dark:border-white/10 dark:bg-slate-950/95 dark:text-white">
-        <div className="grid h-16 grid-cols-[3.25rem_1fr_3.25rem] items-center px-3">
+        <div className="grid h-16 grid-cols-[3.25rem_1fr_6.25rem] items-center px-3">
           <button
             type="button"
             onClick={() => setOpen(true)}
@@ -86,19 +88,22 @@ export default function MobileNav() {
             />
           </Link>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="ml-auto flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 transition active:scale-95 dark:border-white/10 dark:bg-slate-900 dark:text-white"
-            aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
-            title={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
-          >
-            {darkMode ? (
-              <Sun className="h-5 w-5" strokeWidth={2.8} />
-            ) : (
-              <Moon className="h-5 w-5" strokeWidth={2.8} />
-            )}
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            <SoundToggle compact className="h-11 w-11 rounded-2xl bg-slate-50 shadow-none active:scale-95 dark:bg-slate-900" />
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 transition active:scale-95 dark:border-white/10 dark:bg-slate-900 dark:text-white"
+              aria-label={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              title={darkMode ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            >
+              {darkMode ? (
+                <Sun className="h-5 w-5" strokeWidth={2.8} />
+              ) : (
+                <Moon className="h-5 w-5" strokeWidth={2.8} />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -140,43 +145,49 @@ export default function MobileNav() {
               </button>
             </div>
 
-            <ProfileEditor>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
-                <div className="flex items-center gap-2">
-                  <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
-                  <p className="text-sm font-black">{user?.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
+            <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+              <ProfileEditor>
+                <div className="space-y-3">
+                  <AchievementMiniatures user={user} />
+
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
+                    <div className="flex items-center gap-2">
+                      <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
+                      <p className="text-sm font-black">{user?.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
+                    </div>
+                    {user?.isPremium && premiumUntil ? (
+                      <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">Até {premiumUntil}</p>
+                    ) : (
+                      <Link href="/premium" className="mt-2 inline-flex text-xs font-black text-emerald-700 dark:text-emerald-300">
+                        Conhecer Premium
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                {user?.isPremium && premiumUntil ? (
-                  <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">Até {premiumUntil}</p>
-                ) : (
-                  <Link href="/premium" className="mt-2 inline-flex text-xs font-black text-emerald-700 dark:text-emerald-300">
-                    Conhecer Premium
-                  </Link>
-                )}
-              </div>
-            </ProfileEditor>
+              </ProfileEditor>
 
-            <nav className="mt-4 min-h-0 flex-1 space-y-1 overflow-y-auto">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              <nav className="mt-4 space-y-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={
-                      active
-                        ? 'flex min-h-12 items-center gap-3 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white dark:bg-emerald-300 dark:text-emerald-950'
-                        : 'flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-white hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-emerald-200'
-                    }
-                  >
-                    <Icon className="h-5 w-5" strokeWidth={2.6} />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={
+                        active
+                          ? 'flex min-h-12 items-center gap-3 rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-black text-white dark:bg-emerald-300 dark:text-emerald-950'
+                          : 'flex min-h-12 items-center gap-3 rounded-2xl px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-white hover:text-emerald-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-emerald-200'
+                      }
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={2.6} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
 
             <button
               type="button"

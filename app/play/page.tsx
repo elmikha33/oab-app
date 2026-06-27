@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowUp } from 'lucide-react';
+import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
 import QuestoesList from '@/components/QuestoesList';
 
@@ -42,7 +43,8 @@ export default function PlayPage() {
             Voltar para dashboard
           </Link>
 
-          <div className="hidden md:flex">
+          <div className="hidden gap-2 md:flex">
+            <SoundToggle compact className="rounded-full" />
             <ThemeToggle compact className="rounded-full" />
           </div>
         </div>
