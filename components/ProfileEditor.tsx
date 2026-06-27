@@ -15,6 +15,11 @@ function cleanDisplayName(value?: string | null) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
+function getPrivateAccountLabel(user: any) {
+  if (user?.isAdmin) return 'Conta admin privada';
+  return user?.email || 'Usuário OAPlay';
+}
+
 export default function ProfileEditor({ children }: ProfileEditorProps) {
   const { user, atualizarPerfil } = useGameState() || {};
   const [editing, setEditing] = useState(false);
@@ -89,7 +94,7 @@ export default function ProfileEditor({ children }: ProfileEditorProps) {
             {user?.nome || 'Candidato'}
           </p>
           <p className="truncate text-xs font-semibold text-slate-500 dark:text-slate-400">
-            {user?.email || 'Usuário OAPlay'}
+            {getPrivateAccountLabel(user)}
           </p>
         </div>
 
