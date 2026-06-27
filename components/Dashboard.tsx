@@ -24,11 +24,6 @@ function getFirstName(nome?: string | null) {
   return clean.split(/\s+/)[0] || 'Candidato';
 }
 
-function countUnique(values: unknown) {
-  if (!Array.isArray(values)) return 0;
-  return new Set(values.map(String)).size;
-}
-
 function getChallengeAction(achievementId?: string) {
   switch (achievementId) {
     case 'reviewed_33':
@@ -127,10 +122,6 @@ export default function Dashboard() {
   );
 
   const correctAnswers = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
-  const answeredQuestions = Math.max(
-    Number(user?.lifetimeQuestions || 0),
-    countUnique(user?.questoesRespondidas)
-  );
 
   const suggestedAchievement = ACHIEVEMENTS.find((achievement) => !isAchievementUnlocked(achievement.id, user));
   const challengeAction = getChallengeAction(suggestedAchievement?.id);
@@ -224,11 +215,16 @@ export default function Dashboard() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">treino acumulado</p>
-          <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{answeredQuestions}</p>
-          <p className="mt-2 text-xs font-black uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-            questões encaradas
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">próximo passo</p>
+          <p className="mt-2 text-xl font-black leading-tight text-slate-950 dark:text-white">
+            Uma rodada bem feita vale mais que pressa.
           </p>
+          <Link
+            href="/play"
+            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+          >
+            Continuar treino
+          </Link>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
