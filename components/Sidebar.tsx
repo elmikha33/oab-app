@@ -128,17 +128,25 @@ export default function Sidebar() {
           className="group rounded-3xl border border-emerald-200 bg-white p-4 shadow-sm transition hover:border-emerald-300 hover:shadow-emerald-950/10 dark:border-white/10 dark:bg-slate-900"
           aria-label="OAPlay"
         >
-          <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-3 dark:border-emerald-300/20 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/70">
-            <img
-              src="/oaplay-logo-horizontal-transparent-darktext.png"
-              alt="OAPlay"
-              className="h-14 w-auto object-contain transition group-hover:scale-[1.02] dark:hidden"
-            />
-            <img
-              src="/oaplay-logo-horizontal-transparent-white.png"
-              alt="OAPlay"
-              className="hidden h-14 w-auto object-contain transition group-hover:scale-[1.02] dark:block"
-            />
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4 py-4 dark:border-emerald-300/20 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/70">
+            <div className="flex items-center gap-3">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 shadow-sm shadow-emerald-950/15 ring-1 ring-emerald-300/30 dark:bg-slate-900 dark:ring-emerald-300/20">
+                <img
+                  src="/oaplay-icon-512.png"
+                  alt=""
+                  className="h-full w-full object-cover transition group-hover:scale-105"
+                />
+              </span>
+
+              <div className="min-w-0">
+                <p className="text-2xl font-black leading-none tracking-normal text-slate-950 dark:text-white">
+                  OA<span className="text-emerald-600 dark:text-emerald-300">Play</span>
+                </p>
+                <p className="mt-2 text-[11px] font-black uppercase leading-tight tracking-[0.12em] text-slate-600 dark:text-slate-300">
+                  Sua aprovação expressa
+                </p>
+              </div>
+            </div>
           </div>
         </Link>
 
