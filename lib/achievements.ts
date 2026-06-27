@@ -77,6 +77,44 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
   },
 ];
 
+const LEGACY_ACHIEVEMENT_IDS: Record<string, string[]> = {
+  first_question: ['badge_first', 'firstQuestion'],
+  ten_correct: ['badge_10_correct', 'tenCorrect'],
+  fifty_correct: ['badge_50_correct', 'fiftyCorrect'],
+  hundred_correct: ['badge_100_correct', 'hundredCorrect'],
+  reviewed_33: ['badge_reviewed_33', 'reviewed33'],
+  twenty_five_review: ['badge_25_review', 'twentyFiveReview'],
+  seven_days: ['badge_7_days', 'sevenDays'],
+  premium: ['badge_premium'],
+};
+
+function toCanonicalAchievementId(id: unknown) {
+  const value = String(id ?? '').trim();
+  if (!value) return '';
+
+  if (ACHIEVEMENTS.some((achievement) => achievement.id === value)) {
+    return value;
+  }
+
+  const canonical = Object.entries(LEGACY_ACHIEVEMENT_IDS).find(([, legacyIds]) =>
+    legacyIds.includes(value)
+  )?.[0];
+
+  return canonical || value;
+}
+
+export function normalizeAchievementIds(ids: unknown) {
+  if (!Array.isArray(ids)) return [];
+
+  return [
+    ...new Set(
+      ids
+        .map(toCanonicalAchievementId)
+        .filter(Boolean)
+    ),
+  ];
+}
+
 function totalRespondidas(user: any) {
   return Math.max(
     Number(user?.lifetimeQuestions || 0),
@@ -92,6 +130,9 @@ function totalRevisao(user: any) {
 }
 
 export function isAchievementUnlocked(id: string, user: any) {
+  const persisted = normalizeAchievementIds(user?.conquistasDesbloqueadas);
+  if (persisted.includes(id)) return true;
+
   const acertos = Math.max(Number(user?.lifetimeCorrect || 0), Number(user?.acertos || 0));
   const respondidas = totalRespondidas(user);
   const revisao = Math.max(Number(user?.lifetimeReview || 0), totalRevisao(user));
@@ -123,6 +164,16 @@ export function isAchievementUnlocked(id: string, user: any) {
   }
 }
 
+export function getUnlockedAchievementIds(user: any) {
+  const persisted = normalizeAchievementIds(user?.conquistasDesbloqueadas);
+  const derived = ACHIEVEMENTS
+    .filter((achievement) => isAchievementUnlocked(achievement.id, user))
+    .map((achievement) => achievement.id);
+
+  return [...new Set([...persisted, ...derived])];
+}
+
 export function countUnlockedAchievements(user: any) {
-  return ACHIEVEMENTS.filter((achievement) => isAchievementUnlocked(achievement.id, user)).length;
+  const unlockedIds = getUnlockedAchievementIds(user);
+  return ACHIEVEMENTS.filter((achievement) => unlockedIds.includes(achievement.id)).length;
 }

@@ -3,10 +3,16 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { getUnlockedAchievementIds, normalizeAchievementIds } from '@/lib/achievements';
 
 const GameStateContext = createContext<any>(null);
 
-const MANUAL_PREMIUM_EMAILS = ['mi.psy.trance@gmail.com'];
+const OWNER_ADMIN_EMAIL = 'mi.psy.trance@gmail.com';
+const MANUAL_PREMIUM_EMAILS = [OWNER_ADMIN_EMAIL];
+
+function emailAdmin(email?: string | null) {
+  return String(email || '').toLowerCase() === OWNER_ADMIN_EMAIL;
+}
 
 function emailPremiumManual(email?: string | null) {
   return MANUAL_PREMIUM_EMAILS.includes(String(email || '').toLowerCase());
@@ -167,7 +173,6 @@ function nomeValido(nome?: string | null) {
 
 function criarUsuario(base: any = {}) {
   const today = new Date().toISOString().split('T')[0];
-  const nome = base.nome || 'Candidato';
 
   const questoesRespondidas = [
     ...new Set([...(base.questoesRespondidas || []), ...(base.questoesErradas || [])].map(String)),
@@ -175,8 +180,9 @@ function criarUsuario(base: any = {}) {
 
   const email = base.email || null;
   const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+  const nome = emailAdmin(email) ? 'Admin' : base.nome || 'Candidato';
 
-  return {
+  const user = {
     id: base.id || null,
     email,
     nome,
@@ -203,7 +209,7 @@ function criarUsuario(base: any = {}) {
         ? base.freeDailyAnswers
         : { date: today, count: 0 },
 
-    conquistasDesbloqueadas: base.conquistasDesbloqueadas || [],
+    conquistasDesbloqueadas: normalizeAchievementIds(base.conquistasDesbloqueadas),
 
     isPremium: Boolean(base.isPremium),
     premium_ate: base.premium_ate || null,
@@ -236,6 +242,11 @@ function criarUsuario(base: any = {}) {
       ? base.rankingAnsweredIds.map(String)
       : [],
     rankingMilestones: Array.isArray(base.rankingMilestones) ? base.rankingMilestones : [],
+  };
+
+  return {
+    ...user,
+    conquistasDesbloqueadas: getUnlockedAchievementIds(user),
   };
 }
 
@@ -294,6 +305,13 @@ async function buscarProfile(accessToken: string) {
   }
 
   return res.json();
+}
+
+function comConquistasPermanentes(user: any) {
+  return {
+    ...user,
+    conquistasDesbloqueadas: getUnlockedAchievementIds(user),
+  };
 }
 
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
@@ -489,12 +507,12 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const premiumAte = new Date();
       premiumAte.setMonth(premiumAte.getMonth() + 3);
 
-      return {
+      return comConquistasPermanentes({
         ...prev,
         isPremium: true,
         premium_ate: premiumAte.toISOString(),
         plano: 'premium_trimestral',
-      };
+      });
     });
   }, []);
 
@@ -517,14 +535,6 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const jaRespondida = ids.some((id) => respondidasAtuais.includes(id));
       const acertos = jaRespondida ? prev.acertos || 0 : (prev.acertos || 0) + 1;
 
-      const conquistasDesbloqueadas = [
-        ...new Set([
-          ...(prev.conquistasDesbloqueadas || []),
-          'badge_first',
-          ...(acertos >= 10 ? ['badge_10_correct'] : []),
-        ]),
-      ];
-
       const comRanking = aplicarRanking(prev, questaoId);
       const respostasQuestoes = {
         ...(prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object'
@@ -533,7 +543,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ...lerRespostasQuestoesLocal(),
       };
 
-      return {
+      const next = {
         ...comRanking,
         acertos,
         respostasQuestoes,
@@ -552,10 +562,9 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         questoesErradas: (prev.questoesErradas || []).filter((id: number | string) =>
           !ids.includes(String(id))
         ),
-        conquistasDesbloqueadas: jaRespondida
-          ? prev.conquistasDesbloqueadas || []
-          : conquistasDesbloqueadas,
       };
+
+      return comConquistasPermanentes(next);
     });
   }, []);
 
@@ -576,7 +585,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const novosIds = ids.filter((id) => !respondidasAtuais.includes(id));
       const novasErradas = [...new Set([...(prev.questoesErradas || []).map(String), ...ids])];
 
-      return {
+      const next = {
         ...comRanking,
         respostasQuestoes,
         lifetimeQuestions: (prev.lifetimeQuestions || 0) + novosIds.length,
@@ -589,6 +598,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: novasErradas,
       };
+
+      return comConquistasPermanentes(next);
     });
   }, []);
 
@@ -605,17 +616,40 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         return prev;
       }
 
-      return {
+      const next = {
         ...prev,
         reviewedQuestionIds: [...reviewedQuestionIds, id],
         lifetimeReviewed: (prev.lifetimeReviewed || 0) + 1,
       };
+
+      return comConquistasPermanentes(next);
     });
   }, []);
 
   const resetarAcertos = useCallback(() => {
     setUser((prev: any) => {
       if (!prev) return prev;
+
+      const questoesRespondidas = Array.isArray(prev.questoesRespondidas)
+        ? prev.questoesRespondidas.map(String)
+        : [];
+      const questoesErradas = Array.isArray(prev.questoesErradas)
+        ? prev.questoesErradas.map(String)
+        : [];
+      const revisaoIds = Array.isArray(prev.revisaoIds)
+        ? prev.revisaoIds.map(String)
+        : [];
+      const conquistasAntesDoReset = getUnlockedAchievementIds({
+        ...prev,
+        lifetimeQuestions: Math.max(prev.lifetimeQuestions || 0, questoesRespondidas.length),
+        lifetimeCorrect: Math.max(prev.lifetimeCorrect || 0, prev.acertos || 0),
+        lifetimeReview: Math.max(prev.lifetimeReview || 0, revisaoIds.length, questoesErradas.length),
+        lifetimeActiveDays: Math.max(
+          prev.lifetimeActiveDays || 1,
+          prev.rankingActiveDays || 1,
+          prev.streak || 1
+        ),
+      });
 
       return {
         ...prev,
@@ -626,7 +660,18 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         questoesErradas: [],
         revisaoIds: [],
         respostasQuestoes: {},
-        conquistasDesbloqueadas: prev.conquistasDesbloqueadas || [],
+        lifetimeQuestions: Math.max(prev.lifetimeQuestions || 0, questoesRespondidas.length),
+        lifetimeCorrect: Math.max(prev.lifetimeCorrect || 0, prev.acertos || 0),
+        lifetimeReview: Math.max(prev.lifetimeReview || 0, revisaoIds.length, questoesErradas.length),
+        lifetimeActiveDays: Math.max(
+          prev.lifetimeActiveDays || 1,
+          prev.rankingActiveDays || 1,
+          prev.streak || 1
+        ),
+        reviewedQuestionIds: Array.isArray(prev.reviewedQuestionIds)
+          ? prev.reviewedQuestionIds.map(String)
+          : [],
+        conquistasDesbloqueadas: conquistasAntesDoReset,
       };
     });
   }, []);
