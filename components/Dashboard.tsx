@@ -224,8 +224,11 @@ export default function Dashboard() {
 
       <section className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">questões feitas</p>
+          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">treino acumulado</p>
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{answeredQuestions}</p>
+          <p className="mt-2 text-xs font-black uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            questões encaradas
+          </p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
