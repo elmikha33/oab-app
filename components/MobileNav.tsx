@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import ProfileEditor from '@/components/ProfileEditor';
 import { useGameState } from '@/context/GameStateContext';
+import useSyncedTheme from '@/hooks/useSyncedTheme';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -26,8 +27,6 @@ const navItems = [
   { href: '/achievements', label: 'Conquistas', icon: Trophy },
   { href: '/ranking', label: 'Ranking', icon: BarChart3 },
 ];
-
-const THEME_KEY = 'oaplay-theme';
 
 function formatDate(date?: string | null) {
   if (!date) return null;
@@ -45,15 +44,7 @@ export default function MobileNav() {
   const pathname = usePathname();
   const { user, logout } = useGameState() || {};
   const [open, setOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY);
-    const initialDark = saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
-
-    setDarkMode(initialDark);
-    document.documentElement.classList.toggle('dark', initialDark);
-  }, []);
+  const { darkMode, toggleTheme } = useSyncedTheme();
 
   useEffect(() => {
     setOpen(false);
@@ -66,13 +57,6 @@ export default function MobileNav() {
       document.body.style.overflow = '';
     };
   }, [open]);
-
-  function toggleTheme() {
-    const next = !darkMode;
-    setDarkMode(next);
-    localStorage.setItem(THEME_KEY, next ? 'dark' : 'light');
-    document.documentElement.classList.toggle('dark', next);
-  }
 
   const premiumUntil = formatDate(user?.premium_ate);
 

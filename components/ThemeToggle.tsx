@@ -1,38 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
+import useSyncedTheme from '@/hooks/useSyncedTheme';
 
 type ThemeToggleProps = {
   compact?: boolean;
   className?: string;
 };
 
-const THEME_KEY = 'oaplay-theme';
-
-function applyTheme(isDark: boolean) {
-  document.documentElement.classList.toggle('dark', isDark);
-  localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-}
-
 export default function ThemeToggle({ compact = false, className = '' }: ThemeToggleProps) {
-  const [darkMode, setDarkMode] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(THEME_KEY);
-    const initialDark = saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
-
-    setDarkMode(initialDark);
-    document.documentElement.classList.toggle('dark', initialDark);
-    setMounted(true);
-  }, []);
-
-  function toggleTheme() {
-    const next = !darkMode;
-    setDarkMode(next);
-    applyTheme(next);
-  }
+  const { darkMode, mounted, toggleTheme } = useSyncedTheme();
 
   const label = darkMode ? 'Ativar modo claro' : 'Ativar modo escuro';
   const Icon = darkMode ? Sun : Moon;

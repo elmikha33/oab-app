@@ -42,19 +42,61 @@ function getBearerToken(request: Request) {
   return header.startsWith('Bearer ') ? header.slice(7) : null;
 }
 
-function getClients() {
-  if (!supabaseUrl || !anonKey || !serviceKey) {
-    throw new Error('Variaveis Supabase ausentes.');
+function getClients(accessToken?: string | null) {
+  if (!supabaseUrl || !anonKey) {
+    throw new Error('Variáveis públicas do Supabase ausentes.');
   }
 
+  const authClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false },
+  });
+
+  const userClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false },
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      : undefined,
+  });
+
+  const adminClient = serviceKey
+    ? createClient(supabaseUrl, serviceKey, {
+        auth: { persistSession: false },
+      })
+    : null;
+
   return {
-    authClient: createClient(supabaseUrl, anonKey, {
-      auth: { persistSession: false },
-    }),
-    adminClient: createClient(supabaseUrl, serviceKey, {
-      auth: { persistSession: false },
-    }),
+    authClient,
+    profileClient: adminClient || userClient,
+    adminClient,
   };
+}
+
+async function atualizarAuthMetadata(
+  accessToken: string,
+  data: { nome: string; avatar_url: string | null }
+) {
+  if (!supabaseUrl || !anonKey) return;
+
+  await fetch(`${supabaseUrl}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      data: {
+        nome: data.nome,
+        name: data.nome,
+        full_name: data.nome,
+        avatar_url: data.avatar_url,
+      },
+    }),
+  }).catch(() => null);
 }
 
 function nomeDoUsuario(user: any) {
@@ -78,7 +120,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 });
     }
 
-    const { authClient, adminClient } = getClients();
+    const { authClient, profileClient, adminClient } = getClients(token);
 
     const { data: authData, error: authError } = await authClient.auth.getUser(token);
 
@@ -96,7 +138,7 @@ export async function GET(request: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    const { data: existingProfile, error: existingProfileError } = await adminClient
+    const { data: existingProfile, error: existingProfileError } = await profileClient
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
@@ -109,7 +151,7 @@ export async function GET(request: Request) {
     let profile = existingProfile;
 
     if (!profile) {
-      const { data: insertedProfile, error: insertError } = await adminClient
+      const { data: insertedProfile, error: insertError } = await profileClient
         .from('profiles')
         .insert(profileBase)
         .select('*')
@@ -140,7 +182,7 @@ export async function GET(request: Request) {
       if (Object.keys(patch).length > 1) {
         patch.updated_at = new Date().toISOString();
 
-        const { data: updatedProfile, error: updateError } = await adminClient
+        const { data: updatedProfile, error: updateError } = await profileClient
           .from('profiles')
           .update(patch)
           .eq('id', authUser.id)
@@ -158,14 +200,16 @@ export async function GET(request: Request) {
     const premiumAtivo = premiumEstaAtivo(profile, authUser.email);
 
     if (profile.is_premium !== Boolean(premiumAtivo)) {
-      await adminClient
-        .from('profiles')
-        .update({
-          is_premium: Boolean(premiumAtivo),
-          plano: premiumAtivo ? 'premium_trimestral' : 'free',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', authUser.id);
+      if (adminClient) {
+        await adminClient
+          .from('profiles')
+          .update({
+            is_premium: Boolean(premiumAtivo),
+            plano: premiumAtivo ? 'premium_trimestral' : 'free',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', authUser.id);
+      }
 
       profile.is_premium = Boolean(premiumAtivo);
       profile.plano = premiumAtivo ? 'premium_trimestral' : 'free';
@@ -190,7 +234,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 });
     }
 
-    const { authClient, adminClient } = getClients();
+    const { authClient, profileClient, adminClient } = getClients(token);
     const { data: authData, error: authError } = await authClient.auth.getUser(token);
 
     if (authError || !authData.user) {
@@ -202,15 +246,17 @@ export async function PATCH(request: Request) {
     const nomeSolicitado = limparNome(body?.nome);
     const avatarSolicitado = limparAvatar(body?.avatar_url);
 
-    const { data: profileAtual, error: profileError } = await adminClient
+    const { data: profileAtualData, error: profileError } = await profileClient
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
       .maybeSingle();
 
-    if (profileError) {
+    if (profileError && adminClient) {
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
+
+    const profileAtual = profileError ? null : profileAtualData;
 
     const contaAdmin = emailAdmin(authUser.email);
     const nome = contaAdmin ? 'Admin' : nomeSolicitado;
@@ -232,13 +278,24 @@ export async function PATCH(request: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    const { data: profile, error: updateError } = await adminClient
+    const { data: profile, error: updateError } = await profileClient
       .from('profiles')
       .upsert(profilePatch, { onConflict: 'id' })
       .select('*')
       .single();
 
     if (updateError) {
+      if (!adminClient) {
+        await atualizarAuthMetadata(token, {
+          nome,
+          avatar_url: profilePatch.avatar_url,
+        });
+
+        return NextResponse.json(
+          contaAdmin ? { ...profilePatch, nome: 'Admin' } : profilePatch
+        );
+      }
+
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
