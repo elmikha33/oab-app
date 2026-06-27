@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import AchievementMiniatures from '@/components/AchievementMiniatures';
 import ProfileEditor from '@/components/ProfileEditor';
+import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useGameState } from '@/context/GameStateContext';
 
@@ -131,6 +132,7 @@ export default function Sidebar() {
 
         <div className="mt-auto space-y-3 pt-1">
           <PlanStatus user={user} />
+          <SoundToggle />
           <ThemeToggle />
 
           <button

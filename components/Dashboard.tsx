@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, CheckCircle2, Flame, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
+import AchievementMiniatures from '@/components/AchievementMiniatures';
+import ProfileEditor from '@/components/ProfileEditor';
 import RankingPreview from '@/components/RankingPreview';
 import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -38,6 +40,46 @@ function getChallengeAction(achievementId?: string) {
     default:
       return { href: '/play', label: 'Responder agora' };
   }
+}
+
+function ChallengeCard({
+  suggestedAchievement,
+  challengeAction,
+  className = '',
+}: {
+  suggestedAchievement: any;
+  challengeAction: { href: string; label: string };
+  className?: string;
+}) {
+  return (
+    <div className={`rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900 ${className}`}>
+      <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
+        <Trophy className="h-4 w-4" strokeWidth={2.7} />
+        Desafio do Dia
+      </div>
+
+      <p className="mt-3 text-lg font-black leading-tight text-slate-950 dark:text-white">
+        {suggestedAchievement?.title || 'Mantenha sua sequência'}
+      </p>
+
+      <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+        {suggestedAchievement?.description || 'Faça uma rodada de questões hoje e mantenha o ritmo do treino.'}
+      </p>
+
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {suggestedAchievement?.requirement || 'Rodada do dia'}
+        </p>
+
+        <Link
+          href={challengeAction.href}
+          className="inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+        >
+          {suggestedAchievement ? challengeAction.label : 'Estudar agora'}
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -98,6 +140,18 @@ export default function Dashboard() {
       <div className="hidden justify-end gap-2 md:flex">
         <SoundToggle compact className="rounded-full" />
         <ThemeToggle compact className="rounded-full" />
+      </div>
+
+      <ChallengeCard
+        suggestedAchievement={suggestedAchievement}
+        challengeAction={challengeAction}
+        className="md:hidden"
+      />
+
+      <div className="md:hidden">
+        <ProfileEditor>
+          <AchievementMiniatures user={user} />
+        </ProfileEditor>
       </div>
 
       <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm shadow-emerald-950/5 dark:border-white/10 dark:bg-slate-900">
@@ -181,33 +235,11 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900">
-          <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
-            <Trophy className="h-4 w-4" strokeWidth={2.7} />
-            Desafio do Dia
-          </div>
-
-          <p className="mt-3 text-lg font-black leading-tight text-slate-950 dark:text-white">
-            {suggestedAchievement?.title || 'Mantenha sua sequência'}
-          </p>
-
-          <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-            {suggestedAchievement?.description || 'Faça uma rodada de questões hoje e mantenha o ritmo do treino.'}
-          </p>
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              {suggestedAchievement?.requirement || 'Rodada do dia'}
-            </p>
-
-            <Link
-              href={challengeAction.href}
-              className="inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
-            >
-              {suggestedAchievement ? challengeAction.label : 'Estudar agora'}
-            </Link>
-          </div>
-        </div>
+        <ChallengeCard
+          suggestedAchievement={suggestedAchievement}
+          challengeAction={challengeAction}
+          className="hidden md:block"
+        />
       </section>
 
       <RankingPreview />

@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Loader2, Trophy, XCircle } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
+import useSoundEffects from '@/hooks/useSoundEffects';
 import { supabase } from '@/lib/supabase';
 
 const LETRAS = ['A', 'B', 'C', 'D'];
@@ -46,6 +47,7 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [respostas, setRespostas] = useState<Record<string, number>>({});
   const [revisaoLocalIds, setRevisaoLocalIds] = useState<string[]>([]);
+  const { playSuccess, playError } = useSoundEffects();
 
   useEffect(() => {
     setRevisaoLocalIds(lerRevisaoLocal());
@@ -104,6 +106,7 @@ export default function ReviewPage() {
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
 
     if (acertou) {
+      playSuccess();
       // IMPORTANTE:
       // No modo revisão, a questão NÃO pode sair da tela imediatamente.
       // Primeiro mostramos o feedback, a resposta certa e o comentário.
@@ -112,6 +115,7 @@ export default function ReviewPage() {
       return;
     }
 
+    playError();
     registrarErro?.(questao.id);
     setRevisaoLocalIds((current) => [
       ...new Set([...current, String(questao.id)]),

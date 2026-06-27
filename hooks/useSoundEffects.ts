@@ -56,27 +56,37 @@ function playTone(
   oscillator.stop(startAt + duration + 0.02);
 }
 
-function playSuccessMelody() {
+function withRunningAudioContext(callback: (ctx: AudioContext) => void) {
   const ctx = getAudioContext();
   if (!ctx || !readSoundEnabled()) return;
 
-  void ctx.resume();
-  const now = ctx.currentTime;
+  const play = () => callback(ctx);
 
-  playTone(ctx, now, 659.25, 0.09, 0.045, 'sine');
-  playTone(ctx, now + 0.07, 783.99, 0.1, 0.05, 'sine');
-  playTone(ctx, now + 0.15, 1046.5, 0.15, 0.055, 'triangle');
+  if (ctx.state === 'suspended') {
+    void ctx.resume().then(play).catch(play);
+    return;
+  }
+
+  play();
+}
+
+function playSuccessMelody() {
+  withRunningAudioContext((ctx) => {
+    const now = ctx.currentTime + 0.01;
+
+    playTone(ctx, now, 659.25, 0.09, 0.08, 'sine');
+    playTone(ctx, now + 0.07, 783.99, 0.1, 0.09, 'sine');
+    playTone(ctx, now + 0.15, 1046.5, 0.15, 0.1, 'triangle');
+  });
 }
 
 function playErrorMelody() {
-  const ctx = getAudioContext();
-  if (!ctx || !readSoundEnabled()) return;
+  withRunningAudioContext((ctx) => {
+    const now = ctx.currentTime + 0.01;
 
-  void ctx.resume();
-  const now = ctx.currentTime;
-
-  playTone(ctx, now, 246.94, 0.1, 0.04, 'triangle');
-  playTone(ctx, now + 0.09, 196, 0.16, 0.045, 'sine');
+    playTone(ctx, now, 246.94, 0.1, 0.08, 'triangle');
+    playTone(ctx, now + 0.09, 196, 0.16, 0.09, 'sine');
+  });
 }
 
 export default function useSoundEffects() {

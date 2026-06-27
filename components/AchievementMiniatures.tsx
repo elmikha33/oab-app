@@ -15,7 +15,7 @@ export default function AchievementMiniatures({ user }: AchievementMiniaturesPro
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-          Coleção
+          Badges
         </p>
         <Link
           href="/achievements"
