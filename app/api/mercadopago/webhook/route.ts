@@ -205,34 +205,6 @@ export async function POST(request: Request) {
           })
             .eq('id', userId)
         );
-
-        if (status === 'authorized') {
-          const profile = await getData(
-            adminClient
-            .from('profiles')
-            .select('premium_ate')
-            .eq('id', userId)
-              .maybeSingle()
-          );
-
-          const premiumAte =
-            profile?.premium_ate && new Date(profile.premium_ate).getTime() > Date.now()
-              ? profile.premium_ate
-              : addThreeMonthsFrom(null);
-
-          await expectSuccess(
-            adminClient
-            .from('profiles')
-            .update({
-              is_premium: true,
-              premium_ate: premiumAte,
-              plano: 'premium_trimestral',
-              subscription_status: status,
-              updated_at: new Date().toISOString(),
-            })
-              .eq('id', userId)
-          );
-        }
       }
 
       await expectSuccess(adminClient.from('premium_orders').insert({
@@ -246,7 +218,7 @@ export async function POST(request: Request) {
         mercado_pago_preapproval_id: preapproval.id || null,
         mercado_pago_subscription_id: preapproval.id || null,
         raw_event: preapproval,
-        paid_at: status === 'authorized' ? new Date().toISOString() : null,
+        paid_at: null,
       }));
 
       return NextResponse.json({ ok: true });
@@ -332,5 +304,11 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  return POST(request);
+  return NextResponse.json(
+    { ok: false, error: 'Metodo nao permitido.' },
+    {
+      status: 405,
+      headers: { Allow: 'POST' },
+    }
+  );
 }

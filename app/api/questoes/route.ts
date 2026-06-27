@@ -18,8 +18,26 @@ function getSupabase() {
   });
 }
 
+function getBearerToken(request: Request) {
+  const header = request.headers.get('authorization') || '';
+  return header.startsWith('Bearer ') ? header.slice(7) : null;
+}
+
 export async function GET(request: Request) {
   try {
+    const token = getBearerToken(request);
+
+    if (!token) {
+      return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 });
+    }
+
+    const supabase = getSupabase();
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return NextResponse.json({ error: 'Sessao invalida.' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
 
     const page = Math.max(Number(searchParams.get('page') ?? '0'), 0);
@@ -28,8 +46,6 @@ export async function GET(request: Request) {
 
     const from = page * limit;
     const to = from + limit - 1;
-
-    const supabase = getSupabase();
 
     const { data, error } = await supabase
       .from('questoes_oab')

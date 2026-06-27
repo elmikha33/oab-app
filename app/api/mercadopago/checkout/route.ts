@@ -62,6 +62,10 @@ export async function POST(request: Request) {
       reason: 'OAPlay Premium Trimestral',
       external_reference: user.id,
       payer_email: user.email,
+      metadata: {
+        user_id: user.id,
+        email: user.email || '',
+      },
       back_url: `${appUrl}/premium?mp=success`,
       auto_recurring: {
         frequency: 3,
@@ -91,7 +95,6 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: data?.message || data?.error || 'Erro ao criar assinatura no Mercado Pago.',
-          details: data,
         },
         { status: 500 }
       );

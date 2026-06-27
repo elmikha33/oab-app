@@ -71,12 +71,32 @@ export default function ReviewPage() {
     async function loadQuestoes() {
       setLoading(true);
 
-      const { data } = await supabase
-        .from('questoes_oab')
-        .select('*')
-        .order('id', { ascending: true });
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
 
-      setQuestoes(data || []);
+      if (!token) {
+        setQuestoes([]);
+        setLoading(false);
+        return;
+      }
+
+      const params = new URLSearchParams({ page: '0', limit: '10000' });
+      const response = await fetch(`/api/questoes?${params.toString()}`, {
+        cache: 'no-store',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json().catch(() => []);
+
+      if (!response.ok || !Array.isArray(data)) {
+        setQuestoes([]);
+        setLoading(false);
+        return;
+      }
+
+      setQuestoes(data);
       setLoading(false);
     }
 

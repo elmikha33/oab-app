@@ -15,13 +15,25 @@ function normalizarEmail(email?: string | null) {
 
 function emailAdmin(email?: string | null) {
   const normalizedEmail = normalizarEmail(email);
-  const adminEmail = normalizarEmail(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
+  const adminEmail = normalizarEmail(process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL);
 
   return Boolean(
     normalizedEmail &&
       (normalizedEmail === OWNER_ADMIN_EMAIL || (adminEmail && normalizedEmail === adminEmail))
   );
 }
+
+const CAMPOS_PROIBIDOS_PROFILE = [
+  'is_premium',
+  'isPremium',
+  'premium_ate',
+  'plano',
+  'subscription_status',
+  'mercado_pago_subscription_id',
+  'isAdmin',
+  'is_admin',
+  'role',
+];
 
 function premiumEstaAtivo(profile: any, email?: string | null) {
   if (emailAdmin(email)) return true;
@@ -215,7 +227,11 @@ export async function GET(request: Request) {
       profile.plano = premiumAtivo ? 'premium_trimestral' : 'free';
     }
 
-    return NextResponse.json(emailAdmin(profile?.email) ? { ...profile, nome: 'Admin' } : profile);
+    return NextResponse.json(
+      emailAdmin(profile?.email)
+        ? { ...profile, nome: 'Admin', isAdmin: true }
+        : { ...profile, isAdmin: false }
+    );
   } catch (error) {
     return NextResponse.json(
       {
@@ -243,6 +259,14 @@ export async function PATCH(request: Request) {
 
     const authUser = authData.user;
     const body = await request.json().catch(() => ({}));
+
+    if (CAMPOS_PROIBIDOS_PROFILE.some((campo) => Object.prototype.hasOwnProperty.call(body, campo))) {
+      return NextResponse.json(
+        { error: 'Campo de perfil nao permitido.' },
+        { status: 400 }
+      );
+    }
+
     const nomeSolicitado = limparNome(body?.nome);
     const avatarSolicitado = limparAvatar(body?.avatar_url);
 
@@ -292,14 +316,20 @@ export async function PATCH(request: Request) {
         });
 
         return NextResponse.json(
-          contaAdmin ? { ...profilePatch, nome: 'Admin' } : profilePatch
+          contaAdmin
+            ? { ...profilePatch, nome: 'Admin', isAdmin: true }
+            : { ...profilePatch, isAdmin: false }
         );
       }
 
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    return NextResponse.json(contaAdmin ? { ...profile, nome: 'Admin' } : profile);
+    return NextResponse.json(
+      contaAdmin
+        ? { ...profile, nome: 'Admin', isAdmin: true }
+        : { ...profile, isAdmin: false }
+    );
   } catch (error) {
     return NextResponse.json(
       {

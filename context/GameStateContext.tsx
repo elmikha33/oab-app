@@ -16,12 +16,7 @@ function normalizarEmail(email?: string | null) {
 
 function emailAdmin(email?: string | null) {
   const normalizedEmail = normalizarEmail(email);
-  const adminEmail = normalizarEmail(process.env.NEXT_PUBLIC_ADMIN_EMAIL);
-
-  return Boolean(
-    normalizedEmail &&
-      (normalizedEmail === OWNER_ADMIN_EMAIL || (adminEmail && normalizedEmail === adminEmail))
-  );
+  return Boolean(normalizedEmail && normalizedEmail === OWNER_ADMIN_EMAIL);
 }
 
 function emailPremiumManual(email?: string | null) {
@@ -190,7 +185,6 @@ function criarUsuario(base: any = {}) {
   ];
 
   const email = base.email || null;
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   const contaAdmin = emailAdmin(email);
   const nome = contaAdmin ? 'Admin' : base.nome || 'Candidato';
 
@@ -231,9 +225,7 @@ function criarUsuario(base: any = {}) {
 
     isAdmin:
       contaAdmin ||
-      Boolean(base.isAdmin) ||
-      nome.toLowerCase() === 'admin' ||
-      Boolean(adminEmail && email && normalizarEmail(email) === normalizarEmail(adminEmail)),
+      Boolean(base.isAdmin),
 
     lifetimeQuestions: base.lifetimeQuestions || base.rankingQuestions || questoesRespondidas.length || 0,
     lifetimeCorrect: base.lifetimeCorrect || base.acertos || 0,
@@ -402,6 +394,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
           : profile?.subscription_status || null,
         mercado_pago_subscription_id: profile?.mercado_pago_subscription_id || null,
         active_device_id: activeDeviceId,
+        isAdmin: Boolean(profile?.isAdmin || profile?.is_admin || emailAdmin(authUser.email)),
       });
 
       setUser(mergedUser);
@@ -534,10 +527,6 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   }, [user, session?.access_token]);
 
 
-  const loginMock = useCallback((nome: string) => {
-    setUser(criarUsuario({ nome }));
-  }, []);
-
   const logout = useCallback(async () => {
     localStorage.removeItem('user-game-data');
     setUser(null);
@@ -550,22 +539,6 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         window.location.href = '/auth';
       }
     }
-  }, []);
-
-  const comprarPremium = useCallback(() => {
-    setUser((prev: any) => {
-      if (!prev) return prev;
-
-      const premiumAte = new Date();
-      premiumAte.setMonth(premiumAte.getMonth() + 3);
-
-      return comConquistasPermanentes({
-        ...prev,
-        isPremium: true,
-        premium_ate: premiumAte.toISOString(),
-        plano: 'premium_trimestral',
-      });
-    });
   }, []);
 
   const registrarRespostaFreeHoje = useCallback(() => {
@@ -737,9 +710,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         loading,
         refreshUser,
         atualizarPerfil,
-        loginMock,
         logout,
-        comprarPremium,
         registrarRespostaFreeHoje,
         registrarAcerto,
         registrarErro,

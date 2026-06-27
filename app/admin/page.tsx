@@ -1,13 +1,25 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from "@/lib/supabase";
+import { useGameState } from '@/context/GameStateContext';
 
 export default function AdminPage() {
+  const router = useRouter();
+  const { user, loading: userLoading } = useGameState() || {};
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (userLoading) return;
+
+    if (!user?.isAdmin) {
+      setLoading(false);
+      router.replace('/dashboard');
+      return;
+    }
+
     async function fetchQuestoes() {
       const result = await supabase
         .from("questoes_oab")
@@ -19,9 +31,13 @@ export default function AdminPage() {
       setLoading(false);
     }
     fetchQuestoes();
-  }, []);
+  }, [router, user?.isAdmin, userLoading]);
 
-  if (loading) return <div className="p-8 text-white">Carregando admin...</div>;
+  if (userLoading || loading) return <div className="p-8 text-white">Carregando admin...</div>;
+
+  if (!user?.isAdmin) {
+    return <div className="p-8 text-white">Acesso restrito.</div>;
+  }
 
   return (
     <div className="flex-1 p-6 md:p-8 bg-slate-950 min-h-screen">

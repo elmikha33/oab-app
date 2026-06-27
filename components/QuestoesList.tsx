@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
 import useSoundEffects from '@/hooks/useSoundEffects';
+import { supabase } from '@/lib/supabase';
 
 const LIMIT_QUESTOES = 10000;
 const FREE_DAILY_LIMIT = 5;
@@ -896,6 +897,39 @@ function ordenarEmbaralhado(questoes: Questao[], seed: number) {
   });
 }
 
+function lerRespondidasSalvasParaOrdenacao(): Record<string, true> {
+  const current = lerUserGameDataLocal();
+  const ids = new Set<string>();
+
+  if (Array.isArray(current.questoesRespondidas)) {
+    current.questoesRespondidas.forEach((id: number | string) => ids.add(String(id)));
+  }
+
+  if (current.respostasQuestoes && typeof current.respostasQuestoes === 'object') {
+    Object.keys(current.respostasQuestoes).forEach((id) => ids.add(String(id)));
+  }
+
+  return Array.from(ids).reduce<Record<string, true>>((acc, id) => {
+    acc[id] = true;
+    return acc;
+  }, {});
+}
+
+function moverRespondidasSalvasParaFinal(
+  questoes: Questao[],
+  respondidasSalvas: Record<string, true>
+) {
+  if (!Object.keys(respondidasSalvas).length) return questoes;
+
+  return [...questoes].sort((a, b) => {
+    const aRespondida = Boolean(respondidasSalvas[getKey(a)]);
+    const bRespondida = Boolean(respondidasSalvas[getKey(b)]);
+
+    if (aRespondida === bRespondida) return 0;
+    return aRespondida ? 1 : -1;
+  });
+}
+
 export default function QuestoesList() {
   const [data, setData] = useState<Questao[] | null>(null);
   const [error, setError] = useState('');
@@ -910,6 +944,7 @@ export default function QuestoesList() {
   const [reviewSuccessPending, setReviewSuccessPending] = useState<Record<string, boolean>>({});
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
+  const [respondidasSalvasAoCarregar, setRespondidasSalvasAoCarregar] = useState<Record<string, true>>({});
 
   const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
   const { playSuccess, playError } = useSoundEffects();
@@ -935,18 +970,32 @@ export default function QuestoesList() {
       setError('');
 
       try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData.session?.access_token;
+
+        if (!token) {
+          throw new Error('Entre na conta para carregar as questões.');
+        }
+
         const params = new URLSearchParams({ page: '0', limit: String(LIMIT_QUESTOES) });
-        const res = await fetch(`/api/questoes?${params.toString()}`, { cache: 'no-store' });
+        const res = await fetch(`/api/questoes?${params.toString()}`, {
+          cache: 'no-store',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const json = await res.json().catch(() => null);
 
         if (!res.ok) throw new Error(json?.error || `Falha ao buscar questões (${res.status})`);
         if (!Array.isArray(json)) throw new Error('Resposta inválida ao buscar questões');
 
         const ordenadas = ordenarQuestoes(json);
+        const respondidasSalvas = lerRespondidasSalvasParaOrdenacao();
 
         if (!cancel) {
           setData(ordenadas);
           setRespostas({});
+          setRespondidasSalvasAoCarregar(respondidasSalvas);
           setReviewSuccessPending({});
           setAba('todas');
           setActiveMateria(getMateriaNome(ordenadas[0]));
@@ -1046,8 +1095,11 @@ export default function QuestoesList() {
       });
     }
 
-    return ordenarEmbaralhado(base, shuffleSeed);
-  }, [aba, questoesDaMateria, respostas, reviewSuccessPending, shuffleSeed]);
+    return moverRespondidasSalvasParaFinal(
+      ordenarEmbaralhado(base, shuffleSeed),
+      respondidasSalvasAoCarregar
+    );
+  }, [aba, questoesDaMateria, respostas, respondidasSalvasAoCarregar, reviewSuccessPending, shuffleSeed]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
@@ -1195,6 +1247,7 @@ export default function QuestoesList() {
 
   function confirmarResetarTodas() {
     setRespostas({});
+    setRespondidasSalvasAoCarregar({});
     setReviewSuccessPending({});
     resetarAcertos?.();
 
