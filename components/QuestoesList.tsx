@@ -935,7 +935,7 @@ export default function QuestoesList() {
   const [error, setError] = useState('');
   const [respostas, setRespostas] = useState<RespostasState>({});
   const [loading, setLoading] = useState(false);
-  const [aba, setAba] = useState<AbaQuestoes>('todas');
+  const [aba, setAba] = useState<AbaQuestoes>('naoRespondidas');
   const [activeMateria, setActiveMateria] = useState<string>('');
   const [activeTema, setActiveTema] = useState<string | null>(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
@@ -997,7 +997,7 @@ export default function QuestoesList() {
           setRespostas({});
           setRespondidasSalvasAoCarregar(respondidasSalvas);
           setReviewSuccessPending({});
-          setAba('todas');
+          setAba('naoRespondidas');
           setActiveMateria(getMateriaNome(ordenadas[0]));
         }
       } catch (err: unknown) {
@@ -1063,7 +1063,7 @@ export default function QuestoesList() {
     if (!materiasOrdenadas.includes(activeMateria)) {
       setActiveMateria(materiasOrdenadas[0]);
       setActiveTema(null);
-      setAba('todas');
+      setAba('naoRespondidas');
     }
   }, [materiasOrdenadas, activeMateria]);
 
@@ -1091,7 +1091,10 @@ export default function QuestoesList() {
         // aparecendo até ele clicar em "Continuar e remover da revisão".
         // Sem isso, a aba "Não respondidas" remove a questão assim que a resposta
         // é registrada e o usuário não consegue ver gabarito nem comentário.
-        return respostas[key] === undefined || Boolean(reviewSuccessPending[key]);
+        return (
+          (!respondidasSalvasAoCarregar[key] && respostas[key] === undefined) ||
+          Boolean(reviewSuccessPending[key])
+        );
       });
     }
 
@@ -1188,20 +1191,20 @@ export default function QuestoesList() {
   function selecionarMateria(materia: string) {
     setActiveMateria(materia);
     setActiveTema(null);
-    setAba('todas');
+    setAba('naoRespondidas');
     scrollToQuestoes();
   }
 
   function embaralharQuestoes() {
     setShuffleSeed(Date.now());
-    setAba('todas');
+    setAba('naoRespondidas');
     scrollToQuestoes();
   }
 
   function selecionarTema(materia: string, tema: string) {
     setActiveMateria(materia);
     setActiveTema(tema);
-    setAba('todas');
+    setAba('naoRespondidas');
     scrollToQuestoes();
   }
 
@@ -1209,7 +1212,7 @@ export default function QuestoesList() {
     setActiveExame(exame);
     setActiveMateria('');
     setActiveTema(null);
-    setAba('todas');
+    setAba('naoRespondidas');
     scrollToResumo();
   }
 
@@ -1237,7 +1240,7 @@ export default function QuestoesList() {
 
     setActiveMateria(materia);
     setActiveTema(null);
-    setAba('todas');
+    setAba('naoRespondidas');
     scrollToResumo();
   }
 
@@ -1252,7 +1255,7 @@ export default function QuestoesList() {
     resetarAcertos?.();
 
     setActiveExame(TODOS_OS_EXAMES);
-    setAba('todas');
+    setAba('naoRespondidas');
     setActiveTema(null);
     setShowResetConfirm(false);
 
