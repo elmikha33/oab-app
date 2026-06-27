@@ -22,7 +22,7 @@ export default function UserAvatar({
 
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-sm font-black text-white dark:bg-white dark:text-slate-950 ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white text-sm font-black text-slate-950 shadow-sm dark:border-white/10 dark:bg-slate-950 dark:text-white ${className}`}
       aria-hidden="true"
     >
       {option ? (
