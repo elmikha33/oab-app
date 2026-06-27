@@ -1091,10 +1091,7 @@ export default function QuestoesList() {
         // aparecendo até ele clicar em "Continuar e remover da revisão".
         // Sem isso, a aba "Não respondidas" remove a questão assim que a resposta
         // é registrada e o usuário não consegue ver gabarito nem comentário.
-        return (
-          (!respondidasSalvasAoCarregar[key] && respostas[key] === undefined) ||
-          Boolean(reviewSuccessPending[key])
-        );
+        return !respondidasSalvasAoCarregar[key] || Boolean(reviewSuccessPending[key]);
       });
     }
 
@@ -1188,7 +1185,27 @@ export default function QuestoesList() {
     scrollToQuestoes();
   }
 
+  function consolidarRespostasDaSessaoAtual() {
+    const idsRespondidosAgora = Object.keys(respostas);
+
+    if (!idsRespondidosAgora.length) return;
+
+    setRespondidasSalvasAoCarregar((current) => {
+      const next = { ...current };
+
+      idsRespondidosAgora.forEach((id) => {
+        next[id] = true;
+      });
+
+      return next;
+    });
+  }
+
   function selecionarMateria(materia: string) {
+    if (materia !== activeMateria || activeTema) {
+      consolidarRespostasDaSessaoAtual();
+    }
+
     setActiveMateria(materia);
     setActiveTema(null);
     setAba('naoRespondidas');
@@ -1202,6 +1219,10 @@ export default function QuestoesList() {
   }
 
   function selecionarTema(materia: string, tema: string) {
+    if (materia !== activeMateria || tema !== activeTema) {
+      consolidarRespostasDaSessaoAtual();
+    }
+
     setActiveMateria(materia);
     setActiveTema(tema);
     setAba('naoRespondidas');
@@ -1209,6 +1230,10 @@ export default function QuestoesList() {
   }
 
   function selecionarExame(exame: string) {
+    if (exame !== activeExame) {
+      consolidarRespostasDaSessaoAtual();
+    }
+
     setActiveExame(exame);
     setActiveMateria('');
     setActiveTema(null);
