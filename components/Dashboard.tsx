@@ -295,7 +295,7 @@ export default function Dashboard() {
         <ChallengeCard
           suggestedAchievement={suggestedAchievement}
           challengeAction={challengeAction}
-          className="hidden md:order-1 md:block"
+          className="hidden md:order-1 md:flex"
         />
       </section>
 
