@@ -10,6 +10,7 @@ export default function AdminPage() {
   const { user, loading: userLoading } = useGameState() || {};
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState('');
 
   useEffect(() => {
     if (userLoading) return;
@@ -21,15 +22,36 @@ export default function AdminPage() {
     }
 
     async function fetchQuestoes() {
-      const result = await supabase
-        .from("questoes_oab")
-        .select("*")
-        .eq("ativa", true);
+      setLoading(true);
+      setErro('');
 
-      const { data } = result;
-      if (data) setQuestoes(data);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      if (!token) {
+        router.replace('/auth');
+        return;
+      }
+
+      const response = await fetch('/api/admin/questoes', {
+        cache: 'no-store',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !Array.isArray(data)) {
+        setErro(data?.error || 'Nao foi possivel carregar o admin.');
+        setLoading(false);
+        return;
+      }
+
+      setQuestoes(data);
       setLoading(false);
     }
+
     fetchQuestoes();
   }, [router, user?.isAdmin, userLoading]);
 
@@ -37,6 +59,10 @@ export default function AdminPage() {
 
   if (!user?.isAdmin) {
     return <div className="p-8 text-white">Acesso restrito.</div>;
+  }
+
+  if (erro) {
+    return <div className="p-8 text-white">{erro}</div>;
   }
 
   return (

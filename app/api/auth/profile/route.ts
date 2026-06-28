@@ -15,12 +15,8 @@ function normalizarEmail(email?: string | null) {
 
 function emailAdmin(email?: string | null) {
   const normalizedEmail = normalizarEmail(email);
-  const adminEmail = normalizarEmail(process.env.ADMIN_EMAIL || process.env.NEXT_PUBLIC_ADMIN_EMAIL);
 
-  return Boolean(
-    normalizedEmail &&
-      (normalizedEmail === OWNER_ADMIN_EMAIL || (adminEmail && normalizedEmail === adminEmail))
-  );
+  return Boolean(normalizedEmail && normalizedEmail === OWNER_ADMIN_EMAIL);
 }
 
 const CAMPOS_PROIBIDOS_PROFILE = [
@@ -30,6 +26,7 @@ const CAMPOS_PROIBIDOS_PROFILE = [
   'plano',
   'subscription_status',
   'mercado_pago_subscription_id',
+  'mercado_pago_customer_id',
   'isAdmin',
   'is_admin',
   'role',
@@ -122,6 +119,14 @@ function nomeDoUsuario(user: any) {
     user?.email?.split('@')[0] ||
     'Candidato'
   );
+}
+
+function respostaProfile(profile: any, email?: string | null) {
+  const contaAdmin = emailAdmin(email);
+
+  return contaAdmin
+    ? { ...profile, nome: 'Admin', isAdmin: true, is_admin: true }
+    : { ...profile, isAdmin: false, is_admin: false };
 }
 
 export async function GET(request: Request) {
@@ -227,11 +232,7 @@ export async function GET(request: Request) {
       profile.plano = premiumAtivo ? 'premium_trimestral' : 'free';
     }
 
-    return NextResponse.json(
-      emailAdmin(profile?.email)
-        ? { ...profile, nome: 'Admin', isAdmin: true }
-        : { ...profile, isAdmin: false }
-    );
+    return NextResponse.json(respostaProfile(profile, authUser.email));
   } catch (error) {
     return NextResponse.json(
       {
@@ -315,21 +316,13 @@ export async function PATCH(request: Request) {
           avatar_url: profilePatch.avatar_url,
         });
 
-        return NextResponse.json(
-          contaAdmin
-            ? { ...profilePatch, nome: 'Admin', isAdmin: true }
-            : { ...profilePatch, isAdmin: false }
-        );
+        return NextResponse.json(respostaProfile(profilePatch, authUser.email));
       }
 
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    return NextResponse.json(
-      contaAdmin
-        ? { ...profile, nome: 'Admin', isAdmin: true }
-        : { ...profile, isAdmin: false }
-    );
+    return NextResponse.json(respostaProfile(profile, authUser.email));
   } catch (error) {
     return NextResponse.json(
       {

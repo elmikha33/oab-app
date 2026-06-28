@@ -6,15 +6,22 @@ export const dynamic = 'force-dynamic';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-function getSupabase() {
+function getSupabase(accessToken?: string | null) {
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Variáveis do Supabase ausentes');
+    throw new Error('Variaveis do Supabase ausentes.');
   }
 
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,
     },
+    global: accessToken
+      ? {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      : undefined,
   });
 }
 
@@ -31,13 +38,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Nao autenticado.' }, { status: 401 });
     }
 
-    const supabase = getSupabase();
-    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    const authSupabase = getSupabase();
+    const { data: authData, error: authError } = await authSupabase.auth.getUser(token);
 
     if (authError || !authData.user) {
       return NextResponse.json({ error: 'Sessao invalida.' }, { status: 401 });
     }
 
+    const supabase = getSupabase(token);
     const { searchParams } = new URL(request.url);
 
     const page = Math.max(Number(searchParams.get('page') ?? '0'), 0);
@@ -58,21 +66,20 @@ export async function GET(request: Request) {
       .range(from, to);
 
     if (error) {
+      console.error('[api:questoes] erro ao buscar questoes', error.message);
+
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Nao foi possivel carregar questoes.' },
         { status: 500 }
       );
     }
 
     return NextResponse.json(data ?? []);
   } catch (error) {
+    console.error('[api:questoes] erro interno', error);
+
     return NextResponse.json(
-      {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Erro inesperado ao buscar questões',
-      },
+      { error: 'Erro inesperado ao buscar questoes.' },
       { status: 500 }
     );
   }

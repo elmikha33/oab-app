@@ -30,6 +30,12 @@ function parseDays(value: unknown, fallback = 90) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function parseMoney(value: string | undefined, fallback: number) {
+  const parsed = value ? Number(value) : fallback;
+
+  return Number.isFinite(parsed) && parsed > 0 ? Number(parsed.toFixed(2)) : fallback;
+}
+
 function premiumAteFromNow(days: number) {
   const date = new Date();
   date.setDate(date.getDate() + days);
@@ -82,6 +88,37 @@ function isApprovedPayment(payment: any) {
   const statusDetail = String(payment?.status_detail || '').toLowerCase();
 
   return status === 'approved' || statusDetail === 'accredited';
+}
+
+function isUuid(value: unknown) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    String(value || '')
+  );
+}
+
+function validarPagamentoPremium(payment: any, metadata: any, userId: string) {
+  const plano = String(metadata?.plano || '').trim();
+  const moeda = String(payment?.currency_id || '').trim().toUpperCase();
+  const valorPago = Number(payment?.transaction_amount);
+  const valorEsperado = parseMoney(process.env.MERCADO_PAGO_TEST_PRICE, 99);
+
+  if (!isUuid(userId)) {
+    return { ok: false, reason: 'invalid_user_id' };
+  }
+
+  if (plano !== 'premium_trimestral') {
+    return { ok: false, reason: 'invalid_plan' };
+  }
+
+  if (moeda !== 'BRL') {
+    return { ok: false, reason: 'invalid_currency' };
+  }
+
+  if (!Number.isFinite(valorPago) || valorPago + 0.001 < valorEsperado) {
+    return { ok: false, reason: 'invalid_amount' };
+  }
+
+  return { ok: true, reason: 'valid' };
 }
 
 async function readMercadoPagoBody(response: Response) {
@@ -280,19 +317,9 @@ export async function POST(request: Request) {
       });
     }
 
-    const adminClient = getAdminClient();
-    const duplicated = await paymentAlreadyProcessed(adminClient, paymentId);
-
-    if (duplicated) {
-      webhookLog('pagamento ignorado: evento duplicado', {
-        payment_id: paymentId,
-        status: payment.status || 'approved',
-      });
-
-      return NextResponse.json({ ok: true, duplicated: true });
-    }
-
     if (!userId) {
+      const adminClient = getAdminClient();
+
       await registrarPedido(adminClient, {
         user_id: null,
         email,
@@ -314,6 +341,37 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.json({ ok: true, ignored: 'pagamento aprovado sem user_id' });
+    }
+
+    const validacaoPremium = validarPagamentoPremium(payment, metadata, String(userId));
+
+    if (!validacaoPremium.ok) {
+      webhookWarn('pagamento aprovado ignorado: validacao premium falhou', {
+        payment_id: paymentId,
+        reason: validacaoPremium.reason,
+        status: payment.status || null,
+        status_detail: payment.status_detail || null,
+        user_id: userId,
+        email,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        ignored: true,
+        reason: validacaoPremium.reason,
+      });
+    }
+
+    const adminClient = getAdminClient();
+    const duplicated = await paymentAlreadyProcessed(adminClient, paymentId);
+
+    if (duplicated) {
+      webhookLog('pagamento ignorado: evento duplicado', {
+        payment_id: paymentId,
+        status: payment.status || 'approved',
+      });
+
+      return NextResponse.json({ ok: true, duplicated: true });
     }
 
     const premiumDias = parseDays(metadata.premium_dias || metadata.premiumDias || process.env.PREMIUM_TEST_DAYS);

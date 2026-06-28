@@ -223,9 +223,7 @@ function criarUsuario(base: any = {}) {
     subscription_status: base.subscription_status || null,
     mercado_pago_subscription_id: base.mercado_pago_subscription_id || null,
 
-    isAdmin:
-      contaAdmin ||
-      Boolean(base.isAdmin),
+    isAdmin: contaAdmin,
 
     lifetimeQuestions: base.lifetimeQuestions || base.rankingQuestions || questoesRespondidas.length || 0,
     lifetimeCorrect: base.lifetimeCorrect || base.acertos || 0,
@@ -394,7 +392,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
           : profile?.subscription_status || null,
         mercado_pago_subscription_id: profile?.mercado_pago_subscription_id || null,
         active_device_id: activeDeviceId,
-        isAdmin: Boolean(profile?.isAdmin || profile?.is_admin || emailAdmin(authUser.email)),
+        isAdmin: emailAdmin(authUser.email),
       });
 
       setUser(mergedUser);
