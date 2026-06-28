@@ -89,6 +89,18 @@ function playErrorMelody() {
   });
 }
 
+function playAchievementMelody() {
+  withRunningAudioContext((ctx) => {
+    const now = ctx.currentTime + 0.01;
+
+    playTone(ctx, now, 523.25, 0.08, 0.07, 'triangle');
+    playTone(ctx, now + 0.055, 659.25, 0.09, 0.08, 'sine');
+    playTone(ctx, now + 0.12, 783.99, 0.1, 0.085, 'sine');
+    playTone(ctx, now + 0.19, 1046.5, 0.18, 0.095, 'triangle');
+    playTone(ctx, now + 0.21, 1318.51, 0.16, 0.045, 'sine');
+  });
+}
+
 export default function useSoundEffects() {
   const [enabled, setEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
@@ -133,11 +145,16 @@ export default function useSoundEffects() {
     playErrorMelody();
   }, []);
 
+  const playAchievement = useCallback(() => {
+    playAchievementMelody();
+  }, []);
+
   return {
     enabled,
     mounted,
     toggleSound,
     playSuccess,
     playError,
+    playAchievement,
   };
 }

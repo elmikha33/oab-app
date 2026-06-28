@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getUnlockedAchievementIds, normalizeAchievementIds } from '@/lib/achievements';
@@ -326,6 +326,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const previousAchievementIdsRef = useRef<string[] | null>(null);
 
   const carregarUsuario = useCallback(async (sessaoAtual?: Session | null) => {
     setLoading(true);
@@ -435,6 +436,33 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     if (!user) return;
     localStorage.setItem('user-game-data', JSON.stringify(user));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      previousAchievementIdsRef.current = null;
+      return;
+    }
+
+    const currentIds = normalizeAchievementIds(user.conquistasDesbloqueadas);
+    const previousIds = previousAchievementIdsRef.current;
+
+    if (previousIds) {
+      const unlockedNow = currentIds.filter((id) => !previousIds.includes(id));
+
+      if (unlockedNow.length && typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('oaplay-achievement-unlocked', {
+            detail: {
+              ids: unlockedNow,
+              id: unlockedNow[0],
+            },
+          })
+        );
+      }
+    }
+
+    previousAchievementIdsRef.current = currentIds;
   }, [user]);
 
   const refreshUser = useCallback(async () => {
@@ -712,6 +740,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         registrarRespostaFreeHoje,
         registrarAcerto,
         registrarErro,
+        registrarQuestaoRevisada,
         resetarAcertos,
         conquistas,
         stats: {},

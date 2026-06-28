@@ -133,18 +133,6 @@ export default function Dashboard() {
         <ThemeToggle compact className="rounded-full" />
       </div>
 
-      <ChallengeCard
-        suggestedAchievement={suggestedAchievement}
-        challengeAction={challengeAction}
-        className="md:hidden"
-      />
-
-      <div className="md:hidden">
-        <ProfileEditor>
-          <AchievementMiniatures user={user} />
-        </ProfileEditor>
-      </div>
-
       <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm shadow-emerald-950/5 dark:border-white/10 dark:bg-slate-900">
         <div className="grid gap-0 lg:grid-cols-[1.25fr_0.75fr]">
           <div className="p-6 sm:p-8">
@@ -213,8 +201,20 @@ export default function Dashboard() {
         </div>
       </section>
 
+      <div className="md:hidden">
+        <ProfileEditor>
+          <AchievementMiniatures user={user} />
+        </ProfileEditor>
+      </div>
+
+      <ChallengeCard
+        suggestedAchievement={suggestedAchievement}
+        challengeAction={challengeAction}
+        className="md:hidden"
+      />
+
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-3 dark:border-white/10 dark:bg-slate-900">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">próximo passo</p>
           <p className="mt-2 text-xl font-black leading-tight text-slate-950 dark:text-white">
             Uma rodada bem feita vale mais que pressa.
@@ -227,7 +227,7 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-2 dark:border-white/10 dark:bg-slate-900">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">plano atual</p>
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
             {user?.isPremium ? 'Premium' : 'Free'}
@@ -237,7 +237,7 @@ export default function Dashboard() {
         <ChallengeCard
           suggestedAchievement={suggestedAchievement}
           challengeAction={challengeAction}
-          className="hidden md:block"
+          className="hidden md:order-1 md:block"
         />
       </section>
 

@@ -887,14 +887,32 @@ function hashStringForShuffle(valor: string) {
   return hash;
 }
 
+function criarRandomSeeded(seed: number) {
+  let value = seed >>> 0;
+
+  return () => {
+    value = (value + 0x6d2b79f5) >>> 0;
+
+    let mixed = value;
+    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function ordenarEmbaralhado(questoes: Questao[], seed: number) {
   if (!seed) return questoes;
 
-  return [...questoes].sort((a, b) => {
-    const hashA = hashStringForShuffle(`${seed}-${getKey(a)}`);
-    const hashB = hashStringForShuffle(`${seed}-${getKey(b)}`);
-    return hashA - hashB;
-  });
+  const embaralhadas = [...questoes];
+  const random = criarRandomSeeded(hashStringForShuffle(String(seed)));
+
+  for (let index = embaralhadas.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [embaralhadas[index], embaralhadas[target]] = [embaralhadas[target], embaralhadas[index]];
+  }
+
+  return embaralhadas;
 }
 
 function lerRespondidasSalvasParaOrdenacao(): Record<string, true> {

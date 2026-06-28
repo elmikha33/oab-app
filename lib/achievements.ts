@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { CheckCircle2, Crown, Flame, RotateCcw, ShieldCheck, Target, Trophy } from 'lucide-react';
+import { Brain, CheckCircle2, Compass, Crown, Flame, RotateCcw, ShieldCheck, Sparkles, Target, Trophy, Zap } from 'lucide-react';
 
 export type AchievementDefinition = {
   id: string;
@@ -26,6 +26,38 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
     title: 'Sequência inicial',
     description: 'Acerte 10 questões no total.',
     requirement: '10 acertos',
+  },
+  {
+    id: 'three_active_days',
+    emoji: '\u{1F9ED}',
+    icon: Compass,
+    title: 'Rota traçada',
+    description: 'Volte ao OAPlay em 3 dias ativos e transforme estudo em hábito.',
+    requirement: '3 dias ativos',
+  },
+  {
+    id: 'twenty_five_questions',
+    emoji: '\u{26A1}',
+    icon: Zap,
+    title: 'Sprint de arrancada',
+    description: 'Responda 25 questões e aqueça o motor da aprovação.',
+    requirement: '25 questões respondidas',
+  },
+  {
+    id: 'twenty_five_correct',
+    emoji: '\u{1F48E}',
+    icon: Sparkles,
+    title: 'Precisão lapidada',
+    description: 'Some 25 acertos e mostre que sua técnica já está ficando afiada.',
+    requirement: '25 acertos',
+  },
+  {
+    id: 'reviewed_5',
+    emoji: '\u{1F9E0}',
+    icon: Brain,
+    title: 'Erro domado',
+    description: 'Recupere 5 questões no modo revisão e transforme falha em repertório.',
+    requirement: '5 questões revisadas',
   },
   {
     id: 'fifty_correct',
@@ -80,6 +112,10 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
 const LEGACY_ACHIEVEMENT_IDS: Record<string, string[]> = {
   first_question: ['badge_first', 'firstQuestion'],
   ten_correct: ['badge_10_correct', 'tenCorrect'],
+  three_active_days: ['badge_3_days', 'threeActiveDays'],
+  twenty_five_questions: ['badge_25_questions', 'twentyFiveQuestions'],
+  twenty_five_correct: ['badge_25_correct', 'twentyFiveCorrect'],
+  reviewed_5: ['badge_reviewed_5', 'reviewed5'],
   fifty_correct: ['badge_50_correct', 'fiftyCorrect'],
   hundred_correct: ['badge_100_correct', 'hundredCorrect'],
   reviewed_33: ['badge_reviewed_33', 'reviewed33'],
@@ -147,6 +183,14 @@ export function isAchievementUnlocked(id: string, user: any) {
       return respondidas >= 1 || acertos >= 1;
     case 'ten_correct':
       return acertos >= 10;
+    case 'three_active_days':
+      return diasAtivos >= 3;
+    case 'twenty_five_questions':
+      return respondidas >= 25;
+    case 'twenty_five_correct':
+      return acertos >= 25;
+    case 'reviewed_5':
+      return Number(user?.lifetimeReviewed || 0) >= 5;
     case 'fifty_correct':
       return acertos >= 50;
     case 'hundred_correct':
