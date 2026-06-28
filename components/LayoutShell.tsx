@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import AchievementUnlockEffects from '@/components/AchievementUnlockEffects';
+import InstallAppPrompt from '@/components/InstallAppPrompt';
 import Sidebar from '@/components/Sidebar';
 import MobileNav from '@/components/MobileNav';
 
@@ -37,6 +38,7 @@ export default function LayoutShell({ children }: LayoutShellProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-white">
       <AchievementUnlockEffects />
+      <InstallAppPrompt />
 
       {(!isPlayRoute || !playSidebarCollapsed) && (
         <div className="hidden md:block">

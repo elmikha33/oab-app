@@ -3,12 +3,13 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import ThemeProvider from '@/app/ThemeProvider';
 import LayoutShell from '@/components/LayoutShell';
+import PWARegister from '@/components/PWARegister';
 import { GameStateProvider } from '@/context/GameStateContext';
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0d1b2a',
+  themeColor: '#020617',
 };
 
 export const metadata: Metadata = {
@@ -16,8 +17,9 @@ export const metadata: Metadata = {
     default: 'OAPlay',
     template: '%s | OAPlay',
   },
-  description: 'Questões OAB gamificadas para estudar, jogar, evoluir e acelerar sua aprovação.',
+  description: 'Treino diário para a 1ª fase da OAB',
   applicationName: 'OAPlay',
+  manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
     title: 'OAPlay',
@@ -27,13 +29,14 @@ export const metadata: Metadata = {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
       { url: '/oaplay-icon-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/oaplay-icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [{ url: '/oaplay-icon-180.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
     title: 'OAPlay',
-    description: 'Questões OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
+    description: 'Treino diário para a 1ª fase da OAB.',
     type: 'website',
     locale: 'pt_BR',
     images: [
@@ -48,7 +51,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'OAPlay',
-    description: 'Questões OAB gamificadas para estudar, jogar, evoluir e ser aprovado.',
+    description: 'Treino diário para a 1ª fase da OAB.',
     images: ['/oaplay-og-image.png'],
   },
 };
@@ -61,6 +64,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen bg-slate-50 text-slate-950 antialiased transition-colors dark:bg-slate-950 dark:text-slate-50">
+        <PWARegister />
         <ThemeProvider>
           <GameStateProvider>
             <LayoutShell>{children}</LayoutShell>
