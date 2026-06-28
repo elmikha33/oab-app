@@ -221,7 +221,7 @@ export default function Dashboard() {
           </p>
           <Link
             href="/play"
-            className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+            className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 sm:w-auto dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
           >
             Continuar treino
           </Link>
@@ -235,7 +235,7 @@ export default function Dashboard() {
           {!user?.isPremium && (
             <Link
               href="/premium"
-              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200"
+              className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200 sm:w-auto"
             >
               Conhecer Premium
             </Link>
