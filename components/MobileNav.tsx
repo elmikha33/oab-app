@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
+  ArrowRight,
   BarChart3,
   BookOpen,
   Crown,
@@ -44,6 +45,7 @@ function formatDate(date?: string | null) {
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useGameState() || {};
   const [open, setOpen] = useState(false);
   const { darkMode, toggleTheme } = useSyncedTheme();
@@ -60,7 +62,16 @@ export default function MobileNav() {
     };
   }, [open]);
 
+  useEffect(() => {
+    router.prefetch('/premium');
+  }, [router]);
+
   const premiumUntil = formatDate(user?.premium_ate);
+
+  function openPremium() {
+    setOpen(false);
+    router.push('/premium');
+  }
 
   return (
     <>
@@ -164,19 +175,32 @@ export default function MobileNav() {
                 <div className="space-y-3">
                   <AchievementMiniatures user={user} />
 
-                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
-                    <div className="flex items-center gap-2">
-                      <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
-                      <p className="text-sm font-black">{user?.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
+                  {user?.isPremium ? (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-emerald-950 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-amber-500 dark:text-amber-300" strokeWidth={2.8} />
+                        <p className="text-sm font-black">Plano Premium</p>
+                      </div>
+                      {premiumUntil && (
+                        <p className="mt-1 text-xs font-bold text-emerald-800 dark:text-emerald-200">Até {premiumUntil}</p>
+                      )}
                     </div>
-                    {user?.isPremium && premiumUntil ? (
-                      <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">Até {premiumUntil}</p>
-                    ) : (
-                      <Link href="/premium" className="mt-2 inline-flex text-xs font-black text-emerald-700 dark:text-emerald-300">
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={openPremium}
+                      className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-left text-emerald-950 shadow-sm transition active:scale-[0.99] dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-emerald-700 dark:text-emerald-200" strokeWidth={2.8} />
+                        <p className="text-sm font-black">Plano Free</p>
+                      </div>
+                      <div className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white shadow-sm shadow-emerald-950/10 dark:bg-emerald-300 dark:text-emerald-950">
                         Conhecer Premium
-                      </Link>
-                    )}
-                  </div>
+                        <ArrowRight className="h-4 w-4" strokeWidth={3} />
+                      </div>
+                    </button>
+                  )}
                 </div>
               </ProfileEditor>
 

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  ArrowRight,
   BarChart3,
   BookOpen,
   Crown,
@@ -59,13 +60,16 @@ function PlanStatus({ user }: { user: any }) {
   return (
     <Link
       href="/premium"
-      className="block rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950 transition hover:border-amber-300 hover:bg-amber-100 dark:border-amber-300/25 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15"
+      className="block rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 transition hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100 dark:hover:bg-emerald-300/15"
     >
       <div className="flex items-center gap-2">
-        <Crown className="h-5 w-5" strokeWidth={2.8} />
+        <BookOpen className="h-5 w-5" strokeWidth={2.8} />
         <p className="text-sm font-black">Plano Free</p>
       </div>
-      <p className="mt-2 text-xs font-bold">Conhecer Premium</p>
+      <div className="mt-3 flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
+        Conhecer Premium
+        <ArrowRight className="h-4 w-4" strokeWidth={3} />
+      </div>
     </Link>
   );
 }

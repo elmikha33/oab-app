@@ -68,7 +68,11 @@ export default function AchievementsPage() {
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-            <Crown className="h-6 w-6 text-amber-500 dark:text-amber-300" />
+            {user?.isPremium ? (
+              <Crown className="h-6 w-6 text-amber-500 dark:text-amber-300" />
+            ) : (
+              <BookOpen className="h-6 w-6 text-emerald-500 dark:text-emerald-300" />
+            )}
             <p className="mt-4 text-2xl font-black">{user?.isPremium ? 'Premium' : 'Free'}</p>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-400">plano atual</p>
           </div>

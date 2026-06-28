@@ -124,7 +124,8 @@ export default function ProfileEditor({ children }: ProfileEditorProps) {
               onChange={(event) => setDisplayName(event.target.value)}
               disabled={lockedAdminName || saving}
               maxLength={40}
-              className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-950 outline-none transition focus:border-emerald-400 focus:bg-white disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:focus:border-emerald-300"
+              placeholder="Nome que aparece no ranking"
+              className="h-11 w-full rounded-2xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-950 caret-emerald-600 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 disabled:opacity-100 dark:border-white/10 dark:bg-slate-950 dark:text-white dark:caret-emerald-300 dark:placeholder:text-slate-500 dark:focus:border-emerald-300 dark:focus:bg-slate-950 dark:focus:text-white dark:disabled:bg-slate-900 dark:disabled:text-slate-300"
             />
           </div>
 
