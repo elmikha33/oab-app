@@ -7,6 +7,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const mercadoPagoToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
 
+function webhookLog(message: string, details?: Record<string, unknown>) {
+  console.log('[mercadopago:webhook]', message, details || {});
+}
+
+function webhookWarn(message: string, details?: Record<string, unknown>) {
+  console.warn('[mercadopago:webhook]', message, details || {});
+}
+
 function getAdminClient() {
   if (!supabaseUrl || !serviceKey) {
     throw new Error('Variaveis Supabase ausentes.');
@@ -17,282 +25,348 @@ function getAdminClient() {
   });
 }
 
-async function getData<T = any>(query: PromiseLike<{ data: T; error: any }>) {
-  const { data, error } = await query;
+function parseDays(value: unknown, fallback = 90) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
 
-  if (error) {
-    throw error;
+function premiumAteFromNow(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+function extractPaymentId(body: any, url: URL) {
+  const explicitId =
+    body?.data?.id ||
+    body?.id ||
+    url.searchParams.get('data.id') ||
+    url.searchParams.get('id');
+
+  if (explicitId) return String(explicitId);
+
+  const resource = String(body?.resource || url.searchParams.get('resource') || '');
+  const match = resource.match(/\/payments\/(\d+)/);
+  return match?.[1] || null;
+}
+
+function isPaymentNotification(body: any, url: URL) {
+  const eventType = String(
+    body?.type ||
+      body?.topic ||
+      body?.action ||
+      url.searchParams.get('type') ||
+      url.searchParams.get('topic') ||
+      ''
+  ).toLowerCase();
+
+  const resource = String(body?.resource || url.searchParams.get('resource') || '').toLowerCase();
+
+  return eventType.includes('payment') || resource.includes('/payments/');
+}
+
+function eventInfo(body: any, url: URL) {
+  return {
+    type: body?.type || url.searchParams.get('type') || null,
+    action: body?.action || null,
+    topic: body?.topic || url.searchParams.get('topic') || null,
+  };
+}
+
+function isSimulatorOrTestPayment(body: any, paymentId: string | null) {
+  return paymentId === '123456' || body?.data?.id === '123456' || body?.live_mode === false;
+}
+
+function isApprovedPayment(payment: any) {
+  const status = String(payment?.status || '').toLowerCase();
+  const statusDetail = String(payment?.status_detail || '').toLowerCase();
+
+  return status === 'approved' || statusDetail === 'accredited';
+}
+
+async function readMercadoPagoBody(response: Response) {
+  const text = await response.text();
+
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { message: text };
   }
-
-  return data;
 }
 
-async function expectSuccess(query: PromiseLike<{ error: any }>) {
-  const { error } = await query;
-
-  if (error) {
-    throw error;
-  }
-}
-
-function addThreeMonthsFrom(baseDate?: string | null) {
-  const now = new Date();
-  const base =
-    baseDate && new Date(baseDate).getTime() > now.getTime()
-      ? new Date(baseDate)
-      : now;
-
-  base.setMonth(base.getMonth() + 3);
-  return base.toISOString();
-}
-
-function getPaymentPreapprovalId(payment: any) {
-  return (
-    payment?.preapproval_id ||
-    payment?.point_of_interaction?.transaction_data?.subscription_id ||
-    payment?.metadata?.preapproval_id ||
-    payment?.metadata?.preapprovalId ||
-    null
-  );
-}
-
-async function mercadoPagoGet(path: string) {
+async function mercadoPagoGetPayment(paymentId: string) {
   if (!mercadoPagoToken) {
     throw new Error('MERCADO_PAGO_ACCESS_TOKEN ausente.');
   }
 
-  const response = await fetch(`https://api.mercadopago.com${path}`, {
+  const response = await fetch(`https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}`, {
     headers: {
       Authorization: `Bearer ${mercadoPagoToken}`,
     },
   });
 
-  const data = await response.json();
+  const data = await readMercadoPagoBody(response);
 
   if (!response.ok) {
-    throw new Error(data?.message || data?.error || 'Erro ao consultar Mercado Pago.');
+    return {
+      ok: false as const,
+      status: response.status,
+      message: data?.message || data?.error || 'Erro ao consultar Mercado Pago.',
+      data,
+    };
   }
 
-  return data;
+  return { ok: true as const, data };
 }
 
-async function buscarUserIdPorPreapproval(adminClient: any, preapprovalId?: string | null) {
-  if (!preapprovalId) return null;
-
-  const order = await getData(
-    adminClient
+async function paymentAlreadyProcessed(adminClient: any, paymentId: string) {
+  const { data, error } = await adminClient
     .from('premium_orders')
-    .select('user_id')
-    .eq('mercado_pago_preapproval_id', preapprovalId)
-    .not('user_id', 'is', null)
-    .limit(1)
-      .maybeSingle()
-  );
+    .select('id')
+    .eq('mercado_pago_payment_id', paymentId)
+    .maybeSingle();
 
-  if (order?.user_id) {
-    return order.user_id;
+  if (error) {
+    console.warn('premium_orders indisponivel para verificar idempotencia:', error.message);
+    return false;
   }
 
-  const preapproval = await mercadoPagoGet(`/preapproval/${preapprovalId}`);
-  return preapproval?.external_reference || null;
+  return Boolean(data?.id);
 }
 
-async function buscarLiberacaoRecente(adminClient: any, userId: string, preapprovalId?: string | null) {
-  if (!preapprovalId) return null;
+async function registrarPedido(adminClient: any, order: Record<string, unknown>) {
+  const { error } = await adminClient.from('premium_orders').insert(order);
 
-  const desde = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
+  if (!error) return;
 
-  const data = await getData(
-    adminClient
+  if (String(error.message || '').includes('mercado_pago_preference_id')) {
+    const { mercado_pago_preference_id: _ignored, ...fallbackOrder } = order;
+    const retry = await adminClient.from('premium_orders').insert(fallbackOrder);
+
+    if (!retry.error) return;
+  }
+
+  console.warn('premium_orders indisponivel para registrar pagamento:', error.message);
+}
+
+async function atualizarPedidoPendente(adminClient: any, preferenceId: string | null, paymentId: string, payment: any) {
+  if (!preferenceId) return false;
+
+  const { data, error } = await adminClient
     .from('premium_orders')
-    .select('id, paid_at')
-    .eq('user_id', userId)
-    .eq('mercado_pago_preapproval_id', preapprovalId)
-    .in('status', ['authorized', 'approved'])
-    .gte('paid_at', desde)
-    .limit(1)
-      .maybeSingle()
-  );
-
-  return data || null;
-}
-
-async function ativarPremium(
-  adminClient: any,
-  userId: string,
-  rawEvent: any,
-  paymentId?: string | null,
-  preapprovalId?: string | null
-) {
-  const profile = await getData(
-    adminClient
-    .from('profiles')
-    .select('premium_ate')
-    .eq('id', userId)
-      .maybeSingle()
-  );
-
-  const novoPremiumAte = addThreeMonthsFrom(profile?.premium_ate || null);
-
-  await expectSuccess(
-    adminClient
-    .from('profiles')
     .update({
-      is_premium: true,
-      premium_ate: novoPremiumAte,
-      plano: 'premium_trimestral',
-      subscription_status: 'authorized',
-      mercado_pago_subscription_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
-      updated_at: new Date().toISOString(),
+      status: payment.status || 'approved',
+      mercado_pago_payment_id: paymentId,
+      raw_event: payment,
+      paid_at: new Date().toISOString(),
     })
-      .eq('id', userId)
-  );
+    .eq('mercado_pago_preference_id', preferenceId)
+    .is('mercado_pago_payment_id', null)
+    .select('id');
 
-  await expectSuccess(adminClient.from('premium_orders').insert({
-    user_id: userId,
-    email: rawEvent?.payer_email || rawEvent?.payer?.email || null,
-    valor: 99.9,
-    moeda: 'BRL',
-    status: 'approved',
-    tipo: 'subscription',
-    premium_dias: 90,
-    mercado_pago_payment_id: paymentId || rawEvent?.id || null,
-    mercado_pago_preapproval_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
-    mercado_pago_subscription_id: preapprovalId || rawEvent?.preapproval_id || rawEvent?.id || null,
-    raw_event: rawEvent,
-    paid_at: new Date().toISOString(),
-  }));
+  if (error) {
+    console.warn('premium_orders indisponivel para atualizar pedido pendente:', error.message);
+    return false;
+  }
+
+  return Array.isArray(data) && data.length > 0;
 }
 
 export async function POST(request: Request) {
   try {
-    const adminClient = getAdminClient();
     const url = new URL(request.url);
-
     const body = await request.json().catch(() => ({}));
+    const info = eventInfo(body, url);
+    const eventId = extractPaymentId(body, url);
+    const simulatorOrTestPayment = isSimulatorOrTestPayment(body, eventId);
 
-    const eventType =
-      body?.type ||
-      body?.topic ||
-      url.searchParams.get('type') ||
-      url.searchParams.get('topic') ||
-      '';
+    webhookLog('webhook recebido', {
+      type: info.type,
+      action: info.action,
+      topic: info.topic,
+      payment_id: eventId,
+      live_mode: body?.live_mode ?? null,
+    });
 
-    const eventId =
-      body?.data?.id ||
-      body?.id ||
-      url.searchParams.get('data.id') ||
-      url.searchParams.get('id');
+    if (!isPaymentNotification(body, url)) {
+      webhookLog('evento ignorado: nao e notificacao de pagamento', {
+        type: info.type,
+        action: info.action,
+        topic: info.topic,
+      });
+
+      return NextResponse.json({ ok: true, ignored: true });
+    }
 
     if (!eventId) {
-      return NextResponse.json({ ok: true, ignored: 'sem id' });
+      webhookWarn('evento ignorado: sem payment id', {
+        type: info.type,
+        action: info.action,
+        topic: info.topic,
+      });
+
+      return NextResponse.json({ ok: true, ignored: 'sem payment id' });
     }
 
-    if (String(eventType).includes('preapproval')) {
-      const preapproval = await mercadoPagoGet(`/preapproval/${eventId}`);
+    let paymentResult: Awaited<ReturnType<typeof mercadoPagoGetPayment>>;
 
-      const userId = preapproval.external_reference;
-      const status = preapproval.status;
+    try {
+      paymentResult = await mercadoPagoGetPayment(eventId);
+    } catch (error) {
+      if (simulatorOrTestPayment) {
+        webhookWarn('simulador/teste ignorado: nao foi possivel consultar pagamento real', {
+          payment_id: eventId,
+          reason: 'simulator_or_test_payment',
+          message: error instanceof Error ? error.message : 'Erro ao consultar Mercado Pago.',
+        });
 
-      if (userId) {
-        await expectSuccess(
-          adminClient
-          .from('profiles')
-          .update({
-            mercado_pago_subscription_id: preapproval.id,
-            subscription_status: status,
-            updated_at: new Date().toISOString(),
-          })
-            .eq('id', userId)
-        );
+        return NextResponse.json({
+          ok: true,
+          ignored: true,
+          reason: 'simulator_or_test_payment',
+        });
       }
 
-      await expectSuccess(adminClient.from('premium_orders').insert({
-        user_id: userId || null,
-        email: preapproval.payer_email || null,
-        valor: 99.9,
-        moeda: 'BRL',
-        status: status || 'unknown',
-        tipo: 'subscription',
-        premium_dias: 90,
-        mercado_pago_preapproval_id: preapproval.id || null,
-        mercado_pago_subscription_id: preapproval.id || null,
-        raw_event: preapproval,
-        paid_at: null,
-      }));
-
-      return NextResponse.json({ ok: true });
+      throw error;
     }
 
-    if (String(eventType).includes('payment')) {
-      const payment = await mercadoPagoGet(`/v1/payments/${eventId}`);
+    if (!paymentResult.ok) {
+      const reason = simulatorOrTestPayment
+        ? 'simulator_or_test_payment'
+        : 'mercado_pago_payment_lookup_failed';
 
-      if (payment.status !== 'approved') {
-        return NextResponse.json({ ok: true, status: payment.status });
-      }
+      webhookWarn('pagamento nao encontrado/indisponivel no Mercado Pago', {
+        payment_id: eventId,
+        mercado_pago_status: paymentResult.status,
+        reason,
+        message: paymentResult.message,
+      });
 
-      const paymentId = String(payment.id);
-      const preapprovalId = getPaymentPreapprovalId(payment);
-
-      const existing = await getData(
-        adminClient
-        .from('premium_orders')
-        .select('id')
-        .eq('mercado_pago_payment_id', paymentId)
-          .maybeSingle()
-      );
-
-      if (existing?.id) {
-        return NextResponse.json({ ok: true, duplicated: true });
-      }
-
-      const userId =
-        payment.external_reference ||
-        payment.metadata?.user_id ||
-        payment.metadata?.userId ||
-        (await buscarUserIdPorPreapproval(adminClient, preapprovalId));
-
-      if (userId) {
-        const liberacaoRecente = await buscarLiberacaoRecente(adminClient, userId, preapprovalId);
-
-        if (liberacaoRecente?.id) {
-          await expectSuccess(
-            adminClient
-            .from('premium_orders')
-            .update({
-              status: payment.status || 'approved',
-              mercado_pago_payment_id: paymentId,
-              raw_event: payment,
-            })
-              .eq('id', liberacaoRecente.id)
-          );
-
-          return NextResponse.json({ ok: true, linked_to_preapproval: true });
-        }
-
-        await ativarPremium(adminClient, userId, payment, paymentId, preapprovalId);
-      } else {
-        await expectSuccess(adminClient.from('premium_orders').insert({
-          user_id: null,
-          email: payment.payer?.email || null,
-          valor: payment.transaction_amount || 99.9,
-          moeda: payment.currency_id || 'BRL',
-          status: payment.status || 'approved',
-          tipo: 'subscription',
-          premium_dias: 90,
-          mercado_pago_payment_id: paymentId,
-          mercado_pago_preapproval_id: preapprovalId || null,
-          mercado_pago_subscription_id: preapprovalId || null,
-          raw_event: payment,
-          paid_at: new Date().toISOString(),
-        }));
-      }
-
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, ignored: true, reason });
     }
 
-    return NextResponse.json({ ok: true, ignored: eventType });
+    const payment = paymentResult.data;
+    const paymentId = String(payment.id || eventId);
+    const metadata = payment.metadata || {};
+    const userId =
+      payment.external_reference ||
+      metadata.user_id ||
+      metadata.userId ||
+      null;
+    const email = metadata.email || payment.payer?.email || null;
+
+    webhookLog('pagamento consultado no Mercado Pago', {
+      payment_id: paymentId,
+      status: payment.status || null,
+      status_detail: payment.status_detail || null,
+      user_id: userId,
+      email,
+    });
+
+    if (!isApprovedPayment(payment)) {
+      webhookLog('pagamento ignorado: ainda nao aprovado', {
+        payment_id: paymentId,
+        status: payment.status || null,
+        status_detail: payment.status_detail || null,
+      });
+
+      return NextResponse.json({
+        ok: true,
+        ignored: true,
+        status: payment.status || 'unknown',
+        status_detail: payment.status_detail || null,
+      });
+    }
+
+    const adminClient = getAdminClient();
+    const duplicated = await paymentAlreadyProcessed(adminClient, paymentId);
+
+    if (duplicated) {
+      webhookLog('pagamento ignorado: evento duplicado', {
+        payment_id: paymentId,
+        status: payment.status || 'approved',
+      });
+
+      return NextResponse.json({ ok: true, duplicated: true });
+    }
+
+    if (!userId) {
+      await registrarPedido(adminClient, {
+        user_id: null,
+        email,
+        valor: payment.transaction_amount || null,
+        moeda: payment.currency_id || 'BRL',
+        status: payment.status,
+        tipo: 'checkout_pro',
+        premium_dias: parseDays(metadata.premium_dias || metadata.premiumDias || process.env.PREMIUM_TEST_DAYS),
+        mercado_pago_payment_id: paymentId,
+        mercado_pago_preference_id: payment.preference_id || null,
+        raw_event: payment,
+        paid_at: new Date().toISOString(),
+      });
+
+      webhookWarn('pagamento aprovado ignorado: sem user_id', {
+        payment_id: paymentId,
+        status: payment.status || null,
+        email,
+      });
+
+      return NextResponse.json({ ok: true, ignored: 'pagamento aprovado sem user_id' });
+    }
+
+    const premiumDias = parseDays(metadata.premium_dias || metadata.premiumDias || process.env.PREMIUM_TEST_DAYS);
+    const premiumAte = premiumAteFromNow(premiumDias);
+
+    const { error: updateError } = await adminClient
+      .from('profiles')
+      .update({
+        is_premium: true,
+        premium_ate: premiumAte,
+        plano: 'premium_trimestral',
+        subscription_status: 'active',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    const preferenceId = payment.preference_id || null;
+
+    const updatedPendingOrder = await atualizarPedidoPendente(adminClient, preferenceId, paymentId, payment);
+
+    if (!updatedPendingOrder) {
+      await registrarPedido(adminClient, {
+        user_id: userId,
+        email,
+        valor: payment.transaction_amount || 99,
+        moeda: payment.currency_id || 'BRL',
+        status: 'approved',
+        tipo: 'checkout_pro',
+        premium_dias: premiumDias,
+        mercado_pago_payment_id: paymentId,
+        mercado_pago_preference_id: preferenceId,
+        raw_event: payment,
+        paid_at: new Date().toISOString(),
+      });
+    }
+
+    webhookLog('premium ativado', {
+      payment_id: paymentId,
+      status: payment.status || 'approved',
+      status_detail: payment.status_detail || null,
+      user_id: userId,
+      email,
+      premium_ate: premiumAte,
+    });
+
+    return NextResponse.json({ ok: true, premium: true });
   } catch (error) {
+    console.error('[mercadopago:webhook] erro interno inesperado', error);
+
     return NextResponse.json(
       {
         ok: false,
@@ -303,7 +377,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   return NextResponse.json(
     { ok: false, error: 'Metodo nao permitido.' },
     {

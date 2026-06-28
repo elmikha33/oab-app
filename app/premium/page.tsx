@@ -159,7 +159,7 @@ export default function PremiumPage() {
         </h1>
 
         <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
-          Assinatura trimestral recorrente. Você paga R$ 99,90 a cada 3 meses e pode cancelar quando quiser.
+          Acesso trimestral. Você paga R$ 99,00 e usa o OAPlay Premium por 3 meses.
         </p>
       </header>
 
@@ -229,21 +229,21 @@ export default function PremiumPage() {
             <>
               <div className="space-y-2">
                 <span className="block text-[10px] font-bold uppercase tracking-[0.22em] text-yellow-300">
-                  Assinatura trimestral
+                  Acesso trimestral
                 </span>
 
                 <div className="flex items-end gap-2">
                   <span className="font-heading text-5xl font-extrabold text-white">
-                    R$ 99,90
+                    R$ 99,00
                   </span>
                 </div>
 
                 <p className="text-sm font-semibold text-slate-300">
-                  Cobrado automaticamente a cada 3 meses.
+                  Pagamento único para 3 meses de acesso.
                 </p>
 
                 <p className="text-xs leading-relaxed text-slate-500">
-                  Pagamento seguro pelo Mercado Pago. Cancele quando quiser.
+                  Pagamento seguro pelo Mercado Pago. A liberação acontece após a confirmação.
                 </p>
               </div>
 

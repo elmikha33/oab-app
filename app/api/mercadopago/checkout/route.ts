@@ -9,7 +9,21 @@ const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const mercadoPagoToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
 
 function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
+}
+
+function parseMoney(value: string | undefined, fallback: number) {
+  if (!value) return fallback;
+
+  const parsed = Number(value.replace(',', '.'));
+  return Number.isFinite(parsed) && parsed > 0 ? Number(parsed.toFixed(2)) : fallback;
+}
+
+function parseDays(value: string | undefined, fallback: number) {
+  if (!value) return fallback;
+
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
 function getBearerToken(request: Request) {
@@ -32,6 +46,21 @@ function getClients() {
   };
 }
 
+async function registrarPedidoPendente(adminClient: any, order: Record<string, unknown>) {
+  const { error } = await adminClient.from('premium_orders').insert(order);
+
+  if (!error) return;
+
+  if (String(error.message || '').includes('mercado_pago_preference_id')) {
+    const { mercado_pago_preference_id: _ignored, ...fallbackOrder } = order;
+    const retry = await adminClient.from('premium_orders').insert(fallbackOrder);
+
+    if (!retry.error) return;
+  }
+
+  console.warn('premium_orders indisponivel para registrar checkout pendente:', error.message);
+}
+
 export async function POST(request: Request) {
   try {
     if (!mercadoPagoToken) {
@@ -48,7 +77,6 @@ export async function POST(request: Request) {
     }
 
     const { authClient, adminClient } = getClients();
-
     const { data: authData, error: authError } = await authClient.auth.getUser(token);
 
     if (authError || !authData.user) {
@@ -57,30 +85,38 @@ export async function POST(request: Request) {
 
     const user = authData.user;
     const appUrl = siteUrl();
+    const unitPrice = parseMoney(process.env.MERCADO_PAGO_TEST_PRICE, 99);
+    const premiumDias = parseDays(process.env.PREMIUM_TEST_DAYS, 90);
 
-    const payload: any = {
-      reason: 'OAPlay Premium Trimestral',
+    const payload = {
+      items: [
+        {
+          title: 'OAPlay Premium Trimestral',
+          quantity: 1,
+          unit_price: unitPrice,
+          currency_id: 'BRL',
+        },
+      ],
+      payer: {
+        email: user.email || undefined,
+      },
       external_reference: user.id,
-      payer_email: user.email,
       metadata: {
         user_id: user.id,
         email: user.email || '',
+        plano: 'premium_trimestral',
+        premium_dias: premiumDias,
       },
-      back_url: `${appUrl}/premium?mp=success`,
-      auto_recurring: {
-        frequency: 3,
-        frequency_type: 'months',
-        transaction_amount: 99.9,
-        currency_id: 'BRL',
+      notification_url: `${appUrl}/api/mercadopago/webhook`,
+      back_urls: {
+        success: `${appUrl}/premium?mp=success`,
+        failure: `${appUrl}/premium?mp=failure`,
+        pending: `${appUrl}/premium?mp=pending`,
       },
-      status: 'pending',
+      auto_return: 'approved',
     };
 
-    if (appUrl.startsWith('https://')) {
-      payload.notification_url = `${appUrl}/api/mercadopago/webhook`;
-    }
-
-    const response = await fetch('https://api.mercadopago.com/preapproval', {
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${mercadoPagoToken}`,
@@ -94,40 +130,30 @@ export async function POST(request: Request) {
     if (!response.ok) {
       return NextResponse.json(
         {
-          error: data?.message || data?.error || 'Erro ao criar assinatura no Mercado Pago.',
+          error: data?.message || data?.error || 'Erro ao criar checkout Mercado Pago.',
         },
         { status: 500 }
       );
     }
 
-    await adminClient.from('premium_orders').insert({
+    await registrarPedidoPendente(adminClient, {
       user_id: user.id,
       email: user.email || null,
-      valor: 99.9,
+      valor: unitPrice,
       moeda: 'BRL',
-      status: data.status || 'pending',
-      tipo: 'subscription',
-      premium_dias: 90,
-      mercado_pago_preapproval_id: data.id || null,
-      mercado_pago_subscription_id: data.id || null,
+      status: 'pending',
+      tipo: 'checkout_pro',
+      premium_dias: premiumDias,
+      mercado_pago_preference_id: data.id || null,
       raw_event: data,
     });
-
-    await adminClient
-      .from('profiles')
-      .update({
-        mercado_pago_subscription_id: data.id || null,
-        subscription_status: data.status || 'pending',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', user.id);
 
     return NextResponse.json({
       id: data.id,
       init_point: data.init_point,
       sandbox_init_point: data.sandbox_init_point,
       url: data.init_point || data.sandbox_init_point,
-      status: data.status,
+      status: 'pending',
     });
   } catch (error) {
     return NextResponse.json(
