@@ -8,14 +8,9 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const mercadoPagoToken = process.env.MERCADO_PAGO_ACCESS_TOKEN;
 
-function siteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '');
-}
-
 function parseMoney(value: string | undefined, fallback: number) {
-  if (!value) return fallback;
+  const parsed = value ? Number(value) : fallback;
 
-  const parsed = Number(value.replace(',', '.'));
   return Number.isFinite(parsed) && parsed > 0 ? Number(parsed.toFixed(2)) : fallback;
 }
 
@@ -84,7 +79,8 @@ export async function POST(request: Request) {
     }
 
     const user = authData.user;
-    const appUrl = siteUrl();
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://oab-app.vercel.app';
+    const baseUrl = siteUrl.replace(/\/$/, '');
     const unitPrice = parseMoney(process.env.MERCADO_PAGO_TEST_PRICE, 99);
     const premiumDias = parseDays(process.env.PREMIUM_TEST_DAYS, 90);
 
@@ -107,11 +103,11 @@ export async function POST(request: Request) {
         plano: 'premium_trimestral',
         premium_dias: premiumDias,
       },
-      notification_url: `${appUrl}/api/mercadopago/webhook`,
+      notification_url: `${baseUrl}/api/mercadopago/webhook`,
       back_urls: {
-        success: `${appUrl}/premium?mp=success`,
-        failure: `${appUrl}/premium?mp=failure`,
-        pending: `${appUrl}/premium?mp=pending`,
+        success: `${baseUrl}/premium?status=success`,
+        failure: `${baseUrl}/premium?status=failure`,
+        pending: `${baseUrl}/premium?status=pending`,
       },
       auto_return: 'approved',
     };

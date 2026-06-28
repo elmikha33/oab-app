@@ -34,7 +34,7 @@ export default function PremiumPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get('mp') === 'success') {
+    if (params.get('status') === 'success' || params.get('mp') === 'success') {
       setSucesso(true);
       setRetornoMercadoPago(true);
     }
