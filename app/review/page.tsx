@@ -41,7 +41,7 @@ function lerRevisaoLocal() {
 }
 
 export default function ReviewPage() {
-  const { user, setUser, registrarErro, registrarAcerto } = useGameState();
+  const { user, setUser, registrarErro, registrarAcerto, registrarQuestaoRevisada } = useGameState();
 
   const [questoes, setQuestoes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,6 +131,7 @@ export default function ReviewPage() {
       // No modo revisão, a questão NÃO pode sair da tela imediatamente.
       // Primeiro mostramos o feedback, a resposta certa e o comentário.
       // Ela só sai quando o usuário clicar em "Continuar e remover da revisão".
+      registrarQuestaoRevisada?.(questao.id);
       registrarAcerto?.(questao.id);
       return;
     }

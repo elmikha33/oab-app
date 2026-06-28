@@ -184,15 +184,24 @@ function AuthFormContent() {
   return (
     <div className="relative z-10 w-full max-w-md rounded-[2rem] border border-emerald-300/10 bg-slate-900/95 p-7 shadow-2xl shadow-black/50">
       <div className="mb-8 text-center">
-        <img
-          src="/oaplay-logo-horizontal-transparent-white.png"
-          alt="OAPlay"
-          className="mx-auto h-14 w-auto object-contain"
-        />
+        <div className="mx-auto flex w-full max-w-[330px] items-center gap-4 rounded-[1.75rem] border border-emerald-300/15 bg-slate-950/75 px-5 py-4 text-left shadow-lg shadow-black/25">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-emerald-300/20 bg-slate-950 shadow-inner">
+            <img
+              src="/oaplay-icon-1024.png"
+              alt=""
+              className="h-12 w-12 rounded-xl object-contain"
+            />
+          </div>
 
-        <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-          Sua aprovação expressa
-        </p>
+          <div className="min-w-0">
+            <div className="font-heading text-3xl font-black leading-none text-white">
+              OA<span className="text-emerald-300">Play</span>
+            </div>
+            <p className="mt-2 text-[13px] font-black uppercase leading-tight text-emerald-200">
+              Sua aprovação expressa
+            </p>
+          </div>
+        </div>
 
         <p className="mt-3 text-sm leading-relaxed text-slate-400">
           Entre para acessar seu painel, salvar progresso e assinar o Premium.

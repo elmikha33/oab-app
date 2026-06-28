@@ -113,7 +113,7 @@ export default function PremiumPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-emerald-300">
+      <div className="flex min-h-[60vh] items-center justify-center text-emerald-600 dark:text-emerald-300">
         <Loader2 className="h-7 w-7 animate-spin" />
       </div>
     );
@@ -121,14 +121,16 @@ export default function PremiumPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-slate-900 p-8 text-center">
-        <h1 className="font-heading text-2xl font-black text-white">Entre para assinar</h1>
-        <p className="mt-2 text-sm text-slate-400">
+      <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-slate-900">
+        <h1 className="font-heading text-2xl font-black text-slate-950 dark:text-white">
+          Entre para assinar
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
           Você precisa criar uma conta ou entrar com Google antes de ativar o Premium.
         </p>
         <Link
           href="/auth"
-          className="mt-6 inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black text-emerald-950"
+          className="mt-6 inline-flex rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
         >
           Fazer login
         </Link>
@@ -139,7 +141,7 @@ export default function PremiumPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 pb-10 pt-4 md:px-0">
       {sucesso && (
-        <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-5 text-center text-sm font-bold text-emerald-100">
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 text-center text-sm font-bold text-emerald-800 dark:border-emerald-300/20 dark:bg-emerald-300/10 dark:text-emerald-100">
           {user?.isPremium
             ? 'Premium ativado. Seu perfil já foi atualizado.'
             : verificandoPremium
@@ -149,50 +151,52 @@ export default function PremiumPage() {
       )}
 
       <header className="space-y-3 py-4 text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-semibold text-yellow-400">
-          <Crown className="h-3.5 w-3.5 fill-yellow-500/20" />
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-black text-amber-700 shadow-sm dark:border-yellow-400/15 dark:bg-yellow-500/10 dark:text-yellow-300">
+          <Crown className="h-3.5 w-3.5 fill-amber-400/30" />
           OAPlay Premium
         </span>
 
-        <h1 className="font-heading text-3xl font-extrabold text-white md:text-5xl">
+        <h1 className="font-heading text-3xl font-extrabold text-slate-950 md:text-5xl dark:text-white">
           Sua aprovação expressa, sem limites
         </h1>
 
-        <p className="mx-auto max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
+        <p className="mx-auto max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 md:text-base dark:text-slate-400">
           Acesso trimestral. Você paga R$ 99,00 e usa o OAPlay Premium por 3 meses.
         </p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-[1fr_0.9fr]">
-        <div className="space-y-6 rounded-[2rem] border border-white/10 bg-slate-900 p-6 shadow-2xl shadow-black/20">
-          <h3 className="font-heading text-xl font-bold text-white">O que voce ganha no Premium?</h3>
+        <div className="space-y-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70 dark:border-white/10 dark:bg-slate-900 dark:shadow-black/20">
+          <h3 className="font-heading text-xl font-bold text-slate-950 dark:text-white">
+            O que você ganha no Premium?
+          </h3>
 
-          <ul className="space-y-5 text-sm text-slate-300">
+          <ul className="space-y-5 text-sm text-slate-700 dark:text-slate-300">
             <li className="flex items-start gap-3">
-              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <div>
-                <span className="block font-bold text-white">Questões ilimitadas</span>
-                <span className="text-xs leading-relaxed text-slate-400">
+                <span className="block font-bold text-slate-950 dark:text-white">Questões ilimitadas</span>
+                <span className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                   Estude sem limite diário e avance no seu ritmo.
                 </span>
               </div>
             </li>
 
             <li className="flex items-start gap-3">
-              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <div>
-                <span className="block font-bold text-white">Ciclo completo de 3 meses</span>
-                <span className="text-xs leading-relaxed text-slate-400">
+                <span className="block font-bold text-slate-950 dark:text-white">Ciclo completo de 3 meses</span>
+                <span className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                   Ideal para manter constância até a prova.
                 </span>
               </div>
             </li>
 
             <li className="flex items-start gap-3">
-              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <div>
-                <span className="block font-bold text-white">Gamificacao completa</span>
-                <span className="text-xs leading-relaxed text-slate-400">
+                <span className="block font-bold text-slate-950 dark:text-white">Gamificação completa</span>
+                <span className="text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                   Continue evoluindo com ranking, revisão e progresso salvo.
                 </span>
               </div>
@@ -200,19 +204,19 @@ export default function PremiumPage() {
           </ul>
         </div>
 
-        <div className="relative overflow-hidden rounded-[2rem] border border-yellow-400/20 bg-gradient-to-br from-slate-900 via-slate-900 to-yellow-950/30 p-6 shadow-2xl shadow-black/20">
+        <div className="relative overflow-hidden rounded-[2rem] border border-amber-200 bg-gradient-to-br from-white via-emerald-50 to-amber-50 p-6 shadow-xl shadow-slate-200/70 dark:border-yellow-400/20 dark:from-slate-900 dark:via-slate-900 dark:to-yellow-950/30 dark:shadow-black/20">
           {user.isPremium ? (
             <div className="space-y-5 py-8 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-400/10 text-emerald-300">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-emerald-100 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300">
                 <ShieldCheck className="h-8 w-8" />
               </div>
 
               <div>
-                <h3 className="font-heading text-2xl font-black text-white">
+                <h3 className="font-heading text-2xl font-black text-slate-950 dark:text-white">
                   Premium ativo
                 </h3>
 
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-400">
                   Seu acesso Premium está liberado
                   {premiumAteFormatado ? ` até ${premiumAteFormatado}` : ''}.
                 </p>
@@ -220,7 +224,7 @@ export default function PremiumPage() {
 
               <Link
                 href="/dashboard"
-                className="inline-flex rounded-2xl bg-emerald-300 px-6 py-3 text-sm font-black text-emerald-950"
+                className="inline-flex rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
               >
                 Voltar ao painel
               </Link>
@@ -228,17 +232,17 @@ export default function PremiumPage() {
           ) : (
             <>
               <div className="space-y-2">
-                <span className="block text-[10px] font-bold uppercase tracking-[0.22em] text-yellow-300">
+                <span className="block text-[10px] font-bold uppercase tracking-[0.22em] text-amber-700 dark:text-yellow-300">
                   Acesso trimestral
                 </span>
 
                 <div className="flex items-end gap-2">
-                  <span className="font-heading text-5xl font-extrabold text-white">
+                  <span className="font-heading text-5xl font-extrabold text-slate-950 dark:text-white">
                     R$ 99,00
                   </span>
                 </div>
 
-                <p className="text-sm font-semibold text-slate-300">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Pagamento único para 3 meses de acesso.
                 </p>
 
@@ -248,7 +252,7 @@ export default function PremiumPage() {
               </div>
 
               {erro && (
-                <div className="mt-5 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200">
                   {erro}
                 </div>
               )}

@@ -79,7 +79,7 @@ export const ACHIEVEMENTS: AchievementDefinition[] = [
     id: 'reviewed_33',
     emoji: '\u{1F9E0}',
     icon: RotateCcw,
-    title: 'Revisou 33 questões',
+    title: 'Mestre da Revisão',
     description: 'Conclua 33 questões no modo revisão.',
     requirement: '33 questões revisadas',
   },
