@@ -84,8 +84,9 @@ function playErrorMelody() {
   withRunningAudioContext((ctx) => {
     const now = ctx.currentTime + 0.01;
 
-    playTone(ctx, now, 246.94, 0.1, 0.08, 'triangle');
-    playTone(ctx, now + 0.09, 196, 0.16, 0.09, 'sine');
+    playTone(ctx, now, 246.94, 0.12, 0.18, 'sawtooth');
+    playTone(ctx, now + 0.07, 196, 0.18, 0.22, 'square');
+    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1, 'triangle');
   });
 }
 

@@ -25,6 +25,79 @@ function emailPremiumManual(email?: string | null) {
 }
 
 const DEVICE_ID_KEY = 'oaplay-active-device-id';
+const GAME_DATA_KEY = 'user-game-data';
+const PERMANENT_PROGRESS_KEY = 'oaplay-permanent-progress';
+const DAY_MS = 24 * 60 * 60 * 1000;
+const DAILY_RANKING_BONUS = 3;
+const WEEKLY_RANKING_BONUS = 10;
+
+const PERMANENT_NUMBER_FIELDS = [
+  'lifetimeQuestions',
+  'lifetimeCorrect',
+  'lifetimeReview',
+  'lifetimeReviewed',
+  'lifetimeActiveDays',
+  'rankingScore',
+  'rankingQuestions',
+  'rankingActiveDays',
+];
+
+const PERMANENT_ARRAY_FIELDS = [
+  'conquistasDesbloqueadas',
+  'reviewedQuestionIds',
+  'rankingAnsweredIds',
+  'rankingMilestones',
+];
+
+function numeroSeguro(value: unknown) {
+  const numero = Number(value);
+  return Number.isFinite(numero) && numero > 0 ? numero : 0;
+}
+
+function maxNumero(...values: unknown[]) {
+  return Math.max(0, ...values.map(numeroSeguro));
+}
+
+function arrayUnico(...values: unknown[]) {
+  return [
+    ...new Set(
+      values
+        .flatMap((value) => (Array.isArray(value) ? value : []))
+        .map((item) => String(item))
+        .filter(Boolean)
+    ),
+  ];
+}
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function normalizarDiaLocal(value: unknown) {
+  const texto = String(value || '').trim();
+  if (!texto) return null;
+
+  const isoDate = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoDate) return `${isoDate[1]}-${isoDate[2]}-${isoDate[3]}`;
+
+  const date = new Date(texto);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return getLocalDateKey(date);
+}
+
+function diaLocalParaTime(dateKey: string) {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(year, month - 1, day).getTime();
+}
+
+function diferencaDiasLocais(from: string, to: string) {
+  return Math.round((diaLocalParaTime(to) - diaLocalParaTime(from)) / DAY_MS);
+}
 
 function gerarDeviceId() {
   if (typeof window === 'undefined') return '';
@@ -126,14 +199,136 @@ function normalizarIdsQuestao(questaoId: number | string | Array<number | string
     .filter(Boolean);
 }
 
+function lerJsonLocal(key: string) {
+  if (typeof window === 'undefined') return {};
+
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function lerUsuarioLocal() {
+  const parsed = lerJsonLocal(GAME_DATA_KEY);
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+}
+
+function getPermanentProgressKey(identifier?: unknown) {
+  const id = String(identifier || '').trim().toLowerCase();
+  return id ? `${PERMANENT_PROGRESS_KEY}:${id}` : PERMANENT_PROGRESS_KEY;
+}
+
+function extrairProgressoPermanente(user: any) {
+  const conquistasDesbloqueadas = getUnlockedAchievementIds(user);
+  const questoesRespondidas = Array.isArray(user?.questoesRespondidas)
+    ? user.questoesRespondidas
+    : [];
+  const questoesErradas = Array.isArray(user?.questoesErradas) ? user.questoesErradas : [];
+  const revisaoIds = Array.isArray(user?.revisaoIds) ? user.revisaoIds : [];
+
+  return {
+    conquistasDesbloqueadas,
+    lifetimeQuestions: maxNumero(
+      user?.lifetimeQuestions,
+      user?.rankingQuestions,
+      questoesRespondidas.length
+    ),
+    lifetimeCorrect: maxNumero(user?.lifetimeCorrect, user?.acertos),
+    lifetimeReview: maxNumero(
+      user?.lifetimeReview,
+      questoesErradas.length,
+      revisaoIds.length
+    ),
+    lifetimeReviewed: maxNumero(user?.lifetimeReviewed),
+    lifetimeActiveDays: maxNumero(
+      user?.lifetimeActiveDays,
+      user?.rankingActiveDays,
+      user?.streak
+    ),
+    reviewedQuestionIds: arrayUnico(user?.reviewedQuestionIds),
+    rankingScore: maxNumero(user?.rankingScore),
+    rankingQuestions: maxNumero(user?.rankingQuestions),
+    rankingActiveDays: maxNumero(user?.rankingActiveDays),
+    lastAccess: normalizarDiaLocal(user?.lastAccess),
+    rankingLastActiveDay: normalizarDiaLocal(user?.rankingLastActiveDay),
+    rankingAnsweredIds: arrayUnico(user?.rankingAnsweredIds),
+    rankingMilestones: arrayUnico(user?.rankingMilestones),
+    savedAt: new Date().toISOString(),
+  };
+}
+
+function lerProgressoPermanenteLocal(identifier?: unknown) {
+  const parsed = lerJsonLocal(getPermanentProgressKey(identifier));
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+}
+
+function salvarProgressoPermanenteLocal(user: any) {
+  if (typeof window === 'undefined' || !user) return;
+
+  const key = getPermanentProgressKey(user.id || user.email);
+  const atual = lerProgressoPermanenteLocal(user.id || user.email);
+  const permanente = mesclarProgressoPermanente(atual, extrairProgressoPermanente(user));
+
+  localStorage.setItem(key, JSON.stringify(permanente));
+}
+
+function mesclarProgressoPermanente(...sources: any[]) {
+  const validSources = sources.filter((source) =>
+    source && typeof source === 'object' && !Array.isArray(source)
+  );
+  const merged = Object.assign({}, ...validSources);
+
+  for (const field of PERMANENT_NUMBER_FIELDS) {
+    merged[field] = maxNumero(
+      ...validSources.flatMap((source) => [
+        source[field],
+        field === 'lifetimeQuestions' ? source.rankingQuestions : undefined,
+        field === 'lifetimeCorrect' ? source.acertos : undefined,
+        field === 'lifetimeReview'
+          ? Math.max(
+              Array.isArray(source.questoesErradas) ? source.questoesErradas.length : 0,
+              Array.isArray(source.revisaoIds) ? source.revisaoIds.length : 0
+            )
+          : undefined,
+        field === 'lifetimeActiveDays'
+          ? Math.max(numeroSeguro(source.rankingActiveDays), numeroSeguro(source.streak))
+          : undefined,
+      ])
+    );
+  }
+
+  for (const field of PERMANENT_ARRAY_FIELDS) {
+    merged[field] =
+      field === 'conquistasDesbloqueadas'
+        ? normalizeAchievementIds(arrayUnico(...validSources.map((source) => source[field])))
+        : arrayUnico(...validSources.map((source) => source[field]));
+  }
+
+  const lastAccessCandidates = validSources
+    .map((source) => normalizarDiaLocal(source.lastAccess))
+    .filter(Boolean) as string[];
+  const rankingLastActiveCandidates = validSources
+    .map((source) => normalizarDiaLocal(source.rankingLastActiveDay))
+    .filter(Boolean) as string[];
+
+  if (lastAccessCandidates.length) {
+    merged.lastAccess = lastAccessCandidates.sort().at(-1);
+  }
+
+  if (rankingLastActiveCandidates.length) {
+    merged.rankingLastActiveDay = rankingLastActiveCandidates.sort().at(-1);
+  }
+
+  return merged;
+}
+
 function lerRespostasQuestoesLocal() {
   if (typeof window === 'undefined') return {};
 
   try {
-    const raw = localStorage.getItem('user-game-data');
-    if (!raw) return {};
-
-    const parsed = JSON.parse(raw);
+    const parsed = lerUsuarioLocal();
     return parsed?.respostasQuestoes && typeof parsed.respostasQuestoes === 'object'
       ? parsed.respostasQuestoes
       : {};
@@ -178,8 +373,69 @@ function nomeValido(nome?: string | null) {
   );
 }
 
+function aplicarAtividadeDiaria(prev: any, options: { pontuarRanking?: boolean } = {}) {
+  const today = getLocalDateKey();
+  const lastAccessDay = normalizarDiaLocal(prev?.lastAccess);
+  const rankingLastActiveDay = normalizarDiaLocal(prev?.rankingLastActiveDay);
+  const currentStreak = maxNumero(prev?.streak);
+  const currentLifetimeActiveDays = maxNumero(
+    prev?.lifetimeActiveDays,
+    prev?.rankingActiveDays,
+    prev?.streak
+  );
+
+  const mudouDia = lastAccessDay !== today;
+  const diff = lastAccessDay ? diferencaDiasLocais(lastAccessDay, today) : null;
+  const streak = mudouDia
+    ? diff === 1
+      ? currentStreak + 1
+      : 1
+    : Math.max(currentStreak, 1);
+  const lifetimeActiveDays = mudouDia
+    ? Math.max(currentLifetimeActiveDays + 1, streak)
+    : Math.max(currentLifetimeActiveDays, streak);
+
+  const rankingMilestones = arrayUnico(prev?.rankingMilestones);
+  let rankingScore = maxNumero(prev?.rankingScore);
+  let rankingActiveDays = maxNumero(
+    prev?.rankingActiveDays,
+    prev?.lifetimeActiveDays,
+    prev?.streak
+  );
+  let nextRankingLastActiveDay = rankingLastActiveDay;
+
+  if (rankingLastActiveDay !== today) {
+    rankingActiveDays += 1;
+    nextRankingLastActiveDay = today;
+
+    if (options.pontuarRanking !== false) {
+      rankingScore += DAILY_RANKING_BONUS;
+    }
+
+    if (rankingActiveDays > 0 && rankingActiveDays % 7 === 0) {
+      const milestone = `active-days-${rankingActiveDays}`;
+
+      if (!rankingMilestones.includes(milestone)) {
+        rankingScore += WEEKLY_RANKING_BONUS;
+        rankingMilestones.push(milestone);
+      }
+    }
+  }
+
+  return {
+    ...prev,
+    streak,
+    lastAccess: today,
+    lifetimeActiveDays,
+    rankingScore,
+    rankingActiveDays,
+    rankingLastActiveDay: nextRankingLastActiveDay || today,
+    rankingMilestones: [...new Set(rankingMilestones)],
+  };
+}
+
 function criarUsuario(base: any = {}) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getLocalDateKey();
 
   const questoesRespondidas = [
     ...new Set([...(base.questoesRespondidas || []), ...(base.questoesErradas || [])].map(String)),
@@ -195,8 +451,8 @@ function criarUsuario(base: any = {}) {
     nome,
     avatar_url: base.avatar_url || null,
 
-    streak: base.streak || 1,
-    lastAccess: today,
+    streak: maxNumero(base.streak),
+    lastAccess: normalizarDiaLocal(base.lastAccess) || null,
     acertos: base.acertos || 0,
     moedas: base.moedas || 0,
     xp: base.xp || 0,
@@ -226,72 +482,49 @@ function criarUsuario(base: any = {}) {
 
     isAdmin: contaAdmin,
 
-    lifetimeQuestions: base.lifetimeQuestions || base.rankingQuestions || questoesRespondidas.length || 0,
-    lifetimeCorrect: base.lifetimeCorrect || base.acertos || 0,
-    lifetimeReview: base.lifetimeReview || Math.max(
+    lifetimeQuestions: maxNumero(base.lifetimeQuestions, base.rankingQuestions, questoesRespondidas.length),
+    lifetimeCorrect: maxNumero(base.lifetimeCorrect, base.acertos),
+    lifetimeReview: maxNumero(base.lifetimeReview, Math.max(
       Array.isArray(base.revisaoIds) ? base.revisaoIds.length : 0,
       Array.isArray(base.questoesErradas) ? base.questoesErradas.length : 0
-    ),
-    lifetimeReviewed: base.lifetimeReviewed || 0,
+    )),
+    lifetimeReviewed: maxNumero(base.lifetimeReviewed),
     reviewedQuestionIds: Array.isArray(base.reviewedQuestionIds)
       ? base.reviewedQuestionIds.map(String)
       : [],
-    lifetimeActiveDays: base.lifetimeActiveDays || base.rankingActiveDays || base.streak || 1,
+    lifetimeActiveDays: maxNumero(base.lifetimeActiveDays, base.rankingActiveDays, base.streak),
 
-    rankingScore: base.rankingScore || 0,
-    rankingQuestions: base.rankingQuestions || 0,
-    rankingActiveDays: base.rankingActiveDays || 0,
-    rankingLastActiveDay: base.rankingLastActiveDay || null,
+    rankingScore: maxNumero(base.rankingScore),
+    rankingQuestions: maxNumero(base.rankingQuestions),
+    rankingActiveDays: maxNumero(base.rankingActiveDays),
+    rankingLastActiveDay: normalizarDiaLocal(base.rankingLastActiveDay),
     rankingAnsweredIds: Array.isArray(base.rankingAnsweredIds)
       ? base.rankingAnsweredIds.map(String)
       : [],
     rankingMilestones: Array.isArray(base.rankingMilestones) ? base.rankingMilestones : [],
   };
 
+  const userComDiaAtualizado = aplicarAtividadeDiaria(user, { pontuarRanking: true });
+
   return {
-    ...user,
-    conquistasDesbloqueadas: getUnlockedAchievementIds(user),
+    ...userComDiaAtualizado,
+    conquistasDesbloqueadas: getUnlockedAchievementIds(userComDiaAtualizado),
   };
 }
 
 function aplicarRanking(prev: any, questaoId: number | string | Array<number | string>) {
-  const today = new Date().toISOString().split('T')[0];
+  const comAtividadeDiaria = aplicarAtividadeDiaria(prev, { pontuarRanking: true });
   const ids = normalizarIdsQuestao(questaoId);
 
-  const rankingAnsweredIds = (prev.rankingAnsweredIds || []).map(String);
+  const rankingAnsweredIds = (comAtividadeDiaria.rankingAnsweredIds || []).map(String);
   const novosIds = ids.filter((id) => !rankingAnsweredIds.includes(id));
-
-  let bonusDia = 0;
-  let rankingActiveDays = prev.rankingActiveDays || 0;
-  let rankingLastActiveDay = prev.rankingLastActiveDay || null;
-
-  if (rankingLastActiveDay !== today) {
-    bonusDia = 3;
-    rankingActiveDays += 1;
-    rankingLastActiveDay = today;
-  }
-
-  const rankingMilestones = Array.isArray(prev.rankingMilestones) ? prev.rankingMilestones : [];
-  let bonusSemana = 0;
-
-  if (rankingActiveDays > 0 && rankingActiveDays % 7 === 0) {
-    const milestone = `active-days-${rankingActiveDays}`;
-    if (!rankingMilestones.includes(milestone)) {
-      bonusSemana = 10;
-      rankingMilestones.push(milestone);
-    }
-  }
-
   const pontosQuestoes = novosIds.length;
 
   return {
-    ...prev,
-    rankingScore: (prev.rankingScore || 0) + pontosQuestoes + bonusDia + bonusSemana,
-    rankingQuestions: (prev.rankingQuestions || 0) + novosIds.length,
-    rankingActiveDays,
-    rankingLastActiveDay,
+    ...comAtividadeDiaria,
+    rankingScore: (comAtividadeDiaria.rankingScore || 0) + pontosQuestoes,
+    rankingQuestions: (comAtividadeDiaria.rankingQuestions || 0) + novosIds.length,
     rankingAnsweredIds: [...new Set([...rankingAnsweredIds, ...novosIds])],
-    rankingMilestones: [...new Set(rankingMilestones)],
   };
 }
 
@@ -312,9 +545,20 @@ async function buscarProfile(accessToken: string) {
 }
 
 function comConquistasPermanentes(user: any) {
+  const permanente = mesclarProgressoPermanente(user, extrairProgressoPermanente(user));
+
   return {
     ...user,
-    conquistasDesbloqueadas: getUnlockedAchievementIds(user),
+    ...Object.fromEntries(
+      [...PERMANENT_NUMBER_FIELDS, ...PERMANENT_ARRAY_FIELDS].map((field) => [
+        field,
+        permanente[field],
+      ])
+    ),
+    conquistasDesbloqueadas: getUnlockedAchievementIds({
+      ...user,
+      ...permanente,
+    }),
   };
 }
 
@@ -356,11 +600,20 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function extrairProgressoUsuario(user: any) {
+  const permanente = mesclarProgressoPermanente(user, extrairProgressoPermanente(user));
+  const userSeguro = {
+    ...user,
+    ...permanente,
+    conquistasDesbloqueadas: getUnlockedAchievementIds({
+      ...user,
+      ...permanente,
+    }),
+  };
   const progress: Record<string, unknown> = {};
 
   for (const key of PROGRESS_KEYS) {
-    if (user?.[key] !== undefined) {
-      progress[key] = user[key];
+    if (userSeguro?.[key] !== undefined) {
+      progress[key] = userSeguro[key];
     }
   }
 
@@ -370,7 +623,7 @@ function extrairProgressoUsuario(user: any) {
 async function salvarProgressoRemoto(accessToken: string, user: any) {
   if (!accessToken || !user) return;
 
-  await fetch('/api/auth/profile', {
+  const res = await fetch('/api/auth/profile', {
     method: 'PATCH',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -379,7 +632,12 @@ async function salvarProgressoRemoto(accessToken: string, user: any) {
     body: JSON.stringify({
       oaplay_progress: extrairProgressoUsuario(user),
     }),
-  }).catch(() => null);
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Nao foi possivel salvar o progresso.');
+  }
 }
 
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
@@ -427,13 +685,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         console.warn('Nao foi possivel registrar dispositivo ativo.', deviceError);
       }
 
-      let savedLocal: any = {};
-      try {
-        const raw = localStorage.getItem('user-game-data');
-        savedLocal = raw ? JSON.parse(raw) : {};
-      } catch {
-        savedLocal = {};
-      }
+      const savedLocal = lerUsuarioLocal();
+      const permanentLocalProgress = lerProgressoPermanenteLocal(authUser.id || authUser.email);
 
       const metadataProgress = isPlainObject(authUser.user_metadata?.oaplay_progress)
         ? authUser.user_metadata.oaplay_progress
@@ -442,11 +695,20 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       const profileProgress = isPlainObject(profile?.oaplay_progress)
         ? profile.oaplay_progress
         : {};
-
-      const mergedUser = criarUsuario({
+      const mergedProgress = {
         ...profileProgress,
         ...metadataProgress,
         ...savedLocal,
+        ...mesclarProgressoPermanente(
+          profileProgress,
+          metadataProgress,
+          savedLocal,
+          permanentLocalProgress
+        ),
+      };
+
+      const mergedUser = criarUsuario({
+        ...mergedProgress,
         id: authUser.id,
         email: authUser.email,
         nome: nomeValido(profile?.nome)
@@ -473,7 +735,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       });
 
       setUser(mergedUser);
-      localStorage.setItem('user-game-data', JSON.stringify(mergedUser));
+      localStorage.setItem(GAME_DATA_KEY, JSON.stringify(mergedUser));
+      salvarProgressoPermanenteLocal(mergedUser);
     } catch (error) {
       console.error(error);
       setUser(null);
@@ -511,7 +774,8 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
 
   useEffect(() => {
     if (!user) return;
-    localStorage.setItem('user-game-data', JSON.stringify(user));
+    localStorage.setItem(GAME_DATA_KEY, JSON.stringify(user));
+    salvarProgressoPermanenteLocal(user);
   }, [user]);
 
   useEffect(() => {
@@ -523,8 +787,13 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     if (serialized === lastRemoteProgressRef.current) return;
 
     const timeout = window.setTimeout(() => {
-      lastRemoteProgressRef.current = serialized;
-      void salvarProgressoRemoto(session.access_token, user);
+      void salvarProgressoRemoto(session.access_token, user)
+        .then(() => {
+          lastRemoteProgressRef.current = serialized;
+        })
+        .catch((error) => {
+          console.warn('Nao foi possivel salvar progresso remoto.', error);
+        });
     }, 1200);
 
     return () => window.clearTimeout(timeout);
@@ -618,7 +887,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
             deviceName: result?.active_device_name || 'outro dispositivo',
           });
 
-          localStorage.removeItem('user-game-data');
+          localStorage.removeItem(GAME_DATA_KEY);
           setUser(null);
           setSession(null);
 
@@ -670,7 +939,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       await salvarProgressoRemoto(session.access_token, user);
     }
 
-    localStorage.removeItem('user-game-data');
+    localStorage.removeItem(GAME_DATA_KEY);
     setUser(null);
     setSession(null);
 
@@ -684,7 +953,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
   }, [session?.access_token, user]);
 
   const registrarRespostaFreeHoje = useCallback(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalDateKey();
 
     setUser((prev: any) => {
       if (!prev || prev.isPremium) return prev;
@@ -722,8 +991,9 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
           : (prev.lifetimeCorrect || 0) + 1,
         lifetimeActiveDays: Math.max(
           prev.lifetimeActiveDays || 1,
+          comRanking.lifetimeActiveDays || 1,
           comRanking.rankingActiveDays || 1,
-          prev.streak || 1
+          comRanking.streak || 1
         ),
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: (prev.questoesErradas || []).filter((id: number | string) =>
@@ -759,8 +1029,9 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         lifetimeReview: Math.max(prev.lifetimeReview || 0, novasErradas.length),
         lifetimeActiveDays: Math.max(
           prev.lifetimeActiveDays || 1,
+          comRanking.lifetimeActiveDays || 1,
           comRanking.rankingActiveDays || 1,
-          prev.streak || 1
+          comRanking.streak || 1
         ),
         questoesRespondidas: [...new Set([...respondidasAtuais, ...ids])],
         questoesErradas: novasErradas,
@@ -818,7 +1089,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         ),
       });
 
-      return {
+      return comConquistasPermanentes({
         ...prev,
         acertos: 0,
         xp: 0,
@@ -839,7 +1110,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
           ? prev.reviewedQuestionIds.map(String)
           : [],
         conquistasDesbloqueadas: conquistasAntesDoReset,
-      };
+      });
     });
   }, []);
 

@@ -59,6 +59,50 @@ const PROGRESS_NUMBER_FIELDS = [
   'rankingActiveDays',
 ];
 
+const PERMANENT_PROGRESS_NUMBER_FIELDS = [
+  'lifetimeQuestions',
+  'lifetimeCorrect',
+  'lifetimeReview',
+  'lifetimeReviewed',
+  'lifetimeActiveDays',
+  'rankingScore',
+  'rankingQuestions',
+  'rankingActiveDays',
+];
+
+const PERMANENT_PROGRESS_ARRAY_FIELDS = [
+  'conquistasDesbloqueadas',
+  'reviewedQuestionIds',
+  'rankingAnsweredIds',
+  'rankingMilestones',
+];
+
+const LEGACY_ACHIEVEMENT_IDS: Record<string, string[]> = {
+  first_question: ['badge_first', 'firstQuestion'],
+  ten_correct: ['badge_10_correct', 'tenCorrect'],
+  three_active_days: ['badge_3_days', 'threeActiveDays'],
+  twenty_five_questions: ['badge_25_questions', 'twentyFiveQuestions'],
+  twenty_five_correct: ['badge_25_correct', 'twentyFiveCorrect'],
+  reviewed_5: ['badge_reviewed_5', 'reviewed5'],
+  fifty_correct: ['badge_50_correct', 'fiftyCorrect'],
+  hundred_correct: ['badge_100_correct', 'hundredCorrect'],
+  reviewed_33: ['badge_reviewed_33', 'reviewed33'],
+  twenty_five_review: ['badge_25_review', 'twentyFiveReview'],
+  seven_days: ['badge_7_days', 'sevenDays'],
+  premium: ['badge_premium'],
+};
+
+function achievementIdCanonico(id: unknown) {
+  const value = String(id ?? '').trim();
+  if (!value) return '';
+
+  const canonical = Object.entries(LEGACY_ACHIEVEMENT_IDS).find(([, legacyIds]) =>
+    legacyIds.includes(value)
+  )?.[0];
+
+  return canonical || value;
+}
+
 function premiumEstaAtivo(profile: any, email?: string | null) {
   if (emailAdmin(email)) return true;
   if (!profile?.premium_ate) return false;
@@ -79,15 +123,87 @@ function limparStringArray(value: unknown, max = 2000) {
     : [];
 }
 
+function unirStringArray(...values: unknown[]) {
+  return [
+    ...new Set(
+      values
+        .flatMap((value) => (Array.isArray(value) ? value : []))
+        .map((item) => String(item))
+        .filter(Boolean)
+    ),
+  ];
+}
+
 function limparNumero(value: unknown) {
   const numero = Number(value);
   return Number.isFinite(numero) && numero >= 0 ? numero : 0;
+}
+
+function maiorNumero(...values: unknown[]) {
+  return Math.max(0, ...values.map(limparNumero));
+}
+
+function normalizarDia(value: unknown) {
+  const texto = String(value || '').trim();
+  const match = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : null;
 }
 
 function limparObjeto(value: unknown, max = 3000) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
 
   return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(-max));
+}
+
+function mesclarProgressoSeguro(...sources: Array<Record<string, unknown> | null>) {
+  const validSources = sources.filter(Boolean) as Record<string, unknown>[];
+  const merged = Object.assign({}, ...validSources);
+
+  for (const field of PERMANENT_PROGRESS_NUMBER_FIELDS) {
+    merged[field] = maiorNumero(
+      ...validSources.flatMap((source) => [
+        source[field],
+        field === 'lifetimeQuestions' ? source.rankingQuestions : undefined,
+        field === 'lifetimeCorrect' ? source.acertos : undefined,
+        field === 'lifetimeReview'
+          ? Math.max(
+              Array.isArray(source.questoesErradas) ? source.questoesErradas.length : 0,
+              Array.isArray(source.revisaoIds) ? source.revisaoIds.length : 0
+            )
+          : undefined,
+        field === 'lifetimeActiveDays'
+          ? Math.max(limparNumero(source.rankingActiveDays), limparNumero(source.streak))
+          : undefined,
+      ])
+    );
+  }
+
+  for (const field of PERMANENT_PROGRESS_ARRAY_FIELDS) {
+    const union = unirStringArray(...validSources.map((source) => source[field]));
+    merged[field] =
+      field === 'conquistasDesbloqueadas'
+        ? [...new Set(union.map(achievementIdCanonico).filter(Boolean))]
+        : union;
+  }
+
+  const lastAccessCandidates = validSources
+    .map((source) => normalizarDia(source.lastAccess))
+    .filter(Boolean) as string[];
+  const rankingLastActiveCandidates = validSources
+    .map((source) => normalizarDia(source.rankingLastActiveDay))
+    .filter(Boolean) as string[];
+
+  if (lastAccessCandidates.length) {
+    merged.lastAccess = lastAccessCandidates.sort().at(-1);
+  }
+
+  if (rankingLastActiveCandidates.length) {
+    merged.rankingLastActiveDay = rankingLastActiveCandidates.sort().at(-1);
+  }
+
+  merged.savedAt = new Date().toISOString();
+
+  return merged;
 }
 
 function limparProgresso(value: unknown) {
@@ -348,8 +464,29 @@ export async function PATCH(request: Request) {
       Object.prototype.hasOwnProperty.call(body, 'avatar_url');
 
     if (progressoSolicitado && !temCampoDePerfil) {
+      const progressoMetadataAtual = limparProgresso(authUser.user_metadata?.oaplay_progress);
+      let progressoProfileAtual: Record<string, unknown> | null = null;
+
+      try {
+        const { data: profileProgressData } = await profileClient
+          .from('profiles')
+          .select('oaplay_progress')
+          .eq('id', authUser.id)
+          .maybeSingle();
+
+        progressoProfileAtual = limparProgresso(profileProgressData?.oaplay_progress);
+      } catch {
+        progressoProfileAtual = null;
+      }
+
+      const progressoSeguro = mesclarProgressoSeguro(
+        progressoProfileAtual,
+        progressoMetadataAtual,
+        progressoSolicitado
+      );
+
       const ok = await atualizarAuthMetadata(token, {
-        oaplay_progress: progressoSolicitado,
+        oaplay_progress: progressoSeguro,
       });
 
       if (!ok) {
@@ -359,7 +496,7 @@ export async function PATCH(request: Request) {
         );
       }
 
-      return NextResponse.json({ ok: true, oaplay_progress: progressoSolicitado });
+      return NextResponse.json({ ok: true, oaplay_progress: progressoSeguro });
     }
 
     const nomeSolicitado = limparNome(body?.nome);

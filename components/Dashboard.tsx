@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, CheckCircle2, Flame, PlayCircle, ShieldCheck, Trophy } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Crown, Flame, PlayCircle, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
 import AchievementMiniatures from '@/components/AchievementMiniatures';
 import ProfileEditor from '@/components/ProfileEditor';
 import RankingPreview from '@/components/RankingPreview';
@@ -13,7 +13,7 @@ import { useGameState } from '@/context/GameStateContext';
 import { ACHIEVEMENTS, isAchievementUnlocked } from '@/lib/achievements';
 
 const MOTIVATIONAL_PHRASES = [
-  'Constância vence ansiedade: uma rodada bem feita por vez.',
+  'Ritmo bom é o que você consegue repetir amanhã.',
   'Seu futuro na OAB é construído nas questões que você encara hoje.',
   'Estude com calma, revise com honestidade e avance com método.',
   'Cada acerto consolida uma tese. Cada erro mostra onde lapidar.',
@@ -217,7 +217,7 @@ export default function Dashboard() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-3 dark:border-white/10 dark:bg-slate-900">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">próximo passo</p>
           <p className="mt-2 text-xl font-black leading-tight text-slate-950 dark:text-white">
-            Uma rodada bem feita vale mais que pressa.
+            Mais uma questão agora. Mais segurança na prova depois.
           </p>
           <Link
             href="/play"
@@ -227,12 +227,51 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-2 dark:border-white/10 dark:bg-slate-900">
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400">plano atual</p>
-          <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
-            {user?.isPremium ? 'Premium' : 'Free'}
+        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-white via-amber-50 to-emerald-50 p-5 shadow-sm md:order-2 dark:border-amber-200/25 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+                plano atual
+              </p>
+              <p className="mt-2 flex items-center gap-2 text-3xl font-black text-slate-950 dark:text-white">
+                {user?.isPremium ? 'Premium ativo' : 'Plano Free'}
+              </p>
+            </div>
+
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-200 bg-amber-100 text-amber-700 dark:border-amber-200/30 dark:bg-amber-300/10 dark:text-amber-200">
+              {user?.isPremium ? (
+                <Crown className="h-6 w-6" strokeWidth={2.8} />
+              ) : (
+                <Sparkles className="h-6 w-6" strokeWidth={2.8} />
+              )}
+            </span>
+          </div>
+
+          <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300">
+            {user?.isPremium
+              ? 'Questões ilimitadas, revisão livre e progresso salvo para continuar sem trava diária.'
+              : 'Você ainda tem limite diário. O Premium libera treino sem bloqueio e mantém seu avanço protegido.'}
           </p>
-          {!user?.isPremium && (
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs font-black text-slate-700 dark:text-slate-200">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white/80 px-3 py-1.5 dark:border-emerald-300/25 dark:bg-emerald-300/10">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-200" strokeWidth={3} />
+              {user?.isPremium ? 'sem limite diário' : '5 questões grátis/dia'}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-white/80 px-3 py-1.5 dark:border-amber-200/25 dark:bg-amber-300/10">
+              <ShieldCheck className="h-3.5 w-3.5 text-amber-600 dark:text-amber-200" strokeWidth={3} />
+              {user?.isPremium ? 'conquistas permanentes' : 'progresso protegido'}
+            </span>
+          </div>
+
+          {user?.isPremium ? (
+            <Link
+              href="/achievements"
+              className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-emerald-300 bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 sm:w-auto dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+            >
+              Ver conquistas
+            </Link>
+          ) : (
             <Link
               href="/premium"
               className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200 sm:w-auto"
