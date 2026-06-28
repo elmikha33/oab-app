@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { MonitorCheck, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getUnlockedAchievementIds, normalizeAchievementIds } from '@/lib/achievements';
 
@@ -322,11 +323,76 @@ type AtualizarPerfilPayload = {
   avatar_url?: string | null;
 };
 
+const PROGRESS_KEYS = [
+  'streak',
+  'lastAccess',
+  'acertos',
+  'moedas',
+  'xp',
+  'nivel',
+  'xpNecessario',
+  'questoesRespondidas',
+  'questoesErradas',
+  'revisaoIds',
+  'respostasQuestoes',
+  'freeDailyAnswers',
+  'conquistasDesbloqueadas',
+  'lifetimeQuestions',
+  'lifetimeCorrect',
+  'lifetimeReview',
+  'lifetimeReviewed',
+  'reviewedQuestionIds',
+  'lifetimeActiveDays',
+  'rankingScore',
+  'rankingQuestions',
+  'rankingActiveDays',
+  'rankingLastActiveDay',
+  'rankingAnsweredIds',
+  'rankingMilestones',
+];
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function extrairProgressoUsuario(user: any) {
+  const progress: Record<string, unknown> = {};
+
+  for (const key of PROGRESS_KEYS) {
+    if (user?.[key] !== undefined) {
+      progress[key] = user[key];
+    }
+  }
+
+  return progress;
+}
+
+async function salvarProgressoRemoto(accessToken: string, user: any) {
+  if (!accessToken || !user) return;
+
+  await fetch('/api/auth/profile', {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      oaplay_progress: extrairProgressoUsuario(user),
+    }),
+  }).catch(() => null);
+}
+
 export const GameStateProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [deviceLogoutNotice, setDeviceLogoutNotice] = useState<{
+    deviceName?: string | null;
+  } | null>(null);
   const previousAchievementIdsRef = useRef<string[] | null>(null);
+  const lastRemoteProgressRef = useRef<string>('');
+  const deviceLogoutHandledRef = useRef(false);
+  const deviceRedirectTimerRef = useRef<number | null>(null);
 
   const carregarUsuario = useCallback(async (sessaoAtual?: Session | null) => {
     setLoading(true);
@@ -369,7 +435,17 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         savedLocal = {};
       }
 
+      const metadataProgress = isPlainObject(authUser.user_metadata?.oaplay_progress)
+        ? authUser.user_metadata.oaplay_progress
+        : {};
+
+      const profileProgress = isPlainObject(profile?.oaplay_progress)
+        ? profile.oaplay_progress
+        : {};
+
       const mergedUser = criarUsuario({
+        ...profileProgress,
+        ...metadataProgress,
         ...savedLocal,
         id: authUser.id,
         email: authUser.email,
@@ -437,6 +513,22 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     if (!user) return;
     localStorage.setItem('user-game-data', JSON.stringify(user));
   }, [user]);
+
+  useEffect(() => {
+    if (!user || !session?.access_token) return;
+
+    const progress = extrairProgressoUsuario(user);
+    const serialized = JSON.stringify(progress);
+
+    if (serialized === lastRemoteProgressRef.current) return;
+
+    const timeout = window.setTimeout(() => {
+      lastRemoteProgressRef.current = serialized;
+      void salvarProgressoRemoto(session.access_token, user);
+    }, 1200);
+
+    return () => window.clearTimeout(timeout);
+  }, [user, session?.access_token]);
 
   useEffect(() => {
     if (!user) {
@@ -519,14 +611,26 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         const result = await checarDispositivoAtivo(accessToken);
 
         if (!cancelado && result?.active === false) {
-          alert('Sua conta foi aberta em outro dispositivo. Por seguranca, este acesso sera encerrado.');
+          if (deviceLogoutHandledRef.current) return;
+
+          deviceLogoutHandledRef.current = true;
+          setDeviceLogoutNotice({
+            deviceName: result?.active_device_name || 'outro dispositivo',
+          });
 
           localStorage.removeItem('user-game-data');
           setUser(null);
           setSession(null);
 
           await supabase.auth.signOut();
-          window.location.href = '/auth';
+
+          if (deviceRedirectTimerRef.current) {
+            window.clearTimeout(deviceRedirectTimerRef.current);
+          }
+
+          deviceRedirectTimerRef.current = window.setTimeout(() => {
+            window.location.href = '/auth';
+          }, 4500);
         }
       } catch (error) {
         console.warn('Nao foi possivel verificar dispositivo ativo.', error);
@@ -552,8 +656,20 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
     };
   }, [user, session?.access_token]);
 
+  useEffect(() => {
+    return () => {
+      if (deviceRedirectTimerRef.current) {
+        window.clearTimeout(deviceRedirectTimerRef.current);
+      }
+    };
+  }, []);
+
 
   const logout = useCallback(async () => {
+    if (session?.access_token && user) {
+      await salvarProgressoRemoto(session.access_token, user);
+    }
+
     localStorage.removeItem('user-game-data');
     setUser(null);
     setSession(null);
@@ -565,7 +681,7 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
         window.location.href = '/auth';
       }
     }
-  }, []);
+  }, [session?.access_token, user]);
 
   const registrarRespostaFreeHoje = useCallback(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -747,6 +863,61 @@ export const GameStateProvider = ({ children }: { children: React.ReactNode }) =
       }}
     >
       {children}
+
+      {deviceLogoutNotice && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 px-4 backdrop-blur-md">
+          <div className="w-full max-w-md overflow-hidden rounded-[2rem] border border-emerald-300/20 bg-slate-900 text-white shadow-2xl shadow-black/50">
+            <div className="border-b border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/40 p-6 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
+                <ShieldAlert className="h-8 w-8" strokeWidth={2.5} />
+              </div>
+
+              <h2 className="mt-5 font-heading text-2xl font-black">
+                Acesso encerrado
+              </h2>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                Sua conta foi aberta em outro dispositivo. Para manter sua conta protegida, este acesso foi desconectado.
+              </p>
+            </div>
+
+            <div className="space-y-5 p-6">
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-300/10 text-emerald-200">
+                  <MonitorCheck className="h-5 w-5" strokeWidth={2.5} />
+                </div>
+
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                    Sessão ativa agora
+                  </p>
+                  <p className="mt-1 text-sm font-black text-slate-100">
+                    {deviceLogoutNotice.deviceName || 'Outro dispositivo'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (deviceRedirectTimerRef.current) {
+                    window.clearTimeout(deviceRedirectTimerRef.current);
+                  }
+
+                  window.location.href = '/auth';
+                }}
+                className="w-full rounded-2xl bg-emerald-300 px-5 py-3.5 text-sm font-black text-emerald-950 transition hover:bg-emerald-200"
+              >
+                Entrar novamente
+              </button>
+
+              <p className="text-center text-xs font-semibold text-slate-500">
+                Você será levado para a tela de login automaticamente.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </GameStateContext.Provider>
   );
 };

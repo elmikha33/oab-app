@@ -2,7 +2,7 @@
 
 import { FormEvent, Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Mail, ShieldAlert } from 'lucide-react';
+import { KeyRound, Loader2, Mail, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useGameState } from '@/context/GameStateContext';
 
@@ -13,6 +13,12 @@ function AuthFormContent() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+  const [novaSenha, setNovaSenha] = useState('');
+  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('');
+  const [modoRedefinirSenha, setModoRedefinirSenha] = useState(false);
+  const [emailCadastrado, setEmailCadastrado] = useState<boolean | null>(null);
+  const [verificandoEmail, setVerificandoEmail] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
   const [aviso, setAviso] = useState('');
@@ -24,10 +30,19 @@ function AuthFormContent() {
       if (typeof window === 'undefined') return;
 
       const url = new URL(window.location.href);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
       const temCode = url.searchParams.has('code');
       const temAccessToken = window.location.hash.includes('access_token');
+      const retornoRecuperacao =
+        url.searchParams.get('modo') === 'redefinir' ||
+        url.searchParams.get('type') === 'recovery' ||
+        hashParams.get('type') === 'recovery';
 
       if (!temCode && !temAccessToken) return;
+
+      if (retornoRecuperacao) {
+        setModoRedefinirSenha(true);
+      }
 
       setCarregando(true);
       setErro('');
@@ -45,6 +60,13 @@ function AuthFormContent() {
 
         if (!cancelado) {
           window.history.replaceState({}, document.title, '/auth');
+
+          if (retornoRecuperacao) {
+            setModoRedefinirSenha(true);
+            setAviso('Digite sua nova senha para concluir a recuperação.');
+            return;
+          }
+
           router.replace('/dashboard');
         }
       } catch (error: any) {
@@ -66,10 +88,55 @@ function AuthFormContent() {
   }, [refreshUser, router]);
 
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && !modoRedefinirSenha) {
       router.replace('/dashboard');
     }
-  }, [loading, user, router]);
+  }, [loading, modoRedefinirSenha, user, router]);
+
+  useEffect(() => {
+    const emailAtual = email.trim().toLowerCase();
+    setConfirmarSenha('');
+
+    if (!emailAtual || !emailAtual.includes('@') || modoRedefinirSenha) {
+      setEmailCadastrado(null);
+      setVerificandoEmail(false);
+      return;
+    }
+
+    let cancelado = false;
+    setVerificandoEmail(true);
+
+    const timeout = window.setTimeout(async () => {
+      try {
+        const response = await fetch('/api/auth/email-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: emailAtual }),
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!cancelado) {
+          setEmailCadastrado(data?.checked ? Boolean(data.exists) : null);
+        }
+      } catch {
+        if (!cancelado) {
+          setEmailCadastrado(null);
+        }
+      } finally {
+        if (!cancelado) {
+          setVerificandoEmail(false);
+        }
+      }
+    }, 450);
+
+    return () => {
+      cancelado = true;
+      window.clearTimeout(timeout);
+    };
+  }, [email, modoRedefinirSenha]);
 
   async function entrarComGoogle() {
     setCarregando(true);
@@ -97,9 +164,7 @@ function AuthFormContent() {
     }
   }
 
-  async function entrarComEmail(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function entrarComEmail() {
     setCarregando(true);
     setErro('');
     setAviso('');
@@ -120,6 +185,17 @@ function AuthFormContent() {
     router.replace('/dashboard');
   }
 
+  async function enviarEmailSenha(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (emailCadastrado === false) {
+      await criarContaEmail();
+      return;
+    }
+
+    await entrarComEmail();
+  }
+
   async function criarContaEmail() {
     setCarregando(true);
     setErro('');
@@ -133,6 +209,19 @@ function AuthFormContent() {
 
     if (senha.length < 6) {
       setErro('A senha precisa ter pelo menos 6 caracteres.');
+      setCarregando(false);
+      return;
+    }
+
+    if (!confirmarSenha) {
+      setEmailCadastrado(false);
+      setErro('Confirme a senha para criar sua conta.');
+      setCarregando(false);
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      setErro('As senhas não conferem. Confira antes de criar a conta.');
       setCarregando(false);
       return;
     }
@@ -170,6 +259,69 @@ function AuthFormContent() {
     router.replace('/dashboard');
   }
 
+  async function recuperarSenha() {
+    setErro('');
+    setAviso('');
+
+    const emailNormalizado = email.trim();
+
+    if (!emailNormalizado || !emailNormalizado.includes('@')) {
+      setErro('Informe seu email para receber o link de recuperação.');
+      return;
+    }
+
+    setCarregando(true);
+
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      window.location.origin;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(emailNormalizado, {
+      redirectTo: `${siteUrl}/auth?modo=redefinir`,
+    });
+
+    if (error) {
+      setErro(error.message || 'Não foi possível enviar o email de recuperação.');
+      setCarregando(false);
+      return;
+    }
+
+    setAviso('Enviamos um link para você redefinir sua senha por email.');
+    setCarregando(false);
+  }
+
+  async function salvarNovaSenha(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErro('');
+    setAviso('');
+
+    if (novaSenha.length < 6) {
+      setErro('A nova senha precisa ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (novaSenha !== confirmarNovaSenha) {
+      setErro('As senhas não conferem.');
+      return;
+    }
+
+    setCarregando(true);
+
+    const { error } = await supabase.auth.updateUser({
+      password: novaSenha,
+    });
+
+    if (error) {
+      setErro(error.message || 'Não foi possível atualizar a senha.');
+      setCarregando(false);
+      return;
+    }
+
+    await refreshUser();
+    setCarregando(false);
+    router.replace('/dashboard');
+  }
+
   if (loading || carregando) {
     return (
       <div className="flex w-full max-w-md flex-col items-center justify-center rounded-[2rem] border border-emerald-300/10 bg-slate-900 p-8 text-center text-emerald-300 shadow-2xl shadow-black/50">
@@ -177,6 +329,66 @@ function AuthFormContent() {
         <p className="mt-4 text-sm font-bold text-slate-200">
           Entrando no OAPlay...
         </p>
+      </div>
+    );
+  }
+
+  if (modoRedefinirSenha) {
+    return (
+      <div className="relative z-10 w-full max-w-md rounded-[2rem] border border-emerald-300/10 bg-slate-900/95 p-7 shadow-2xl shadow-black/50">
+        <div className="mb-7 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
+            <KeyRound className="h-8 w-8" strokeWidth={2.5} />
+          </div>
+
+          <h1 className="mt-5 font-heading text-2xl font-black text-white">
+            Criar nova senha
+          </h1>
+
+          <p className="mt-2 text-sm leading-relaxed text-slate-400">
+            Digite uma senha nova e confirme para voltar ao OAPlay.
+          </p>
+        </div>
+
+        {erro && (
+          <div className="mb-4 flex items-center gap-2 rounded-2xl border border-red-500/25 bg-red-500/10 p-3 text-xs text-red-300">
+            <ShieldAlert className="h-4 w-4 shrink-0" />
+            <span>{erro}</span>
+          </div>
+        )}
+
+        {aviso && (
+          <div className="mb-4 rounded-2xl border border-emerald-400/25 bg-emerald-400/10 p-3 text-xs font-semibold text-emerald-200">
+            {aviso}
+          </div>
+        )}
+
+        <form onSubmit={salvarNovaSenha} className="space-y-3">
+          <input
+            type="password"
+            required
+            value={novaSenha}
+            onChange={(event) => setNovaSenha(event.target.value)}
+            placeholder="Nova senha"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300"
+          />
+
+          <input
+            type="password"
+            required
+            value={confirmarNovaSenha}
+            onChange={(event) => setConfirmarNovaSenha(event.target.value)}
+            placeholder="Confirmar nova senha"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300"
+          />
+
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3.5 text-sm font-black text-emerald-950 transition hover:bg-emerald-200"
+          >
+            Salvar nova senha
+          </button>
+        </form>
       </div>
     );
   }
@@ -240,7 +452,7 @@ function AuthFormContent() {
         </span>
       </div>
 
-      <form onSubmit={entrarComEmail} className="space-y-3">
+      <form onSubmit={enviarEmailSenha} className="space-y-3">
         <input
           type="text"
           value={nome}
@@ -258,6 +470,18 @@ function AuthFormContent() {
           className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300"
         />
 
+        {verificandoEmail && (
+          <p className="-mt-1 px-1 text-[11px] font-semibold text-slate-500">
+            Verificando cadastro...
+          </p>
+        )}
+
+        {emailCadastrado === false && (
+          <p className="-mt-1 px-1 text-[11px] font-bold text-emerald-200">
+            Email novo. Confirme a senha para criar sua conta com segurança.
+          </p>
+        )}
+
         <input
           type="password"
           required
@@ -267,18 +491,47 @@ function AuthFormContent() {
           className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300"
         />
 
+        {emailCadastrado === false && (
+          <input
+            type="password"
+            required
+            value={confirmarSenha}
+            onChange={(event) => setConfirmarSenha(event.target.value)}
+            placeholder="Confirmar senha"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-300"
+          />
+        )}
+
         <button
           type="submit"
           disabled={carregando}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3.5 text-sm font-black text-emerald-950 transition hover:bg-emerald-200 disabled:opacity-60"
         >
           <Mail className="h-4 w-4" />
-          Entrar
+          {emailCadastrado === false ? 'Criar conta segura' : 'Entrar'}
         </button>
 
         <button
           type="button"
-          onClick={criarContaEmail}
+          onClick={recuperarSenha}
+          disabled={carregando}
+          className="w-full rounded-2xl border border-white/10 px-4 py-3 text-sm font-bold text-slate-300 transition hover:border-emerald-300/30 hover:bg-emerald-300/10 hover:text-emerald-100 disabled:opacity-60"
+        >
+          Esqueci minha senha
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (emailCadastrado !== false) {
+              setEmailCadastrado(false);
+              setErro('');
+              setAviso('');
+              return;
+            }
+
+            void criarContaEmail();
+          }}
           disabled={carregando}
           className="w-full rounded-2xl border border-emerald-300/20 px-4 py-3 text-sm font-bold text-emerald-200 transition hover:bg-emerald-300/10 disabled:opacity-60"
         >

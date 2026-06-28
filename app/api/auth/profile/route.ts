@@ -32,6 +32,33 @@ const CAMPOS_PROIBIDOS_PROFILE = [
   'role',
 ];
 
+const PROGRESS_ARRAY_FIELDS = [
+  'questoesRespondidas',
+  'questoesErradas',
+  'revisaoIds',
+  'conquistasDesbloqueadas',
+  'reviewedQuestionIds',
+  'rankingAnsweredIds',
+  'rankingMilestones',
+];
+
+const PROGRESS_NUMBER_FIELDS = [
+  'streak',
+  'acertos',
+  'moedas',
+  'xp',
+  'nivel',
+  'xpNecessario',
+  'lifetimeQuestions',
+  'lifetimeCorrect',
+  'lifetimeReview',
+  'lifetimeReviewed',
+  'lifetimeActiveDays',
+  'rankingScore',
+  'rankingQuestions',
+  'rankingActiveDays',
+];
+
 function premiumEstaAtivo(profile: any, email?: string | null) {
   if (emailAdmin(email)) return true;
   if (!profile?.premium_ate) return false;
@@ -44,6 +71,56 @@ function limparNome(nome?: string | null) {
 
 function limparAvatar(avatar?: string | null) {
   return String(avatar || '').trim().slice(0, 120);
+}
+
+function limparStringArray(value: unknown, max = 2000) {
+  return Array.isArray(value)
+    ? [...new Set(value.map((item) => String(item)).filter(Boolean))].slice(0, max)
+    : [];
+}
+
+function limparNumero(value: unknown) {
+  const numero = Number(value);
+  return Number.isFinite(numero) && numero >= 0 ? numero : 0;
+}
+
+function limparObjeto(value: unknown, max = 3000) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+
+  return Object.fromEntries(Object.entries(value as Record<string, unknown>).slice(-max));
+}
+
+function limparProgresso(value: unknown) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+
+  const input = value as Record<string, unknown>;
+  const progress: Record<string, unknown> = {};
+
+  for (const field of PROGRESS_ARRAY_FIELDS) {
+    progress[field] = limparStringArray(input[field]);
+  }
+
+  for (const field of PROGRESS_NUMBER_FIELDS) {
+    progress[field] = limparNumero(input[field]);
+  }
+
+  progress.lastAccess = String(input.lastAccess || '').slice(0, 32) || null;
+  progress.rankingLastActiveDay = String(input.rankingLastActiveDay || '').slice(0, 32) || null;
+  progress.respostasQuestoes = limparObjeto(input.respostasQuestoes);
+
+  const freeDailyAnswers =
+    input.freeDailyAnswers && typeof input.freeDailyAnswers === 'object' && !Array.isArray(input.freeDailyAnswers)
+      ? (input.freeDailyAnswers as Record<string, unknown>)
+      : {};
+
+  progress.freeDailyAnswers = {
+    date: String(freeDailyAnswers.date || '').slice(0, 32),
+    count: limparNumero(freeDailyAnswers.count),
+  };
+
+  progress.savedAt = new Date().toISOString();
+
+  return progress;
 }
 
 function getBearerToken(request: Request) {
@@ -86,26 +163,21 @@ function getClients(accessToken?: string | null) {
 
 async function atualizarAuthMetadata(
   accessToken: string,
-  data: { nome: string; avatar_url: string | null }
+  data: Record<string, unknown>
 ) {
-  if (!supabaseUrl || !anonKey) return;
+  if (!supabaseUrl || !anonKey) return false;
 
-  await fetch(`${supabaseUrl}/auth/v1/user`, {
+  const response = await fetch(`${supabaseUrl}/auth/v1/user`, {
     method: 'PUT',
     headers: {
       apikey: anonKey,
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      data: {
-        nome: data.nome,
-        name: data.nome,
-        full_name: data.nome,
-        avatar_url: data.avatar_url,
-      },
-    }),
+    body: JSON.stringify({ data }),
   }).catch(() => null);
+
+  return Boolean(response?.ok);
 }
 
 function nomeDoUsuario(user: any) {
@@ -268,6 +340,28 @@ export async function PATCH(request: Request) {
       );
     }
 
+    const progressoSolicitado = limparProgresso(
+      body?.oaplay_progress || body?.progress || body?.game_state
+    );
+    const temCampoDePerfil =
+      Object.prototype.hasOwnProperty.call(body, 'nome') ||
+      Object.prototype.hasOwnProperty.call(body, 'avatar_url');
+
+    if (progressoSolicitado && !temCampoDePerfil) {
+      const ok = await atualizarAuthMetadata(token, {
+        oaplay_progress: progressoSolicitado,
+      });
+
+      if (!ok) {
+        return NextResponse.json(
+          { error: 'Nao foi possivel salvar o progresso.' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ ok: true, oaplay_progress: progressoSolicitado });
+    }
+
     const nomeSolicitado = limparNome(body?.nome);
     const avatarSolicitado = limparAvatar(body?.avatar_url);
 
@@ -313,6 +407,8 @@ export async function PATCH(request: Request) {
       if (!adminClient) {
         await atualizarAuthMetadata(token, {
           nome,
+          name: nome,
+          full_name: nome,
           avatar_url: profilePatch.avatar_url,
         });
 
