@@ -75,17 +75,26 @@ export default function MobileNav() {
             <Menu className="h-5 w-5" strokeWidth={2.8} />
           </button>
 
-          <Link href="/dashboard" className="mx-auto flex items-center justify-center" aria-label="OAPlay">
-            <img
-              src="/oaplay-logo-horizontal-transparent-darktext.png"
-              alt="OAPlay"
-              className="h-9 w-auto object-contain dark:hidden"
-            />
-            <img
-              src="/oaplay-logo-horizontal-transparent-white.png"
-              alt="OAPlay"
-              className="hidden h-9 w-auto object-contain dark:block"
-            />
+          <Link
+            href="/dashboard"
+            className="mx-auto flex min-w-0 items-center gap-2 rounded-2xl px-1"
+            aria-label="OAPlay"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-slate-950 shadow-sm dark:border-emerald-300/20">
+              <img
+                src="/oaplay-icon-1024.png"
+                alt=""
+                className="h-7 w-7 rounded-lg object-contain"
+              />
+            </span>
+            <span className="min-w-0 text-left leading-none">
+              <span className="block font-heading text-[21px] font-black tracking-normal text-slate-950 dark:text-white">
+                OA<span className="text-emerald-600 dark:text-emerald-300">Play</span>
+              </span>
+              <span className="mt-1 block text-[8px] font-black uppercase leading-none tracking-[0.12em] text-slate-600 dark:text-emerald-100">
+                Sua aprovação expressa
+              </span>
+            </span>
           </Link>
 
           <div className="ml-auto flex items-center gap-2">
@@ -120,19 +129,24 @@ export default function MobileNav() {
             <div className="mb-4 flex items-center justify-between gap-3">
               <Link
                 href="/dashboard"
-                className="rounded-2xl border border-emerald-200 bg-white px-3 py-2 dark:border-emerald-300/20 dark:bg-slate-900"
+                className="flex min-w-0 items-center gap-3 rounded-2xl border border-emerald-200 bg-white px-3 py-2 dark:border-emerald-300/20 dark:bg-slate-900"
                 aria-label="OAPlay"
               >
-                <img
-                  src="/oaplay-logo-horizontal-transparent-darktext.png"
-                  alt="OAPlay"
-                  className="h-10 w-auto object-contain dark:hidden"
-                />
-                <img
-                  src="/oaplay-logo-horizontal-transparent-white.png"
-                  alt="OAPlay"
-                  className="hidden h-10 w-auto object-contain dark:block"
-                />
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-emerald-200 bg-slate-950 dark:border-emerald-300/20">
+                  <img
+                    src="/oaplay-icon-1024.png"
+                    alt=""
+                    className="h-8 w-8 rounded-lg object-contain"
+                  />
+                </span>
+                <span className="min-w-0 leading-none">
+                  <span className="block font-heading text-2xl font-black tracking-normal text-slate-950 dark:text-white">
+                    OA<span className="text-emerald-600 dark:text-emerald-300">Play</span>
+                  </span>
+                  <span className="mt-1 block text-[10px] font-black uppercase leading-none tracking-[0.14em] text-slate-600 dark:text-emerald-100">
+                    Sua aprovação expressa
+                  </span>
+                </span>
               </Link>
 
               <button

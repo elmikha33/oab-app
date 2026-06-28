@@ -166,6 +166,10 @@ function totalRevisao(user: any) {
 }
 
 export function isAchievementUnlocked(id: string, user: any) {
+  if (id === 'premium') {
+    return Boolean(user?.isPremium);
+  }
+
   const persisted = normalizeAchievementIds(user?.conquistasDesbloqueadas);
   if (persisted.includes(id)) return true;
 
@@ -201,15 +205,15 @@ export function isAchievementUnlocked(id: string, user: any) {
       return revisao >= 25;
     case 'seven_days':
       return diasAtivos >= 7;
-    case 'premium':
-      return Boolean(user?.isPremium);
     default:
       return false;
   }
 }
 
 export function getUnlockedAchievementIds(user: any) {
-  const persisted = normalizeAchievementIds(user?.conquistasDesbloqueadas);
+  const persisted = normalizeAchievementIds(user?.conquistasDesbloqueadas).filter(
+    (id) => id !== 'premium' || Boolean(user?.isPremium)
+  );
   const derived = ACHIEVEMENTS
     .filter((achievement) => isAchievementUnlocked(achievement.id, user))
     .map((achievement) => achievement.id);
