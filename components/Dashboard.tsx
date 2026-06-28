@@ -232,6 +232,14 @@ export default function Dashboard() {
           <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
             {user?.isPremium ? 'Premium' : 'Free'}
           </p>
+          {!user?.isPremium && (
+            <Link
+              href="/premium"
+              className="mt-4 inline-flex min-h-10 items-center justify-center rounded-xl bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200"
+            >
+              Conhecer Premium
+            </Link>
+          )}
         </div>
 
         <ChallengeCard
