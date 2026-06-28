@@ -70,19 +70,17 @@ function ChallengeCard({
         {suggestedAchievement?.description || 'Faça uma rodada de questões hoje e mantenha o ritmo do treino.'}
       </p>
 
-      <div className="mt-auto pt-5">
-        <p className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          {suggestedAchievement?.requirement || 'Rodada do dia'}
-        </p>
+      <p className="mt-5 text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        {suggestedAchievement?.requirement || 'Rodada do dia'}
+      </p>
 
-        <Link
-          href={challengeAction.href}
-          className={`mt-3 ${PRIMARY_ACTION}`}
-        >
-          {suggestedAchievement ? challengeAction.label : 'Estudar agora'}
-          <ArrowRight className="h-4 w-4" strokeWidth={3} />
-        </Link>
-      </div>
+      <Link
+        href={challengeAction.href}
+        className={`mt-auto ${PRIMARY_ACTION}`}
+      >
+        {suggestedAchievement ? challengeAction.label : 'Estudar agora'}
+        <ArrowRight className="h-4 w-4" strokeWidth={3} />
+      </Link>
     </div>
   );
 }
