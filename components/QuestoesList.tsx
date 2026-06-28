@@ -1461,9 +1461,11 @@ export default function QuestoesList() {
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-slate-950/60 p-3">
-                  <p className="text-xl font-black text-emerald-200">?</p>
-                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                <div className="rounded-xl border border-amber-200/30 bg-gradient-to-br from-amber-300/20 via-emerald-300/10 to-cyan-300/10 p-3 shadow-lg shadow-emerald-950/20 ring-1 ring-white/10">
+                  <p className="text-3xl font-black leading-none text-amber-100 drop-shadow-[0_0_14px_rgba(253,224,71,0.35)]">
+                    &infin;
+                  </p>
+                  <p className="mt-1 text-[11px] font-bold uppercase tracking-wide text-amber-100/85">
                     no Premium
                   </p>
                 </div>
@@ -1487,7 +1489,7 @@ export default function QuestoesList() {
 
                 <a
                   href="/premium"
-                  className="flex min-h-12 items-center justify-center rounded-2xl border border-emerald-200/40 bg-gradient-to-r from-emerald-300 to-cyan-300 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-emerald-950/30 transition hover:from-emerald-200 hover:to-cyan-200"
+                  className="flex min-h-12 items-center justify-center rounded-2xl border border-amber-100/50 bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-3 text-sm font-black text-slate-950 shadow-lg shadow-emerald-400/20 transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200 hover:shadow-emerald-300/30"
                 >
                   Desbloquear Premium
                 </a>
