@@ -63,7 +63,7 @@ export default function RankingPreview() {
 
         <Link
           href="/ranking"
-          className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 dark:bg-emerald-300/10 dark:text-emerald-200"
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-5 text-sm font-black text-emerald-700 transition hover:bg-emerald-100 sm:w-auto dark:bg-emerald-300/10 dark:text-emerald-200"
         >
           Ranking completo
         </Link>
@@ -132,7 +132,7 @@ export default function RankingPreview() {
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="mx-auto mt-5 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black text-emerald-700 transition hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-300/10"
+        className="mx-auto mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black text-emerald-700 transition hover:bg-emerald-50 sm:w-auto dark:text-emerald-300 dark:hover:bg-emerald-300/10"
       >
         {expanded ? 'Mostrar menos' : 'Ver mais 7'}
         <ChevronDown className={`h-4 w-4 transition ${expanded ? 'rotate-180' : ''}`} strokeWidth={3} />

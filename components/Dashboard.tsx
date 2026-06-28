@@ -19,6 +19,15 @@ const MOTIVATIONAL_PHRASES = [
   'Cada acerto consolida uma tese. Cada erro mostra onde lapidar.',
 ];
 
+const ACTION_BASE =
+  'inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-black leading-none transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950';
+const PRIMARY_ACTION =
+  `${ACTION_BASE} bg-emerald-600 text-white shadow-lg shadow-emerald-950/15 hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200`;
+const SECONDARY_ACTION =
+  `${ACTION_BASE} border border-slate-200 bg-white text-slate-800 hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-emerald-300/10`;
+const PREMIUM_ACTION =
+  `${ACTION_BASE} bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 text-slate-950 shadow-sm hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200`;
+
 function getFirstName(nome?: string | null) {
   const clean = String(nome || 'Candidato').trim();
   return clean.split(/\s+/)[0] || 'Candidato';
@@ -47,7 +56,7 @@ function ChallengeCard({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900 ${className}`}>
+    <div className={`flex h-full flex-col rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900 ${className}`}>
       <div className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-300">
         <Trophy className="h-4 w-4" strokeWidth={2.7} />
         Desafio do Dia
@@ -61,16 +70,17 @@ function ChallengeCard({
         {suggestedAchievement?.description || 'Faça uma rodada de questões hoje e mantenha o ritmo do treino.'}
       </p>
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-auto pt-5">
         <p className="text-xs font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
           {suggestedAchievement?.requirement || 'Rodada do dia'}
         </p>
 
         <Link
           href={challengeAction.href}
-          className="inline-flex min-h-10 items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+          className={`mt-3 ${PRIMARY_ACTION}`}
         >
           {suggestedAchievement ? challengeAction.label : 'Estudar agora'}
+          <ArrowRight className="h-4 w-4" strokeWidth={3} />
         </Link>
       </div>
     </div>
@@ -149,10 +159,10 @@ export default function Dashboard() {
               {phrase}
             </p>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 sm:max-w-[24.5rem]">
               <Link
                 href="/play"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-950/15 transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+                className={PRIMARY_ACTION}
               >
                 <PlayCircle className="h-5 w-5" strokeWidth={2.8} />
                 Estudar Agora
@@ -160,7 +170,7 @@ export default function Dashboard() {
 
               <Link
                 href="/review"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-emerald-300/10"
+                className={SECONDARY_ACTION}
               >
                 Revisar erros
                 <ArrowRight className="h-4 w-4" strokeWidth={3} />
@@ -214,20 +224,21 @@ export default function Dashboard() {
       />
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-3 dark:border-white/10 dark:bg-slate-900">
+        <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:order-3 dark:border-white/10 dark:bg-slate-900">
           <p className="text-sm font-bold text-slate-500 dark:text-slate-400">próximo passo</p>
           <p className="mt-2 text-xl font-black leading-tight text-slate-950 dark:text-white">
             Mais uma questão agora. Mais segurança na prova depois.
           </p>
           <Link
             href="/play"
-            className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 sm:w-auto dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+            className={`mt-auto ${PRIMARY_ACTION}`}
           >
             Continuar treino
+            <ArrowRight className="h-4 w-4" strokeWidth={3} />
           </Link>
         </div>
 
-        <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-white via-amber-50 to-emerald-50 p-5 shadow-sm md:order-2 dark:border-amber-200/25 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-white via-amber-50 to-emerald-50 p-5 shadow-sm md:order-2 dark:border-amber-200/25 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
@@ -267,16 +278,18 @@ export default function Dashboard() {
           {user?.isPremium ? (
             <Link
               href="/achievements"
-              className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-emerald-300 bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700 sm:w-auto dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+              className={`mt-auto ${PRIMARY_ACTION}`}
             >
               Ver conquistas
+              <ArrowRight className="h-4 w-4" strokeWidth={3} />
             </Link>
           ) : (
             <Link
               href="/premium"
-              className="mt-4 inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-gradient-to-r from-amber-200 via-emerald-300 to-cyan-300 px-4 py-2 text-xs font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:from-amber-100 hover:via-emerald-200 hover:to-cyan-200 sm:w-auto"
+              className={`mt-auto ${PREMIUM_ACTION}`}
             >
               Conhecer Premium
+              <ArrowRight className="h-4 w-4" strokeWidth={3} />
             </Link>
           )}
         </div>
