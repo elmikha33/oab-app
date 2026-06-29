@@ -1179,9 +1179,9 @@ export default function QuestoesList() {
 
     return moverRespondidasSalvasParaFinal(
       ordenarEmbaralhado(base, shuffleSeed),
-      respondidasConhecidas
+      respondidasSalvasAoCarregar
     );
-  }, [aba, questoesDaMateria, respostas, respondidasConhecidas, reviewSuccessPending, shuffleSeed]);
+  }, [aba, questoesDaMateria, respostas, respondidasConhecidas, respondidasSalvasAoCarregar, reviewSuccessPending, shuffleSeed]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);

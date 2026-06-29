@@ -70,6 +70,11 @@ function withRunningAudioContext(callback: (ctx: AudioContext) => void) {
   play();
 }
 
+function getDesktopErrorVolumeScale() {
+  if (typeof window === 'undefined') return 1;
+  return window.matchMedia('(pointer: fine)').matches ? 0.72 : 1;
+}
+
 function playSuccessMelody() {
   withRunningAudioContext((ctx) => {
     const now = ctx.currentTime + 0.01;
@@ -83,10 +88,11 @@ function playSuccessMelody() {
 function playErrorMelody() {
   withRunningAudioContext((ctx) => {
     const now = ctx.currentTime + 0.01;
+    const volumeScale = getDesktopErrorVolumeScale();
 
-    playTone(ctx, now, 246.94, 0.12, 0.18, 'sawtooth');
-    playTone(ctx, now + 0.07, 196, 0.18, 0.22, 'square');
-    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1, 'triangle');
+    playTone(ctx, now, 246.94, 0.12, 0.18 * volumeScale, 'sawtooth');
+    playTone(ctx, now + 0.07, 196, 0.18, 0.22 * volumeScale, 'square');
+    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1 * volumeScale, 'triangle');
   });
 }
 
