@@ -72,7 +72,7 @@ function withRunningAudioContext(callback: (ctx: AudioContext) => void) {
 
 function getDesktopErrorVolumeScale() {
   if (typeof window === 'undefined') return 1;
-  return window.matchMedia('(pointer: fine)').matches ? 0.72 : 1;
+  return window.matchMedia('(pointer: fine)').matches ? 0.63 : 1;
 }
 
 function playSuccessMelody() {
