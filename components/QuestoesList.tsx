@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   ChevronDown,
   FileText,
@@ -10,6 +11,7 @@ import {
   RotateCcw,
   Shuffle,
   Sparkles,
+  UserPlus,
   XCircle,
 } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
@@ -18,6 +20,7 @@ import { supabase } from '@/lib/supabase';
 
 const LIMIT_QUESTOES = 10000;
 const FREE_DAILY_LIMIT = 5;
+const DEMO_SAVE_PROMPT_THRESHOLD = 3;
 const LETRAS = ['A', 'B', 'C', 'D'];
 const TODAS_AS_MATERIAS = '__TODAS_AS_MATERIAS__';
 const TODOS_OS_EXAMES = '__TODOS_OS_EXAMES__';
@@ -49,6 +52,103 @@ type Questao = {
   numero_prova?: string | number | null;
 };
 
+const DEMO_QUESTOES: Questao[] = [
+  {
+    id: 'demo-1',
+    materia: 'Ética Profissional',
+    tema: 'Publicidade Profissional',
+    enunciado:
+      'Um advogado decide impulsionar publicações nas redes sociais com conteúdo jurídico informativo. No anúncio, inclui a promessa de desconto especial para quem contratar seus serviços naquela semana. À luz das regras de publicidade profissional, assinale a alternativa correta.',
+    alternativas: [
+      'O impulsionamento de conteúdo informativo pode ser admitido, mas a oferta de desconto e a mercantilização da advocacia são vedadas.',
+      'A publicidade da advocacia é livremente mercantil, desde que publicada apenas em redes sociais.',
+      'Todo anúncio impulsionado por advogado é proibido, mesmo quando tem caráter informativo.',
+      'A oferta de desconto é permitida quando a publicação não menciona valores específicos.',
+    ],
+    gabarito: 0,
+    comentario:
+      'A publicidade na advocacia deve preservar caráter informativo e sobriedade. Promessas de desconto e captação mercantil de clientela violam essa lógica.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-2',
+    materia: 'Direito Constitucional',
+    tema: 'Remédios Constitucionais',
+    enunciado:
+      'Uma candidata pretende acessar informações pessoais mantidas em banco de dados de órgão público. O pedido administrativo foi negado. Considerando os remédios constitucionais, a medida adequada para conhecer esses dados é:',
+    alternativas: [
+      'Habeas data.',
+      'Habeas corpus.',
+      'Ação popular.',
+      'Mandado de injunção.',
+    ],
+    gabarito: 0,
+    comentario:
+      'O habeas data é o instrumento constitucional voltado ao conhecimento ou retificação de informações pessoais constantes de registros ou bancos de dados públicos.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-3',
+    materia: 'Direito Penal',
+    tema: 'Lei Penal no Tempo',
+    enunciado:
+      'Após a prática de um fato criminoso, entra em vigor lei penal mais benéfica ao acusado. Considerando a aplicação da lei penal no tempo, assinale a alternativa correta.',
+    alternativas: [
+      'A lei penal mais benéfica retroage para favorecer o acusado.',
+      'A lei penal mais grave retroage sempre que o processo ainda não transitou em julgado.',
+      'A lei penal nova nunca se aplica a fatos anteriores à sua vigência.',
+      'A retroatividade depende exclusivamente de autorização judicial expressa.',
+    ],
+    gabarito: 0,
+    comentario:
+      'A Constituição e o Código Penal admitem a retroatividade da lei penal mais benéfica. A lei penal mais grave não retroage para prejudicar o acusado.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-4',
+    materia: 'Direito Civil',
+    tema: 'Prescrição e Incapacidade',
+    enunciado:
+      'Durante a menoridade absoluta de uma pessoa, discute-se a fluência do prazo prescricional contra ela. De acordo com o Código Civil, assinale a alternativa correta.',
+    alternativas: [
+      'A prescrição não corre contra os absolutamente incapazes.',
+      'A prescrição corre normalmente contra todos os menores, sem exceção.',
+      'A prescrição só é interrompida se houver autorização do Ministério Público.',
+      'A prescrição contra absolutamente incapaz é reduzida pela metade.',
+    ],
+    gabarito: 0,
+    comentario:
+      'O Código Civil protege os absolutamente incapazes ao impedir que a prescrição corra contra eles enquanto durar essa condição.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-5',
+    materia: 'Direito Administrativo',
+    tema: 'Autotutela Administrativa',
+    enunciado:
+      'A Administração Pública identifica que praticou ato ilegal e pretende corrigi-lo sem aguardar provocação judicial. Considerando o poder de autotutela, assinale a alternativa correta.',
+    alternativas: [
+      'A Administração pode anular seus próprios atos ilegais, respeitados o contraditório, a ampla defesa e a segurança jurídica quando cabíveis.',
+      'A Administração nunca pode rever seus atos, pois isso é atribuição exclusiva do Poder Judiciário.',
+      'A anulação de ato ilegal depende sempre de autorização legislativa específica.',
+      'A Administração só pode revogar atos ilegais, mas não pode anulá-los.',
+    ],
+    gabarito: 0,
+    comentario:
+      'Pela autotutela, a Administração pode anular atos ilegais e revogar atos inconvenientes ou inoportunos, observados os limites legais e as garantias aplicáveis.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+];
 
 
 type MateriaResumo = {
@@ -1026,7 +1126,11 @@ function moverRespondidasSalvasParaFinal(
   });
 }
 
-export default function QuestoesList() {
+type QuestoesListProps = {
+  demoMode?: boolean;
+};
+
+export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
   const [data, setData] = useState<Questao[] | null>(null);
   const [error, setError] = useState('');
   const [respostas, setRespostas] = useState<RespostasState>({});
@@ -1040,16 +1144,20 @@ export default function QuestoesList() {
   const [reviewSuccessPending, setReviewSuccessPending] = useState<Record<string, boolean>>({});
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
+  const [showDemoSignupModal, setShowDemoSignupModal] = useState(false);
+  const [demoSignupDismissed, setDemoSignupDismissed] = useState(false);
   const [respondidasSalvasAoCarregar, setRespondidasSalvasAoCarregar] = useState<Record<string, true>>({});
 
   const { user, setUser, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
   const { playSuccess, playError } = useSoundEffects();
+  const isDemoGuest = demoMode && !user;
+  const answeredInSession = Object.keys(respostas).length;
 
   const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
     ? user?.freeDailyAnswers?.count || 0
     : 0;
 
-  const freeLimitReached = !user?.isPremium && freeDailyCount >= FREE_DAILY_LIMIT;
+  const freeLimitReached = !demoMode && !user?.isPremium && freeDailyCount >= FREE_DAILY_LIMIT;
 
   const respondidasConhecidas = useMemo<RespondidasState>(() => {
     const ids = new Set<string>(Object.keys(respondidasSalvasAoCarregar));
@@ -1083,6 +1191,25 @@ export default function QuestoesList() {
       setError('');
 
       try {
+        if (demoMode) {
+          const ordenadas = ordenarQuestoes(DEMO_QUESTOES);
+
+          if (!cancel) {
+            setData(ordenadas);
+            setRespostas({});
+            setRespondidasSalvasAoCarregar({});
+            setReviewSuccessPending({});
+            setShowDemoSignupModal(false);
+            setDemoSignupDismissed(false);
+            setAba('naoRespondidas');
+            setActiveExame(TODOS_OS_EXAMES);
+            setActiveTema(null);
+            setActiveMateria(TODAS_AS_MATERIAS);
+          }
+
+          return;
+        }
+
         const { data: sessionData } = await supabase.auth.getSession();
         const token = sessionData.session?.access_token;
 
@@ -1128,7 +1255,7 @@ export default function QuestoesList() {
     return () => {
       cancel = true;
     };
-  }, []);
+  }, [demoMode]);
 
   const exames = useMemo<ExameResumo[]>(() => {
     if (!data) return [];
@@ -1226,7 +1353,7 @@ export default function QuestoesList() {
       return;
     }
 
-    const estaRevisandoQuestao = isReviewMode || questaoEstaEmRevisaoLocal(questao.id);
+    const estaRevisandoQuestao = !isDemoGuest && (isReviewMode || questaoEstaEmRevisaoLocal(questao.id));
 
     if (estaRevisandoQuestao) {
       registrarQuestaoRevisada?.(questao.id);
@@ -1234,13 +1361,30 @@ export default function QuestoesList() {
 
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
     scrollFeedbackIntoView(`comentario-${questao.id}`);
-    registrarRespostaFreeHoje?.();
 
     const correct = normalizarGabarito(questao.gabarito);
+    const acertou = correct !== null && alternativaIndex === correct;
+    const totalRespondidasAgora = Object.keys(respostas).length + 1;
 
-    if (correct !== null && alternativaIndex === correct) {
+    if (acertou) {
       playSuccess();
+    } else {
+      playError();
+    }
 
+    if (isDemoGuest) {
+      if (totalRespondidasAgora >= DEMO_SAVE_PROMPT_THRESHOLD && !demoSignupDismissed) {
+        window.setTimeout(() => {
+          setShowDemoSignupModal(true);
+        }, 650);
+      }
+
+      return;
+    }
+
+    registrarRespostaFreeHoje?.();
+
+    if (acertou) {
       if (estaRevisandoQuestao) {
         setReviewSuccessPending((current) => ({ ...current, [key]: true }));
         return;
@@ -1248,8 +1392,6 @@ export default function QuestoesList() {
 
       registrarAcerto?.(questao.id);
     } else {
-      playError();
-
       setReviewSuccessPending((current) => {
         const next = { ...current };
         delete next[key];
@@ -1498,26 +1640,59 @@ export default function QuestoesList() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-4 px-2.5 py-3 sm:px-4 md:space-y-6 md:py-8">
-      <Summary
-        todasQuestoes={data}
-        questoesDoExame={questoesDoExame}
-        respostas={respostas}
-        respondidasSalvas={respondidasConhecidas}
-        aba={aba}
-        activeMateria={activeMateria}
-        activeExame={activeExame}
-        activeTema={activeTema}
-        exames={exames}
-        onChangeAba={setAba}
-        onSelectMateria={selecionarMateria}
-        onSelectTema={selecionarTema}
-        onSelectExame={selecionarExame}
-        onResetMateria={resetarMateria}
-        onResetTodas={resetarTodas}
-        onShuffle={embaralharQuestoes}
-      />
+      {isDemoGuest ? (
+        <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
+                Demo OAPlay
+              </p>
+              <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
+                Responda e veja o feedback instantâneo
+              </h2>
+              <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+                Após 3 respostas, você pode criar uma conta grátis para salvar sequência, erros e evolução.
+              </p>
+            </div>
 
-      {!user?.isPremium && (
+            <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950 md:max-w-[17rem]">
+              <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                <span>Teste</span>
+                <span>{Math.min(answeredInSession, DEMO_SAVE_PROMPT_THRESHOLD)} de {DEMO_SAVE_PROMPT_THRESHOLD}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all dark:bg-emerald-300"
+                  style={{
+                    width: `${Math.min(100, Math.round((answeredInSession / DEMO_SAVE_PROMPT_THRESHOLD) * 100))}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <Summary
+          todasQuestoes={data}
+          questoesDoExame={questoesDoExame}
+          respostas={respostas}
+          respondidasSalvas={respondidasConhecidas}
+          aba={aba}
+          activeMateria={activeMateria}
+          activeExame={activeExame}
+          activeTema={activeTema}
+          exames={exames}
+          onChangeAba={setAba}
+          onSelectMateria={selecionarMateria}
+          onSelectTema={selecionarTema}
+          onSelectExame={selecionarExame}
+          onResetMateria={resetarMateria}
+          onResetTodas={resetarTodas}
+          onShuffle={embaralharQuestoes}
+        />
+      )}
+
+      {!isDemoGuest && !user?.isPremium && (
         <section className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 shadow-sm dark:border-amber-300/30 dark:bg-amber-300/10 dark:text-amber-100">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
@@ -1580,6 +1755,53 @@ export default function QuestoesList() {
           </div>
         )}
       </section>
+
+      {isDemoGuest && showDemoSignupModal && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/90 px-4 backdrop-blur-xl">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-[2rem] border border-emerald-300/30 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white shadow-2xl shadow-black ring-1 ring-white/10">
+            <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-emerald-300 via-cyan-300 to-amber-300" />
+
+            <div className="relative p-6 text-center md:p-8">
+              <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-300/35 bg-emerald-300/15 text-emerald-200 shadow-lg shadow-black/30">
+                <UserPlus className="h-8 w-8" strokeWidth={2.8} />
+              </div>
+
+              <p className="mb-2 text-xs font-black uppercase tracking-[0.24em] text-emerald-200">
+                OAPlay grátis
+              </p>
+
+              <h2 className="text-2xl font-black tracking-normal text-white md:text-3xl">
+                Salve seu progresso grátis
+              </h2>
+
+              <p className="mx-auto mt-4 max-w-sm text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+                Crie sua conta para manter sua sequência, revisar seus erros e continuar evoluindo no OAPlay.
+              </p>
+
+              <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <a
+                  href="/auth"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3 text-sm font-black text-emerald-950 shadow-lg shadow-emerald-400/15 transition hover:-translate-y-0.5 hover:bg-emerald-200"
+                >
+                  Criar conta grátis
+                  <ArrowRight className="h-4 w-4" strokeWidth={3} />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDemoSignupDismissed(true);
+                    setShowDemoSignupModal(false);
+                  }}
+                  className="min-h-12 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
+                >
+                  Continuar testando
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showFreeLimitModal && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/90 px-4 backdrop-blur-xl">

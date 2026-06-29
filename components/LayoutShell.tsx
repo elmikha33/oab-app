@@ -12,7 +12,7 @@ type LayoutShellProps = {
   children: React.ReactNode;
 };
 
-const PUBLIC_ROUTES = ['/', '/auth'];
+const PUBLIC_ROUTES = ['/', '/auth', '/demo'];
 
 export default function LayoutShell({ children }: LayoutShellProps) {
   const pathname = usePathname();
