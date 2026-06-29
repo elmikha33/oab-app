@@ -31,6 +31,7 @@ type RespondidasState = Record<string, true>;
 
 type Questao = {
   id: number | string;
+  banco_id?: number | string;
   materia?: string | null;
   tema?: string | null;
   enunciado: string;
@@ -54,232 +55,309 @@ type Questao = {
 
 const DEMO_QUESTOES: Questao[] = [
   {
-    id: 'demo-1',
+    id: 'demo-real-1',
+    banco_id: 1031,
     materia: 'Ética Profissional',
-    tema: 'Publicidade Profissional',
+    tema: 'Ética Profissional',
     enunciado:
-      'Um advogado decide impulsionar publicações nas redes sociais com conteúdo jurídico informativo. No anúncio, inclui a promessa de desconto especial para quem contratar seus serviços naquela semana. À luz das regras de publicidade profissional, assinale a alternativa correta.',
+      'Paloma, advogada gestante, compareceu ao Fórum da Comarca de Itaporanga, PB, para participar de uma audiência. Ao tentar estacionar no local, foi impedida de acessar a garagem sob a justificativa de que não havia vagas reservadas para gestantes. Além disso, foi obrigada a passar por um detector de metais, mesmo tendo informado de sua condição de gestante. Indignada, Paloma buscou esclarecer os seus direitos. Sobre a hipótese narrada, com base no Estatuto da OAB, assinale a afirmativa correta.',
     alternativas: [
-      'O impulsionamento de conteúdo informativo pode ser admitido, mas a oferta de desconto e a mercantilização da advocacia são vedadas.',
-      'A publicidade da advocacia é livremente mercantil, desde que publicada apenas em redes sociais.',
-      'Todo anúncio impulsionado por advogado é proibido, mesmo quando tem caráter informativo.',
-      'A oferta de desconto é permitida quando a publicação não menciona valores específicos.',
-    ],
-    gabarito: 0,
-    comentario:
-      'A publicidade na advocacia deve preservar caráter informativo e sobriedade. Promessas de desconto e captação mercantil de clientela violam essa lógica.',
-    edicao_exame: 46,
-    numero_exame: 46,
-    origem: 'Demo OAPlay',
-  },
-  {
-    id: 'demo-2',
-    materia: 'Direito Constitucional',
-    tema: 'Remédios Constitucionais',
-    enunciado:
-      'Uma candidata pretende acessar informações pessoais mantidas em banco de dados de órgão público. O pedido administrativo foi negado. Considerando os remédios constitucionais, a medida adequada para conhecer esses dados é:',
-    alternativas: [
-      'Habeas data.',
-      'Habeas corpus.',
-      'Ação popular.',
-      'Mandado de injunção.',
-    ],
-    gabarito: 0,
-    comentario:
-      'O habeas data é o instrumento constitucional voltado ao conhecimento ou retificação de informações pessoais constantes de registros ou bancos de dados públicos.',
-    edicao_exame: 46,
-    numero_exame: 46,
-    origem: 'Demo OAPlay',
-  },
-  {
-    id: 'demo-3',
-    materia: 'Direito Penal',
-    tema: 'Lei Penal no Tempo',
-    enunciado:
-      'Após a prática de um fato criminoso, entra em vigor lei penal mais benéfica ao acusado. Considerando a aplicação da lei penal no tempo, assinale a alternativa correta.',
-    alternativas: [
-      'A lei penal mais benéfica retroage para favorecer o acusado.',
-      'A lei penal mais grave retroage sempre que o processo ainda não transitou em julgado.',
-      'A lei penal nova nunca se aplica a fatos anteriores à sua vigência.',
-      'A retroatividade depende exclusivamente de autorização judicial expressa.',
-    ],
-    gabarito: 0,
-    comentario:
-      'A Constituição e o Código Penal admitem a retroatividade da lei penal mais benéfica. A lei penal mais grave não retroage para prejudicar o acusado.',
-    edicao_exame: 46,
-    numero_exame: 46,
-    origem: 'Demo OAPlay',
-  },
-  {
-    id: 'demo-4',
-    materia: 'Direito Civil',
-    tema: 'Prescrição e Incapacidade',
-    enunciado:
-      'Durante a menoridade absoluta de uma pessoa, discute-se a fluência do prazo prescricional contra ela. De acordo com o Código Civil, assinale a alternativa correta.',
-    alternativas: [
-      'A prescrição não corre contra os absolutamente incapazes.',
-      'A prescrição corre normalmente contra todos os menores, sem exceção.',
-      'A prescrição só é interrompida se houver autorização do Ministério Público.',
-      'A prescrição contra absolutamente incapaz é reduzida pela metade.',
-    ],
-    gabarito: 0,
-    comentario:
-      'O Código Civil protege os absolutamente incapazes ao impedir que a prescrição corra contra eles enquanto durar essa condição.',
-    edicao_exame: 46,
-    numero_exame: 46,
-    origem: 'Demo OAPlay',
-  },
-  {
-    id: 'demo-5',
-    materia: 'Direito Administrativo',
-    tema: 'Autotutela Administrativa',
-    enunciado:
-      'A Administração Pública identifica que praticou ato ilegal e pretende corrigi-lo sem aguardar provocação judicial. Considerando o poder de autotutela, assinale a alternativa correta.',
-    alternativas: [
-      'A Administração pode anular seus próprios atos ilegais, respeitados o contraditório, a ampla defesa e a segurança jurídica quando cabíveis.',
-      'A Administração nunca pode rever seus atos, pois isso é atribuição exclusiva do Poder Judiciário.',
-      'A anulação de ato ilegal depende sempre de autorização legislativa específica.',
-      'A Administração só pode revogar atos ilegais, mas não pode anulá-los.',
-    ],
-    gabarito: 0,
-    comentario:
-      'Pela autotutela, a Administração pode anular atos ilegais e revogar atos inconvenientes ou inoportunos, observados os limites legais e as garantias aplicáveis.',
-    edicao_exame: 46,
-    numero_exame: 46,
-    origem: 'Demo OAPlay',
-  },
-  {
-    id: 'demo-6',
-    materia: 'Direito Processual Civil',
-    tema: 'Tutelas Provisórias',
-    enunciado:
-      'Em ação de obrigação de fazer, a parte autora pede tutela provisória de urgência para evitar prejuízo imediato. Segundo o CPC, a concessão dessa tutela exige, em regra:',
-    alternativas: [
-      'Trânsito em julgado da sentença e demonstração de culpa grave da parte ré.',
-      'Apenas prova documental pública, sendo dispensado qualquer risco concreto.',
-      'Probabilidade do direito e perigo de dano ou risco ao resultado útil do processo.',
-      'Confissão expressa da parte contrária antes da citação.',
+      'Paloma, por ser advogada gestante, tem o direito de não ser submetida a detectores de metais, mas o estacionamento exclusivo só é garantido em Tribunais e Fóruns Federais, não nos Fóruns Estaduais.',
+      'Os direitos de Paloma, como o de não ser submetida aos detectores de metais e à reserva de vagas, são aplicáveis apenas em Tribunais Superiores, e não se estendem a Fóruns de Comarcas Estaduais.',
+      'Paloma, por ser advogada gestante, tem o direito de entrar em Fóruns e Tribunais sem ser submetida a detectores de metais e tem direito à reserva de vagas nas garagens dos Fóruns dos Tribunais.',
+      'Paloma tem o direito de entrada no Fórum sem ser submetida a detectores de metais, mas o direito à reserva de vagas em garagens para gestantes é uma mera liberalidade do Tribunal e não é garantido por lei.',
     ],
     gabarito: 2,
     comentario:
-      'A tutela provisória de urgência exige elementos que evidenciem a probabilidade do direito e o perigo de dano ou risco ao resultado útil do processo.',
+      'A advogada gestante tem direito à reserva de vagas em garagens e não ser submetida a detectores de metais em Fóruns e Tribunais, conforme previsto no Estatuto da OAB.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 1,
+    origem: 'Cópia demo da questão real #1031',
   },
   {
-    id: 'demo-7',
-    materia: 'Direito do Trabalho',
-    tema: 'Intervalo Intrajornada',
+    id: 'demo-real-2',
+    banco_id: 1041,
+    materia: 'Direito Constitucional',
+    tema: 'Habeas Data',
     enunciado:
-      'Uma empregada cumpre jornada diária superior a seis horas. À luz da CLT, o intervalo intrajornada mínimo, salvo hipóteses legais específicas, deve ser de:',
+      'Maria descobriu que seu nome constava, erroneamente, em registros públicos estaduais como devedora de impostos, mesmo sem nada dever ao Fisco. Muito correta, procurou imediatamente a Secretaria de Estado da Fazenda do Estado Alfa, solicitando que fosse corrigida a informação. Porém, apesar das reiteradas solicitações, o órgão não realizou a retificação. Em razão disso, seu amigo Pedro sugeriu a impetração de um habeas data, o que seria feito diretamente por Maria, sem a presença de um(a) advogado(a). Insegura, Maria procurou você, como advogado(a), para saber se este seria o caminho adequado para a retificação desejada. Segundo o sistema jurídico-constitucional brasileiro, assinale a opção que apresenta, corretamente, a orientação a ser dada.',
     alternativas: [
-      'Exatamente 15 minutos, independentemente da duração da jornada.',
-      'No mínimo 1 hora e, em regra, no máximo 2 horas.',
-      'No mínimo 3 horas, por se tratar de jornada superior a seis horas.',
-      'Nenhum intervalo, caso a empresa forneça alimentação no local.',
+      'A questão deve ser solucionada pela via do mandado de segurança, único remédio capaz de propiciar a retificação de dados, como no caso de Maria.',
+      'O objetivo almejado por Maria deve ser atingido pela via de processo judicial sigiloso, não sendo o remédio sugerido hábil para solucionar o problema ventilado.',
+      'Maria pode utilizar esse específico remédio constitucional, embora sua impetração vá depender da contratação de advogado(a), que possua capacidade postulatória.',
+      'O remédio constitucional em questão não é o instrumento adequado para o caso, pois é direcionado a situações em que se queira ter acesso a informações de sua própria pessoa.',
     ],
-    gabarito: 1,
+    gabarito: 2,
     comentario:
-      'Para jornadas superiores a seis horas, a CLT prevê intervalo para repouso ou alimentação de no mínimo uma hora, salvo ajustes e hipóteses autorizadas pela lei.',
+      'O habeas data é um remédio constitucional que visa proteger a intimidade e a privacidade das pessoas, garantindo o acesso a informações sobre si mesmo. Nesse caso, Maria pode impetrar um habeas data para retificar a informação errada, desde que seja representada por um advogado com capacidade postulatória.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 11,
+    origem: 'Cópia demo da questão real #1041',
   },
   {
-    id: 'demo-8',
-    materia: 'Direito Tributário',
-    tema: 'Anterioridade Tributária',
+    id: 'demo-real-3',
+    banco_id: 1060,
+    materia: 'Direito Administrativo',
+    tema: 'Recurso Administrativo em Licitação',
     enunciado:
-      'Um município institui novo imposto por lei publicada em julho. Considerando as limitações constitucionais ao poder de tributar, assinale a alternativa correta sobre a cobrança.',
+      'A sociedade empresária Begônia deseja participar de um procedimento licitatório, na modalidade concorrência, para a contratação de uma obra, que adotará a sequência adotada como regra na Lei nº 14.133/2021, mas está com receio de ser prejudicada no julgamento das propostas, que antecede à fase de habilitação. Em razão disso, a sociedade empresária consultou você, como advogado(a), a fim de esclarecer a possibilidade de apresentar um recurso administrativo, o momento correto para fazê-lo e os efeitos dele decorrentes, caso tal receio venha a ser concretizado. Sobre essa situação hipotética, assinale a opção que indica, corretamente, o esclarecimento que você prestou.',
     alternativas: [
-      'O tributo pode ser cobrado no dia seguinte à publicação da lei, pois impostos municipais não observam anterioridade.',
-      'A anterioridade só se aplica a taxas, não a impostos.',
-      'A cobrança depende de autorização individual de cada contribuinte.',
-      'A cobrança deve observar, em regra, a anterioridade anual e a anterioridade nonagesimal, salvo exceções constitucionais.',
+      'Não há a possibilidade de se apresentar um recurso administrativo contra o julgamento das propostas, diante da vedação expressa na aludida norma.',
+      'Apenas depois da habilitação é que caberá a apresentação de um recurso administrativo contra o julgamento das propostas, de modo que é necessário aguardar o prosseguimento do certame para a manifestação da intenção de recorrer no momento oportuno.',
+      'O pedido de reconsideração em relação ao julgamento das propostas deve ser prontamente apresentado ao fim da respectiva fase e possui efeito suspensivo, de modo que a licitação só seguirá para a fase de habilitação após a apreciação das irresignações apresentadas.',
+      'A intenção de recorrer do julgamento das propostas deve ser imediatamente manifestada, mas o prazo para a apresentação das razões recursais será iniciado na data da intimação ou da lavratura da ata de habilitação ou inabilitação, pois sua apreciação dar-se-á em fase única.',
     ],
     gabarito: 3,
     comentario:
-      'A Constituição limita a cobrança de tributos por meio da anterioridade anual e da noventena, ressalvadas as exceções previstas no próprio texto constitucional.',
+      'A intenção de recorrer do julgamento das propostas deve ser imediatamente manifestada, mas o prazo para a apresentação das razões recursais será iniciado na data da intimação ou da lavratura da ata de habilitação ou inabilitação, pois sua apreciação dar-se-á em fase única.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 30,
+    origem: 'Cópia demo da questão real #1060',
   },
   {
-    id: 'demo-9',
-    materia: 'Direito Processual Penal',
-    tema: 'Ação Penal',
+    id: 'demo-real-4',
+    banco_id: 1068,
+    materia: 'Direito Civil',
+    tema: 'Direito Civil - Regimes de Bens',
     enunciado:
-      'Nos crimes de ação penal pública condicionada à representação, a atuação do Ministério Público depende de manifestação da vítima ou de seu representante legal. Sobre essa representação, assinale a alternativa correta.',
+      'Joaquim, de 71 anos de idade, é viúvo de Marta há cerca de quatro anos, e não finalizou a partilha de bens deixados por sua falecida esposa, porque há um litígio entre o filho comum do ex-casal e a filha do primeiro casamento de Marta. Na semana passada, Joaquim procurou você, como advogado(a), para saber se ele poderia se casar com Daniela, que tem 65 anos de idade, e qual seria o regime de bens do casamento. Sobre a situação narrada, assinale a opção que apresenta, corretamente, sua orientação.',
     alternativas: [
-      'É dispensável, pois o Ministério Público sempre pode denunciar de ofício em qualquer crime.',
-      'É condição de procedibilidade para o oferecimento da denúncia nesses crimes.',
-      'Substitui a denúncia e encerra a necessidade de atuação do Ministério Público.',
-      'Só pode ser apresentada pessoalmente ao juiz após a sentença.',
+      'Separação convencional de bens, ante a idade de Joaquim.',
+      'Qualquer regime de bens, por força da autonomia que é assegurada a Joaquim.',
+      'Comunhão parcial de bens, de forma a resguardar os bens ainda não partilhados.',
+      'Separação obrigatória de bens, para evitar a confusão patrimonial entre os vínculos conjugais.',
+    ],
+    gabarito: 3,
+    comentario:
+      'A separação obrigatória de bens é a opção mais adequada para Joaquim, pois visa evitar a confusão patrimonial entre os vínculos conjugais, especialmente considerando a situação de litígio em relação à partilha de bens deixados pela falecida esposa.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    numero_prova: 38,
+    origem: 'Cópia demo da questão real #1068',
+  },
+  {
+    id: 'demo-real-5',
+    banco_id: 1081,
+    materia: 'Direito Processual Civil',
+    tema: 'Recurso de Apelação e Liquidação de Sentença',
+    enunciado:
+      'Machado de Assis ajuizou ação indenizatória em face de Quincas Borba, pugnando pela condenação do réu ao pagamento de indenização por danos morais e materiais, resultantes do inadimplemento de contrato de prestação de serviços. O Juiz condenou o réu ao pagamento de indenização por danos morais no montante de R$ 5.000,00 (cinco mil reais) e danos materiais, a serem apurados em sede de liquidação de sentença, diante da necessidade de comprovação dos prejuízos que vêm sendo experimentados pelo autor, desde a ocorrência do ilícito. Quincas Borba contratou você, como advogado(a), para interpor recurso de apelação, buscando a reforma integral da sentença. Tomando o caso acima como premissa, assinale a opção que, corretamente, apresenta sua orientação.',
+    alternativas: [
+      'Enquanto não houver o julgamento do recurso de apelação, não será possível realizar a liquidação de sentença no capítulo referente aos danos materiais.',
+      'Apesar de Quincas Borba ter ofertado apelação, Machado de Assis poderá requerer desde logo a liquidação do capítulo dos danos materiais em autos apartados.',
+      'A liquidação de sentença somente poderá ser promovida por requerimento de Machado de Assis, pois o réu não detém legitimidade para requerer a liquidação de sentença.',
+      'Quincas Borba, em liquidação de sentença, poderá rediscutir a obrigação de pagamento dos danos materiais, sendo lícito ao Juiz modificar a sentença anteriormente proferida.',
     ],
     gabarito: 1,
     comentario:
-      'Na ação penal pública condicionada, a representação é condição para que o Ministério Público possa oferecer denúncia.',
+      'A liquidação de sentença pode ser requerida desde logo, mesmo em face de recurso de apelação, desde que o autor demonstre a necessidade de comprovação dos prejuízos experimentados, como ocorreu no caso de Machado de Assis.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 51,
+    origem: 'Cópia demo da questão real #1081',
   },
   {
-    id: 'demo-10',
-    materia: 'Direito do Consumidor',
-    tema: 'Responsabilidade do Fornecedor',
+    id: 'demo-real-6',
+    banco_id: 1087,
+    materia: 'Direito Penal',
+    tema: 'Tentativa',
     enunciado:
-      'Um consumidor sofre dano causado por defeito em produto colocado no mercado. Considerando o CDC, a responsabilidade do fornecedor pelo fato do produto é, em regra:',
+      'Daniel chegou em casa embriagado e exigiu que sua esposa, Bianca, praticasse com ele conjunção carnal. Diante da recusa de Bianca, Daniel passou a empregar a coação física contra a sua esposa, porém, os gritos de Bianca foram ouvidos por vizinhos, que lograram entrar no imóvel e imobilizar Daniel, antes que consumasse o ato. Daniel foi denunciado pelo delito de estupro, mas, alguns meses após os fatos, e antes do recebimento da denúncia, Daniel e Bianca reataram o casamento. A você, na qualidade de advogado(a) de defesa de Daniel, cabe alegar',
     alternativas: [
-      'Sempre subjetiva, exigindo prova de dolo específico do fornecedor.',
-      'Inexistente quando o produto foi adquirido pela internet.',
-      'Objetiva, independentemente de culpa, observadas as hipóteses legais de exclusão.',
-      'Limitada à troca do produto, sem possibilidade de indenização.',
+      'a retratação tácita da representação da ofendida.',
+      'a causa de diminuição de pena em razão da tentativa.',
+      'a excludente de ilicitude ante o exercício regular de um direito.',
+      'o perdão tácito em razão da manutenção da sociedade conjugal.',
     ],
-    gabarito: 2,
+    gabarito: 1,
     comentario:
-      'O CDC adota responsabilidade objetiva pelo fato do produto ou serviço, bastando defeito, dano e nexo causal, salvo excludentes legais.',
+      'A tentativa é configurada quando o agente, com dolo, pratique atos que, embora não consumados, estejam em consonância com o tipo penal e sejam suficientes para configurar a conduta típica, mesmo que não alcance o resultado final. Nesse caso, embora Daniel não tenha consumado o ato de estupro, os atos de coação física praticados contra Bianca, em conjunto com a intenção de consumar o ato, configuram a tentativa de estupro.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 57,
+    origem: 'Cópia demo da questão real #1087',
   },
   {
-    id: 'demo-11',
-    materia: 'Direito Empresarial',
-    tema: 'Títulos de Crédito',
+    id: 'demo-real-7',
+    banco_id: 1093,
+    materia: 'Direito Processual Penal',
+    tema: 'Recebimento da denúncia e justa causa',
     enunciado:
-      'Em matéria de títulos de crédito, o princípio segundo o qual o direito representado no título depende da apresentação do próprio documento é chamado de:',
+      'Marivaldo foi denunciado por organização criminosa e peculato. A denúncia foi lastreada, exclusivamente, no depoimento de Sérgio, corréu, que celebrou acordo de colaboração premiada com o Ministério Público. Assim, recebida a denúncia, foram citados ambos os réus, sendo que a citação de Marivaldo ocorreu no dia 10/05, e a de Sérgio, no dia 20/05 do corrente ano. De acordo com o caso narrado, na qualidade de advogado(a) de Marivaldo, assinale a opção que apresenta a conduta adequada a ser adotada.',
     alternativas: [
-      'Cartularidade.',
-      'Fungibilidade.',
-      'Continência.',
-      'Conexão.',
+      'O prazo de apresentação da resposta à acusação é de dez dias a contar da citação do último corréu, tratando-se de prazo comum às partes.',
+      'O prazo de apresentação da resposta à acusação é de dez dias a contar da citação de Marivaldo, podendo ser encerrado antes do prazo de Sérgio.',
+      'Deve ser alegada a violação ao contraditório, pois o corréu delatado deve participar das tratativas de celebração do acordo de colaboração premiada.',
+      'Deve ser alegada a ausência de justa causa para o recebimento da denúncia, pois a palavra do colaborador, sem provas de corroboração, é insuficiente para o recebimento da denúncia.',
+    ],
+    gabarito: 3,
+    comentario:
+      'A denúncia deve ser recebida com base em elementos de convicção, não apenas em depoimentos de colaboradores, devendo haver elementos de corroboração para garantir a justa causa.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    numero_prova: 63,
+    origem: 'Cópia demo da questão real #1093',
+  },
+  {
+    id: 'demo-real-8',
+    banco_id: 1100,
+    materia: 'Direito do Trabalho',
+    tema: 'Acidente de Trabalho e Benefício Previdenciário',
+    enunciado:
+      'Manuela Dias, empregada doméstica, procurou você, como advogado(a), para receber orientação jurídica para uma demanda relacionada a acidente de trabalho, que ocorreu durante os seus afazeres diários na residência da empregadora doméstica, que gerou incapacidade temporária. Assinale a opção que indica a orientação correta.',
+    alternativas: [
+      'Manuela poderá usufruir de benefício previdenciário por incapacidade temporária, ainda que possua menos de 12 contribuições mensais.',
+      'O acidente de trabalho somente será reconhecido como tal caso haja incapacidade mínima de seis meses para o trabalho, avaliada por perícia médica.',
+      'A conexão da incapacidade com o trabalho poderá ser aferida pelo INSS, mas nunca com a aplicação do Nexo Técnico Epidemiológico Previdenciário – NTEP.',
+      'A incapacidade de Manuela, na situação narrada, nunca poderia ser decorrente de doenças, pois o acidente de trabalho é sempre súbito, imediato e instantâneo.',
     ],
     gabarito: 0,
     comentario:
-      'A cartularidade indica que o exercício do direito creditício está ligado à posse e apresentação do documento, ressalvadas as adaptações legais para títulos eletrônicos.',
+      'A opção A é correta, pois a legislação previdenciária brasileira não exige que o trabalhador tenha contribuições mensais para receber benefício por incapacidade temporária decorrente de acidente de trabalho.',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 70,
+    origem: 'Cópia demo da questão real #1100',
   },
   {
-    id: 'demo-12',
-    materia: 'Direitos Humanos',
-    tema: 'Tratados Internacionais',
+    id: 'demo-real-9',
+    banco_id: 1106,
+    materia: 'Direito Processual do Trabalho',
+    tema: 'Direito Processual do Trabalho',
     enunciado:
-      'Tratados e convenções internacionais sobre direitos humanos aprovados em cada Casa do Congresso Nacional, em dois turnos, por três quintos dos votos dos respectivos membros, têm status de:',
+      'Jorge Lucas trabalhou por um ano na sociedade empresária Alfa Beta Gama Ltda. Insatisfeito por trabalhar várias horas extras diárias sem recebê-las, apesar de consignar corretamente a sobrejornada nos controles de ponto, Jorge Lucas pediu demissão. Na rescisão do contrato de trabalho, por um equívoco do Departamento de Pessoal, foi pago um valor equivalente ao aviso prévio. Dias depois, Jorge Lucas ajuizou reclamação trabalhista pleiteando horas extras. A sociedade empresária contratou você, como advogado(a), para defendê-la. Acerca do que poderá ser alegado sobre o equívoco do pagamento a mais de aviso prévio, à luz do entendimento consolidado na jurisprudência do Tribunal Superior do Trabalho (TST), assinale a afirmativa correta.',
     alternativas: [
-      'Lei ordinária municipal.',
-      'Decreto regulamentar sem força normativa.',
-      'Emenda constitucional.',
-      'Medida provisória permanente.',
+      'Tendo sido pago o valor do aviso prévio espontaneamente pela sociedade empresária, está preclusa qualquer argumentação a esse respeito.',
+      'Deverá ser alegada a dedução dos valores pagos a título de aviso prévio da condenação ao pagamento dos valores relativos às horas extras.',
+      'Deverá ser alegada a compensação do valor pago a título do aviso prévio com eventual condenação em horas extras, o que deverá ser feito em sede de contestação.',
+      'Deverá ser alegada a quitação do valor pago a título do aviso prévio com eventual condenação em horas extras, o que poderá ser feito em qualquer momento processual na instância ordinária.',
     ],
     gabarito: 2,
     comentario:
-      'O art. 5º, § 3º, da Constituição confere equivalência de emenda constitucional aos tratados de direitos humanos aprovados pelo rito qualificado.',
+      'A sociedade empresária pode alegar a compensação do valor pago a título do aviso prévio com eventual condenação em horas extras, o que deve ser feito em sede de contestação, de acordo com o entendimento consolidado na jurisprudência do Tribunal Superior do Trabalho (TST).',
     edicao_exame: 46,
     numero_exame: 46,
-    origem: 'Demo OAPlay',
+    numero_prova: 76,
+    origem: 'Cópia demo da questão real #1106',
+  },
+  {
+    id: 'demo-real-10',
+    banco_id: 1055,
+    materia: 'Direito Tributário',
+    tema: 'Direito Tributário',
+    enunciado:
+      'Com necessidade de ampliar os gastos na área da seguridade social, a União criou uma nova contribuição de seguridade social, por meio da Lei Ordinária nº XXX/2024, publicada em 1º de setembro de 2024, cuja cobrança se iniciou em 1º de novembro de 2024. Diante desse cenário, assinale a afirmativa correta.',
+    alternativas: [
+      'A Lei Ordinária nº XXX/2024 é inconstitucional por violar tanto a reserva de lei complementar como os princípios da anterioridade tributária anual e nonagesimal.',
+      'Embora não viole o princípio da anterioridade tributária anual, a Lei Ordinária nº XXX/2024 é inconstitucional por violar tanto a reserva de lei complementar como o princípio da anterioridade tributária nonagesimal.',
+      'Não há qualquer inconstitucionalidade na Lei Ordinária nº XXX/2024, uma vez que as novas contribuições de seguridade social são instituídas por meio de lei ordinária e constituem exceção aos princípios da anterioridade tributária anual e nonagesimal.',
+      'As novas contribuições de seguridade social constituem exceção aos princípios da anterioridade tributária anual e nonagesimal, de modo que a única inconstitucionalidade formal presente na Lei Ordinária nº XXX/2024 é a de violar a reserva de lei complementar.',
+    ],
+    gabarito: 1,
+    comentario:
+      'A Lei Ordinária nº XXX/2024 é inconstitucional por violar a reserva de lei complementar e o princípio da anterioridade tributária nonagesimal, pois a instituição de novas contribuições de seguridade social deve ser feita por meio de lei complementar e com antecedência de noventa dias em relação ao início da sua cobrança.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    numero_prova: 25,
+    origem: 'Cópia demo da questão real #1055',
+  },
+  {
+    id: 'demo-real-11',
+    banco_id: 1077,
+    materia: 'Direito Empresarial',
+    tema: 'Nota Promissória e Protesto Cambial',
+    enunciado:
+      'Mercado Barra Velha Ltda. emitiu nota promissória no valor de R$ 19.800,00 (dezenove mil e oitocentos reais), com vencimento no dia 19 de dezembro de 2021. Não houve pagamento na data do vencimento e o credor somente levou o título a protesto no dia 2 de dezembro de 2023, sendo o protesto lavrado dois dias após. Sobre o caso, com base na legislação de regência da nota promissória e das condições para sua cobrança em face do emitente, assinale a afirmativa correta.',
+    alternativas: [
+      'O credor ainda poderá promover a execução da nota promissória em face do emitente em razão da interrupção da prescrição pelo protesto cambial.',
+      'O credor poderá promover a execução da nota promissória em face do emitente, considerando-se que ainda não expirou o prazo de cinco anos para a propositura da ação cambial.',
+      'O credor não pode promover a execução da nota promissória, em razão do protesto para a cobrança do emitente ser facultativo e do decurso do prazo de três anos da data do vencimento.',
+      'O título deveria ter sido apresentado até o primeiro dia útil após o vencimento, acarretando a perda do direito de ação em caso de inobservância dessa regra, embora o protesto seja facultativo para a cobrança.',
+    ],
+    gabarito: 0,
+    comentario:
+      'A nota promissória é um título de crédito que pode ser protestado, o que interrompe a prescrição. Nesse caso, o protesto foi lavrado dentro do prazo de cinco anos do vencimento, permitindo que o credor promova a execução da nota promissória em face do emitente.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    numero_prova: 47,
+    origem: 'Cópia demo da questão real #1077',
+  },
+  {
+    id: 'demo-real-12',
+    banco_id: 1048,
+    materia: 'Direitos Humanos',
+    tema: 'Status normativo dos Tratados e Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico brasileiro',
+    enunciado:
+      'Após a edição da Emenda Constitucional nº 45/2004, com a inserção do § 3º no Art. 5º da Constituição Federal de 1988, muito se discutiu acerca do status normativo que deveria ser atribuído aos Tratados e Convenções Internacionais sobre Direitos Humanos já incorporados ao ordenamento jurídico nacional em momento anterior à referida alteração constitucional. Diante desse cenário, assinale a opção correta.',
+    alternativas: [
+      'Diante da impossibilidade de adoção do rito constitucionalmente exigido para a aprovação de emendas constitucionais, os Tratados e as Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico nacional antes da EC nº 45/2004 possuem status de lei ordinária.',
+      'Diante da ausência de previsão constitucional expressa em relação à matéria, em razão dos compromissos assumidos pelo Estado brasileiro no plano internacional, os Tratados e as Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico nacional antes da EC nº 45/2004 possuem status de norma supraconstitucional.',
+      'Em razão da cláusula aberta contida no Art. 5º, § 2º, da Constituição Federal de 1988, ao admitir expressamente a existência de outros direitos fundamentais para além daqueles expressamente elencados no texto constitucional, os Tratados e as Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico nacional antes da EC nº 45/2004 possuem status de norma constitucional.',
+      'Em razão da necessidade de interpretação do texto constitiucional, notadamente as previsões insertas nos parágrafos do art. 5º da Constituição Federal de 1988, à luz do Art. 7º, § 7º, da Convenção Americana de Direitos Humanos (Pacto de São José da Costa Rica), os Tratados e as Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico nacional antes da edição da EC nº 45/2004 possuem status supralegal.',
+    ],
+    gabarito: 3,
+    comentario:
+      'Os Tratados e Convenções Internacionais sobre Direitos Humanos incorporados ao ordenamento jurídico nacional antes da edição da EC nº 45/2004 possuem status supralegal, em razão da necessidade de interpretação do texto constitucional à luz de outros tratados internacionais, como o Art. 7º, § 7º, da Convenção Americana de Direitos Humanos (Pacto de São José da Costa Rica).',
+    edicao_exame: 46,
+    numero_exame: 46,
+    numero_prova: 18,
+    origem: 'Cópia demo da questão real #1048',
+  },
+];
+
+type DemoAchievementRule = 'answered' | 'mistake' | 'warmup' | 'locked';
+
+const DEMO_ACHIEVEMENTS: Array<{
+  emoji: string;
+  title: string;
+  description: string;
+  requirement: string;
+  unlockWhen: DemoAchievementRule;
+}> = [
+  {
+    emoji: '🎯',
+    title: 'Primeira questão',
+    description: 'O aluno já entende o ciclo: responder, ver gabarito e aprender com o comentário.',
+    requirement: 'Responda 1 questão',
+    unlockWhen: 'answered',
+  },
+  {
+    emoji: '🧠',
+    title: 'Erro vira revisão',
+    description: 'Quando erra, a pessoa percebe que o OAPlay completo transforma erro em treino direcionado.',
+    requirement: 'Erre uma questão',
+    unlockWhen: 'mistake',
+  },
+  {
+    emoji: '⚔️',
+    title: 'Aquecimento concluído',
+    description: 'Depois de algumas respostas, a rodada começa a parecer uma missão de estudo.',
+    requirement: 'Responda 3 questões',
+    unlockWhen: 'warmup',
+  },
+  {
+    emoji: '🔥',
+    title: 'Sequência diária',
+    description: 'Na conta completa, a constância aparece em metas, sequência e evolução salva.',
+    requirement: 'Treine em dias seguidos',
+    unlockWhen: 'locked',
+  },
+  {
+    emoji: '💎',
+    title: 'Domínio por matéria',
+    description: 'O sistema completo acompanha desempenho por matéria para mostrar onde evoluir.',
+    requirement: 'Acumule acertos',
+    unlockWhen: 'locked',
+  },
+  {
+    emoji: '🏆',
+    title: 'Maratonista OAB',
+    description: 'Conquista de longo prazo para quem mantém o ritmo até a aprovação.',
+    requirement: 'Complete grandes metas',
+    unlockWhen: 'locked',
   },
 ];
 
@@ -1527,6 +1605,24 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
     };
   }, [data, respostas]);
 
+  const demoAchievements = useMemo(() => {
+    return DEMO_ACHIEVEMENTS.map((achievement) => {
+      const unlocked =
+        achievement.unlockWhen === 'answered'
+          ? demoSummary.respondidas >= 1
+          : achievement.unlockWhen === 'mistake'
+            ? demoSummary.erros >= 1
+            : achievement.unlockWhen === 'warmup'
+              ? demoSummary.respondidas >= DEMO_SAVE_PROMPT_THRESHOLD
+              : false;
+
+      return {
+        ...achievement,
+        unlocked,
+      };
+    });
+  }, [demoSummary.respondidas, demoSummary.erros]);
+
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
     if (respostas[key] !== undefined) return;
@@ -1834,7 +1930,7 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
                 Veja como o Play organiza seu treino
               </h2>
               <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                Esta é uma amostra simplificada. No OAPlay completo, o treino fica mais aprimorado: filtros por prova, matéria e tema, progresso salvo, revisão automática dos erros, sequência diária, conquistas e ranking.
+                Esta demo usa cópias estáticas de questões reais do banco. No OAPlay completo, o treino fica mais aprimorado: filtros por prova, matéria e tema, progresso salvo, revisão automática dos erros, sequência diária, conquistas e ranking.
               </p>
 
               <a
@@ -1874,7 +1970,7 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
                 {demoSummary.total}
               </p>
               <p className="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
-                amostra guiada
+                questões reais
               </p>
             </div>
 
@@ -1975,6 +2071,96 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+
+          <div className="mt-5 overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-br from-slate-50 via-white to-amber-50 p-4 shadow-sm dark:border-amber-300/25 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/40 md:p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-black uppercase text-amber-700 dark:text-amber-200">
+                  Conquistas no OAPlay
+                </p>
+                <h3 className="mt-1 text-xl font-black leading-tight text-slate-950 dark:text-white md:text-2xl">
+                  Badges para transformar estudo em missão
+                </h3>
+                <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300">
+                  Na demo, você vê uma prévia das conquistas. Na conta completa, os badges ficam salvos e acompanham sua rotina, seus acertos, suas revisões e sua sequência diária.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-white bg-white/85 p-2 shadow-sm dark:border-white/10 dark:bg-slate-950/80">
+                {demoAchievements.slice(0, 4).map((achievement) => (
+                  <span
+                    key={`preview-${achievement.title}`}
+                    aria-hidden="true"
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border text-2xl shadow-sm ${
+                      achievement.unlocked
+                        ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-300/35 dark:bg-emerald-300/10'
+                        : 'border-slate-200 bg-slate-100 grayscale dark:border-white/10 dark:bg-slate-900'
+                    }`}
+                  >
+                    {achievement.emoji}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {demoAchievements.map((achievement) => (
+                <div
+                  key={achievement.title}
+                  className={`rounded-2xl border p-3 transition ${
+                    achievement.unlocked
+                      ? 'border-emerald-300 bg-white shadow-sm shadow-emerald-950/5 dark:border-emerald-300/35 dark:bg-emerald-300/10'
+                      : 'border-slate-200 bg-white/70 opacity-80 dark:border-white/10 dark:bg-slate-950/70'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div
+                      className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border text-3xl ${
+                        achievement.unlocked
+                          ? 'border-emerald-300 bg-emerald-50 dark:border-emerald-300/35 dark:bg-emerald-300/10'
+                          : 'border-slate-200 bg-slate-100 grayscale dark:border-white/10 dark:bg-slate-900'
+                      }`}
+                    >
+                      <span aria-hidden="true">{achievement.emoji}</span>
+                    </div>
+
+                    <span
+                      className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${
+                        achievement.unlocked
+                          ? 'border-emerald-300 bg-emerald-100 text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/15 dark:text-emerald-100'
+                          : 'border-slate-300 bg-slate-100 text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300'
+                      }`}
+                    >
+                      {achievement.unlocked ? 'Desbloqueada' : 'Bloqueada'}
+                    </span>
+                  </div>
+
+                  <h4 className="mt-3 text-base font-black leading-snug text-slate-950 dark:text-white">
+                    {achievement.title}
+                  </h4>
+                  <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-700 dark:text-slate-300">
+                    {achievement.description}
+                  </p>
+                  <p className="mt-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-black text-slate-700 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+                    {achievement.requirement}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-300/25 dark:bg-emerald-300/10 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-bold leading-relaxed text-emerald-950 dark:text-emerald-100">
+                As conquistas completas ficam guardadas na conta e ajudam o aluno a voltar para estudar no dia seguinte.
+              </p>
+              <a
+                href="/auth"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+              >
+                Salvar conquistas
+                <ArrowRight className="h-4 w-4" strokeWidth={3} />
+              </a>
             </div>
           </div>
         </section>

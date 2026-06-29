@@ -45,15 +45,15 @@ export default function DemoPage() {
           </div>
 
           <h1 className="mt-4 max-w-3xl font-heading text-3xl font-black tracking-normal text-slate-950 sm:text-4xl dark:text-white">
-            Teste uma rodada simplificada do Play.
+            Teste uma rodada real do Play.
           </h1>
 
           <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base dark:text-slate-300">
-            Aqui você vê o básico: sumário, filtro por matéria, questões e comentário imediato. O sistema completo é mais aprimorado e salva sua rotina, revisão de erros, sequência diária, conquistas e evolução.
+            Aqui você experimenta questões reais copiadas do banco, sumário ao vivo, filtro por matéria, comentário imediato e uma prévia das conquistas. O sistema completo é mais aprimorado e salva sua rotina, revisão de erros, sequência diária, badges e evolução.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
-            {['12 questões demo', 'sumário ao vivo', 'feedback imediato'].map((item) => (
+            {['questões reais', 'sumário ao vivo', 'conquistas preview'].map((item) => (
               <span
                 key={item}
                 className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200"
