@@ -74,7 +74,7 @@ function withRunningAudioContext(callback: (ctx: AudioContext) => void) {
 function getDesktopErrorVolumeScale() {
   if (typeof window === 'undefined') return 1;
   const isMobileLike = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
-  return isMobileLike ? 1 : 0.5;
+  return isMobileLike ? 0.9 : 0.28;
 }
 
 function createErrorOutput(ctx: AudioContext) {
@@ -116,11 +116,10 @@ function playErrorMelody() {
     const now = ctx.currentTime + 0.01;
     const output = createErrorOutput(ctx);
 
-    playTone(ctx, now, 246.94, 0.12, 0.18, 'sawtooth', output.input);
-    playTone(ctx, now + 0.07, 196, 0.18, 0.22, 'square', output.input);
-    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1, 'triangle', output.input);
+    playTone(ctx, now, 220, 0.11, 0.08, 'triangle', output.input);
+    playTone(ctx, now + 0.08, 174.61, 0.14, 0.075, 'triangle', output.input);
 
-    window.setTimeout(output.dispose, 520);
+    window.setTimeout(output.dispose, 420);
   });
 }
 
