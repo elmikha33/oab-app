@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { ArrowLeft, BookOpenCheck, Loader2, LogIn, UserPlus } from 'lucide-react';
 import QuestoesList from '@/components/QuestoesList';
 import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -45,12 +45,24 @@ export default function DemoPage() {
           </div>
 
           <h1 className="mt-4 max-w-3xl font-heading text-3xl font-black tracking-normal text-slate-950 sm:text-4xl dark:text-white">
-            Responda algumas questões e sinta o OAPlay funcionando.
+            Teste uma rodada simplificada do Play.
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base dark:text-slate-300">
-            Veja o feedback na hora. Depois de algumas respostas, você decide se quer criar uma conta grátis para salvar sua evolução.
+          <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-600 sm:text-base dark:text-slate-300">
+            Aqui você vê o básico: sumário, filtro por matéria, questões e comentário imediato. O sistema completo é mais aprimorado e salva sua rotina, revisão de erros, sequência diária, conquistas e evolução.
           </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {['12 questões demo', 'sumário ao vivo', 'feedback imediato'].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-700 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200"
+              >
+                <BookOpenCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-300" strokeWidth={3} />
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 

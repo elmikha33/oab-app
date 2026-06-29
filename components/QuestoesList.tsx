@@ -148,6 +148,139 @@ const DEMO_QUESTOES: Questao[] = [
     numero_exame: 46,
     origem: 'Demo OAPlay',
   },
+  {
+    id: 'demo-6',
+    materia: 'Direito Processual Civil',
+    tema: 'Tutelas Provisórias',
+    enunciado:
+      'Em ação de obrigação de fazer, a parte autora pede tutela provisória de urgência para evitar prejuízo imediato. Segundo o CPC, a concessão dessa tutela exige, em regra:',
+    alternativas: [
+      'Trânsito em julgado da sentença e demonstração de culpa grave da parte ré.',
+      'Apenas prova documental pública, sendo dispensado qualquer risco concreto.',
+      'Probabilidade do direito e perigo de dano ou risco ao resultado útil do processo.',
+      'Confissão expressa da parte contrária antes da citação.',
+    ],
+    gabarito: 2,
+    comentario:
+      'A tutela provisória de urgência exige elementos que evidenciem a probabilidade do direito e o perigo de dano ou risco ao resultado útil do processo.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-7',
+    materia: 'Direito do Trabalho',
+    tema: 'Intervalo Intrajornada',
+    enunciado:
+      'Uma empregada cumpre jornada diária superior a seis horas. À luz da CLT, o intervalo intrajornada mínimo, salvo hipóteses legais específicas, deve ser de:',
+    alternativas: [
+      'Exatamente 15 minutos, independentemente da duração da jornada.',
+      'No mínimo 1 hora e, em regra, no máximo 2 horas.',
+      'No mínimo 3 horas, por se tratar de jornada superior a seis horas.',
+      'Nenhum intervalo, caso a empresa forneça alimentação no local.',
+    ],
+    gabarito: 1,
+    comentario:
+      'Para jornadas superiores a seis horas, a CLT prevê intervalo para repouso ou alimentação de no mínimo uma hora, salvo ajustes e hipóteses autorizadas pela lei.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-8',
+    materia: 'Direito Tributário',
+    tema: 'Anterioridade Tributária',
+    enunciado:
+      'Um município institui novo imposto por lei publicada em julho. Considerando as limitações constitucionais ao poder de tributar, assinale a alternativa correta sobre a cobrança.',
+    alternativas: [
+      'O tributo pode ser cobrado no dia seguinte à publicação da lei, pois impostos municipais não observam anterioridade.',
+      'A anterioridade só se aplica a taxas, não a impostos.',
+      'A cobrança depende de autorização individual de cada contribuinte.',
+      'A cobrança deve observar, em regra, a anterioridade anual e a anterioridade nonagesimal, salvo exceções constitucionais.',
+    ],
+    gabarito: 3,
+    comentario:
+      'A Constituição limita a cobrança de tributos por meio da anterioridade anual e da noventena, ressalvadas as exceções previstas no próprio texto constitucional.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-9',
+    materia: 'Direito Processual Penal',
+    tema: 'Ação Penal',
+    enunciado:
+      'Nos crimes de ação penal pública condicionada à representação, a atuação do Ministério Público depende de manifestação da vítima ou de seu representante legal. Sobre essa representação, assinale a alternativa correta.',
+    alternativas: [
+      'É dispensável, pois o Ministério Público sempre pode denunciar de ofício em qualquer crime.',
+      'É condição de procedibilidade para o oferecimento da denúncia nesses crimes.',
+      'Substitui a denúncia e encerra a necessidade de atuação do Ministério Público.',
+      'Só pode ser apresentada pessoalmente ao juiz após a sentença.',
+    ],
+    gabarito: 1,
+    comentario:
+      'Na ação penal pública condicionada, a representação é condição para que o Ministério Público possa oferecer denúncia.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-10',
+    materia: 'Direito do Consumidor',
+    tema: 'Responsabilidade do Fornecedor',
+    enunciado:
+      'Um consumidor sofre dano causado por defeito em produto colocado no mercado. Considerando o CDC, a responsabilidade do fornecedor pelo fato do produto é, em regra:',
+    alternativas: [
+      'Sempre subjetiva, exigindo prova de dolo específico do fornecedor.',
+      'Inexistente quando o produto foi adquirido pela internet.',
+      'Objetiva, independentemente de culpa, observadas as hipóteses legais de exclusão.',
+      'Limitada à troca do produto, sem possibilidade de indenização.',
+    ],
+    gabarito: 2,
+    comentario:
+      'O CDC adota responsabilidade objetiva pelo fato do produto ou serviço, bastando defeito, dano e nexo causal, salvo excludentes legais.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-11',
+    materia: 'Direito Empresarial',
+    tema: 'Títulos de Crédito',
+    enunciado:
+      'Em matéria de títulos de crédito, o princípio segundo o qual o direito representado no título depende da apresentação do próprio documento é chamado de:',
+    alternativas: [
+      'Cartularidade.',
+      'Fungibilidade.',
+      'Continência.',
+      'Conexão.',
+    ],
+    gabarito: 0,
+    comentario:
+      'A cartularidade indica que o exercício do direito creditício está ligado à posse e apresentação do documento, ressalvadas as adaptações legais para títulos eletrônicos.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
+  {
+    id: 'demo-12',
+    materia: 'Direitos Humanos',
+    tema: 'Tratados Internacionais',
+    enunciado:
+      'Tratados e convenções internacionais sobre direitos humanos aprovados em cada Casa do Congresso Nacional, em dois turnos, por três quintos dos votos dos respectivos membros, têm status de:',
+    alternativas: [
+      'Lei ordinária municipal.',
+      'Decreto regulamentar sem força normativa.',
+      'Emenda constitucional.',
+      'Medida provisória permanente.',
+    ],
+    gabarito: 2,
+    comentario:
+      'O art. 5º, § 3º, da Constituição confere equivalência de emenda constitucional aos tratados de direitos humanos aprovados pelo rito qualificado.',
+    edicao_exame: 46,
+    numero_exame: 46,
+    origem: 'Demo OAPlay',
+  },
 ];
 
 
@@ -1151,7 +1284,6 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
   const { user, setUser, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
   const { playSuccess, playError } = useSoundEffects();
   const isDemoGuest = demoMode && !user;
-  const answeredInSession = Object.keys(respostas).length;
 
   const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
     ? user?.freeDailyAnswers?.count || 0
@@ -1343,6 +1475,57 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
       respondidasSalvasAoCarregar
     );
   }, [aba, questoesDaMateria, respostas, respondidasConhecidas, respondidasSalvasAoCarregar, reviewSuccessPending, shuffleSeed]);
+
+  const demoSummary = useMemo(() => {
+    const todas = data || [];
+    const respondidas = Object.keys(respostas).length;
+    let acertos = 0;
+    let erros = 0;
+    const materiasMap = new Map<string, { materia: string; total: number; feitas: number }>();
+
+    for (const questao of todas) {
+      const key = getKey(questao);
+      const materia = getMateriaNome(questao);
+      const selecionada = respostas[key];
+      const entry = materiasMap.get(materia) || { materia, total: 0, feitas: 0 };
+
+      entry.total += 1;
+
+      if (selecionada !== undefined) {
+        entry.feitas += 1;
+
+        if (normalizarGabarito(questao.gabarito) === selecionada) {
+          acertos += 1;
+        } else {
+          erros += 1;
+        }
+      }
+
+      materiasMap.set(materia, entry);
+    }
+
+    const total = todas.length;
+    const progresso = total ? Math.round((respondidas / total) * 100) : 0;
+    const aproveitamento = respondidas ? Math.round((acertos / respondidas) * 100) : 0;
+    const materias = Array.from(materiasMap.values()).sort((a, b) => {
+      const configA = getConfigMateria(a.materia);
+      const configB = getConfigMateria(b.materia);
+
+      if (configA.prioridade !== configB.prioridade) return configA.prioridade - configB.prioridade;
+      return a.materia.localeCompare(b.materia);
+    });
+
+    return {
+      total,
+      respondidas,
+      naoRespondidas: Math.max(total - respondidas, 0),
+      acertos,
+      erros,
+      progresso,
+      aproveitamento,
+      materias,
+    };
+  }, [data, respostas]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
@@ -1641,32 +1824,156 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-4 px-2.5 py-3 sm:px-4 md:space-y-6 md:py-8">
       {isDemoGuest ? (
-        <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <section className="overflow-hidden rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm dark:border-emerald-300/25 dark:bg-slate-900 md:p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-300">
-                Demo OAPlay
+                Sumário da rodada demo
               </p>
-              <h2 className="mt-1 text-xl font-black text-slate-950 dark:text-white">
-                Responda e veja o feedback instantâneo
+              <h2 className="mt-1 text-2xl font-black leading-tight text-slate-950 dark:text-white">
+                Veja como o Play organiza seu treino
               </h2>
-              <p className="mt-1 text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                Após 3 respostas, você pode criar uma conta grátis para salvar sequência, erros e evolução.
+              <p className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+                Esta é uma amostra simplificada. No OAPlay completo, o treino fica mais aprimorado: filtros por prova, matéria e tema, progresso salvo, revisão automática dos erros, sequência diária, conquistas e ranking.
               </p>
+
+              <a
+                href="/auth"
+                className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
+              >
+                Criar conta grátis
+                <ArrowRight className="h-4 w-4" strokeWidth={3} />
+              </a>
             </div>
 
             <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950 md:max-w-[17rem]">
               <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                <span>Teste</span>
-                <span>{Math.min(answeredInSession, DEMO_SAVE_PROMPT_THRESHOLD)} de {DEMO_SAVE_PROMPT_THRESHOLD}</span>
+                <span>Progresso demo</span>
+                <span>{demoSummary.progresso}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-all dark:bg-emerald-300"
                   style={{
-                    width: `${Math.min(100, Math.round((answeredInSession / DEMO_SAVE_PROMPT_THRESHOLD) * 100))}%`,
+                    width: `${demoSummary.progresso}%`,
                   }}
                 />
+              </div>
+              <p className="mt-2 text-xs font-bold text-slate-600 dark:text-slate-300">
+                {demoSummary.respondidas} de {demoSummary.total} questões respondidas nesta amostra.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-950">
+              <p className="text-[11px] font-black uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                Questões
+              </p>
+              <p className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
+                {demoSummary.total}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                amostra guiada
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-300/25 dark:bg-emerald-300/10">
+              <p className="text-[11px] font-black uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-200">
+                Acertos
+              </p>
+              <p className="mt-1 text-2xl font-black text-emerald-900 dark:text-emerald-100">
+                {demoSummary.acertos}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-emerald-800 dark:text-emerald-100">
+                {demoSummary.aproveitamento}% de aproveitamento
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 dark:border-rose-300/25 dark:bg-rose-300/10">
+              <p className="text-[11px] font-black uppercase tracking-[0.12em] text-rose-700 dark:text-rose-200">
+                Revisão
+              </p>
+              <p className="mt-1 text-2xl font-black text-rose-900 dark:text-rose-100">
+                {demoSummary.erros}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-rose-800 dark:text-rose-100">
+                erros viram treino
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-3 dark:border-cyan-300/25 dark:bg-cyan-300/10">
+              <p className="text-[11px] font-black uppercase tracking-[0.12em] text-cyan-700 dark:text-cyan-200">
+                Matérias
+              </p>
+              <p className="mt-1 text-2xl font-black text-cyan-900 dark:text-cyan-100">
+                {demoSummary.materias.length}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-cyan-800 dark:text-cyan-100">
+                filtro simplificado
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                Como funciona
+              </p>
+              <div className="mt-3 grid gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
+                    1
+                  </span>
+                  <span>Escolha uma matéria ou treine tudo misturado.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
+                    2
+                  </span>
+                  <span>Responda e veja o gabarito comentado na hora.</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-black text-white dark:bg-emerald-300 dark:text-emerald-950">
+                    3
+                  </span>
+                  <span>Na conta completa, seus erros alimentam revisão, metas e evolução diária.</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-slate-950">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
+                Filtro por matéria
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => selecionarMateria(TODAS_AS_MATERIAS)}
+                  className={`rounded-full border px-3 py-2 text-xs font-black transition ${
+                    activeMateria === TODAS_AS_MATERIAS
+                      ? 'border-emerald-700 bg-emerald-600 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
+                      : 'border-slate-300 bg-white text-slate-800 hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-emerald-300/10'
+                  }`}
+                >
+                  Todas · {demoSummary.total}
+                </button>
+
+                {demoSummary.materias.map((item) => (
+                  <button
+                    key={item.materia}
+                    type="button"
+                    onClick={() => selecionarMateria(item.materia)}
+                    className={`rounded-full border px-3 py-2 text-xs font-black transition ${
+                      activeMateria === item.materia
+                        ? 'border-emerald-700 bg-emerald-600 text-white dark:border-emerald-300 dark:bg-emerald-300 dark:text-emerald-950'
+                        : 'border-slate-300 bg-white text-slate-800 hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-emerald-300/10'
+                    }`}
+                  >
+                    {item.materia} · {item.feitas}/{item.total}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
