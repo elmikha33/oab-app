@@ -39,7 +39,8 @@ function playTone(
   frequency: number,
   duration: number,
   volume: number,
-  type: OscillatorType = 'sine'
+  type: OscillatorType = 'sine',
+  destination: AudioNode = ctx.destination
 ) {
   const oscillator = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -51,7 +52,7 @@ function playTone(
   gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration);
 
   oscillator.connect(gain);
-  gain.connect(ctx.destination);
+  gain.connect(destination);
   oscillator.start(startAt);
   oscillator.stop(startAt + duration + 0.02);
 }
@@ -72,7 +73,32 @@ function withRunningAudioContext(callback: (ctx: AudioContext) => void) {
 
 function getDesktopErrorVolumeScale() {
   if (typeof window === 'undefined') return 1;
-  return window.matchMedia('(pointer: fine)').matches ? 0.63 : 1;
+  const isMobileLike = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
+  return isMobileLike ? 1 : 0.5;
+}
+
+function createErrorOutput(ctx: AudioContext) {
+  const master = ctx.createGain();
+  const limiter = ctx.createDynamicsCompressor();
+  const now = ctx.currentTime;
+
+  master.gain.setValueAtTime(getDesktopErrorVolumeScale(), now);
+  limiter.threshold.setValueAtTime(-26, now);
+  limiter.knee.setValueAtTime(12, now);
+  limiter.ratio.setValueAtTime(8, now);
+  limiter.attack.setValueAtTime(0.004, now);
+  limiter.release.setValueAtTime(0.18, now);
+
+  master.connect(limiter);
+  limiter.connect(ctx.destination);
+
+  return {
+    input: master,
+    dispose: () => {
+      master.disconnect();
+      limiter.disconnect();
+    },
+  };
 }
 
 function playSuccessMelody() {
@@ -88,11 +114,13 @@ function playSuccessMelody() {
 function playErrorMelody() {
   withRunningAudioContext((ctx) => {
     const now = ctx.currentTime + 0.01;
-    const volumeScale = getDesktopErrorVolumeScale();
+    const output = createErrorOutput(ctx);
 
-    playTone(ctx, now, 246.94, 0.12, 0.18 * volumeScale, 'sawtooth');
-    playTone(ctx, now + 0.07, 196, 0.18, 0.22 * volumeScale, 'square');
-    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1 * volumeScale, 'triangle');
+    playTone(ctx, now, 246.94, 0.12, 0.18, 'sawtooth', output.input);
+    playTone(ctx, now + 0.07, 196, 0.18, 0.22, 'square', output.input);
+    playTone(ctx, now + 0.12, 130.81, 0.16, 0.1, 'triangle', output.input);
+
+    window.setTimeout(output.dispose, 520);
   });
 }
 
