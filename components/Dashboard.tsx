@@ -150,7 +150,7 @@ export default function Dashboard() {
             </div>
 
             <h1 className="max-w-3xl text-3xl font-black tracking-tight text-slate-950 sm:text-4xl dark:text-white">
-              Bem-vindo, {getFirstName(user?.nome)}
+              Olá, {getFirstName(user?.nome)}
             </h1>
 
             <p className="mt-4 max-w-2xl text-base font-semibold leading-relaxed text-slate-600 dark:text-slate-300">

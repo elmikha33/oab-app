@@ -40,6 +40,34 @@ function lerRevisaoLocal() {
   }
 }
 
+function getMateriaNome(questao: any) {
+  return String(questao?.materia || 'Sem matéria').trim();
+}
+
+function scrollFeedbackIntoView(primaryId: string, fallbackId?: string) {
+  window.setTimeout(() => {
+    const element = document.getElementById(primaryId) || (fallbackId ? document.getElementById(fallbackId) : null);
+    if (!element) return;
+
+    const rect = element.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const topPadding = 88;
+    const bottomPadding = 36;
+
+    if (rect.top >= topPadding && rect.bottom <= viewportHeight - bottomPadding) return;
+
+    const targetY =
+      rect.height > viewportHeight - topPadding - bottomPadding
+        ? window.scrollY + rect.top - topPadding
+        : window.scrollY + rect.bottom - viewportHeight + bottomPadding;
+
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: 'smooth',
+    });
+  }, 140);
+}
+
 export default function ReviewPage() {
   const { user, setUser, registrarErro, registrarAcerto, registrarQuestaoRevisada } = useGameState();
 
@@ -116,6 +144,78 @@ export default function ReviewPage() {
     return questoes.filter((q) => ids.has(String(q.id)));
   }, [questoes, revisaoIds]);
 
+  const resumoRevisao = useMemo(() => {
+    const materias = new Map<
+      string,
+      {
+        materia: string;
+        total: number;
+        respondidas: number;
+        pendentes: number;
+        primeiroId: string;
+      }
+    >();
+
+    let acertosAgora = 0;
+    let errosAgora = 0;
+    let respondidasAgora = 0;
+
+    for (const questao of questoesRevisao) {
+      const key = String(questao.id);
+      const selected = respostas[key];
+      const answered = selected !== undefined;
+      const correct = normalizarGabarito(questao.gabarito);
+      const materia = getMateriaNome(questao);
+      const atual =
+        materias.get(materia) ||
+        {
+          materia,
+          total: 0,
+          respondidas: 0,
+          pendentes: 0,
+          primeiroId: key,
+        };
+
+      atual.total += 1;
+
+      if (answered) {
+        atual.respondidas += 1;
+        respondidasAgora += 1;
+
+        if (correct !== null && selected === correct) {
+          acertosAgora += 1;
+        } else {
+          errosAgora += 1;
+        }
+      } else {
+        atual.pendentes += 1;
+      }
+
+      materias.set(materia, atual);
+    }
+
+    const total = questoesRevisao.length;
+    const pendentes = Math.max(total - respondidasAgora, 0);
+    const progresso = total ? Math.round((respondidasAgora / total) * 100) : 0;
+
+    return {
+      total,
+      respondidasAgora,
+      pendentes,
+      acertosAgora,
+      errosAgora,
+      progresso,
+      materias: [...materias.values()].sort((a, b) => b.pendentes - a.pendentes || b.total - a.total),
+    };
+  }, [questoesRevisao, respostas]);
+
+  function irParaQuestao(id: string) {
+    document.getElementById(`revisao-${id}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  }
+
   function responder(questao: any, alternativaIndex: number) {
     const key = String(questao.id);
     if (respostas[key] !== undefined) return;
@@ -124,6 +224,7 @@ export default function ReviewPage() {
     const acertou = correta !== null && alternativaIndex === correta;
 
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
+    scrollFeedbackIntoView(`revisao-comentario-${questao.id}`, `revisao-feedback-${questao.id}`);
 
     if (acertou) {
       playSuccess();
@@ -229,27 +330,32 @@ export default function ReviewPage() {
           </Link>
         </div>
 
-        <section className="mb-6 grid gap-4 md:grid-cols-3">
+        <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-emerald-200 bg-white p-5 dark:border-white/15 dark:bg-slate-900">
-            <p className="text-3xl font-black">{questoesRevisao.length}</p>
+            <p className="text-3xl font-black">{resumoRevisao.total}</p>
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-              para revisar
+              na fila
             </p>
           </div>
 
           <div className="rounded-2xl border border-emerald-200 bg-white p-5 dark:border-white/15 dark:bg-slate-900">
-            <p className="text-3xl font-black">{Object.keys(respostas).length}</p>
-            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-              respondidas agora
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-emerald-200 bg-white p-5 dark:border-white/15 dark:bg-slate-900">
-            <p className="text-3xl font-black">
-              {Math.max(questoesRevisao.length - Object.keys(respostas).length, 0)}
-            </p>
+            <p className="text-3xl font-black">{resumoRevisao.pendentes}</p>
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
               pendentes
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-200 bg-white p-5 dark:border-white/15 dark:bg-slate-900">
+            <p className="text-3xl font-black text-emerald-700 dark:text-emerald-300">{resumoRevisao.acertosAgora}</p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+              acertos agora
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-200 bg-white p-5 dark:border-white/15 dark:bg-slate-900">
+            <p className="text-3xl font-black text-rose-700 dark:text-rose-300">{resumoRevisao.errosAgora}</p>
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+              erros agora
             </p>
           </div>
         </section>
@@ -270,6 +376,57 @@ export default function ReviewPage() {
           </section>
         ) : (
           <div className="space-y-6">
+            <section className="rounded-3xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-white/15 dark:bg-slate-900">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
+                    Sumário da revisão
+                  </p>
+                  <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">
+                    {resumoRevisao.respondidasAgora} de {resumoRevisao.total} respondidas nesta sessão
+                  </h2>
+                  <p className="mt-1 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    Use o mapa por matéria para se localizar quando a fila estiver grande.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-950 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100">
+                  <p className="text-xs font-black uppercase tracking-wide">progresso</p>
+                  <p className="mt-1 text-2xl font-black">{resumoRevisao.progresso}%</p>
+                </div>
+              </div>
+
+              <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                  className="h-full rounded-full bg-emerald-600 transition-all dark:bg-emerald-300"
+                  style={{ width: `${resumoRevisao.progresso}%` }}
+                />
+              </div>
+
+              <div className="mt-5 grid gap-2 md:grid-cols-2">
+                {resumoRevisao.materias.map((item) => (
+                  <button
+                    key={item.materia}
+                    type="button"
+                    onClick={() => irParaQuestao(item.primeiroId)}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left transition hover:border-emerald-300 hover:bg-emerald-50 dark:border-white/10 dark:bg-slate-950 dark:hover:bg-emerald-300/10"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-black text-slate-950 dark:text-white">
+                        {item.materia}
+                      </span>
+                      <span className="mt-0.5 block text-xs font-semibold text-slate-600 dark:text-slate-400">
+                        {item.respondidas}/{item.total} respondidas
+                      </span>
+                    </span>
+                    <span className="shrink-0 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-black text-emerald-800 dark:border-emerald-300/25 dark:bg-emerald-300/10 dark:text-emerald-100">
+                      {item.pendentes} pend.
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
             {questoesRevisao.map((questao, index) => {
               const key = String(questao.id);
               const selected = respostas[key] ?? null;
@@ -280,6 +437,7 @@ export default function ReviewPage() {
               return (
                 <article
                   key={questao.id}
+                  id={`revisao-${questao.id}`}
                   className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-6"
                 >
                   <div className="mb-4 flex flex-wrap gap-2 text-xs font-black uppercase">
@@ -327,6 +485,7 @@ export default function ReviewPage() {
 
                   {answered && (
                     <section
+                      id={`revisao-feedback-${questao.id}`}
                       className={`mt-5 rounded-xl border p-4 ${
                         acertou
                           ? 'border-emerald-500 bg-emerald-50 dark:border-emerald-300/40 dark:bg-emerald-400/10'
@@ -359,7 +518,10 @@ export default function ReviewPage() {
                       )}
 
                       {questao.comentario && (
-                        <div className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950">
+                        <div
+                          id={`revisao-comentario-${questao.id}`}
+                          className="rounded-lg border border-slate-300 bg-white p-3 dark:border-white/15 dark:bg-slate-950"
+                        >
                           <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
                             Comentário
                           </p>

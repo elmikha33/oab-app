@@ -271,6 +271,30 @@ function scrollToResumo() {
   }, 80);
 }
 
+function scrollFeedbackIntoView(elementId: string) {
+  window.setTimeout(() => {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+
+    const rect = element.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const topPadding = 88;
+    const bottomPadding = 36;
+
+    if (rect.top >= topPadding && rect.bottom <= viewportHeight - bottomPadding) return;
+
+    const targetY =
+      rect.height > viewportHeight - topPadding - bottomPadding
+        ? window.scrollY + rect.top - topPadding
+        : window.scrollY + rect.bottom - viewportHeight + bottomPadding;
+
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: 'smooth',
+    });
+  }, 140);
+}
+
 function optionClass(index: number, selected: number | null, correct: number | null) {
   const answered = selected !== null;
 
@@ -432,7 +456,10 @@ function QuestaoCard({
             <p className="mb-1 text-xs font-black uppercase text-slate-600 dark:text-slate-400">
               Comentário
             </p>
-            <p className="whitespace-pre-line text-left text-sm leading-6 tracking-normal text-slate-800 dark:text-slate-100 md:text-justify md:text-[15px] md:leading-8 md:tracking-wide">
+            <p
+              id={`comentario-${questao.id}`}
+              className="whitespace-pre-line text-left text-sm leading-6 tracking-normal text-slate-800 dark:text-slate-100 md:text-justify md:text-[15px] md:leading-8 md:tracking-wide"
+            >
               {comentario || 'Comentário ainda não cadastrado para esta questão.'}
             </p>
           </div>
@@ -1135,9 +1162,7 @@ export default function QuestoesList() {
     }
 
     setRespostas((current) => ({ ...current, [key]: alternativaIndex }));
-    window.setTimeout(() => {
-      document.getElementById(`questao-${questao.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 80);
+    scrollFeedbackIntoView(`comentario-${questao.id}`);
     registrarRespostaFreeHoje?.();
 
     const correct = normalizarGabarito(questao.gabarito);
