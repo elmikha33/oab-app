@@ -628,7 +628,9 @@ function Summary({
                 : activeMateria}
           </h1>
           <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-700 dark:text-slate-300 md:text-sm">
-            Escolha uma matéria ou estude tudo misturado.
+            {activeMateria === TODAS_AS_MATERIAS
+              ? 'Você está treinando todas as matérias juntas. Toque em uma matéria abaixo para focar nela.'
+              : 'Matéria selecionada. Para trocar, toque em outra matéria na lista abaixo ou use 📚 Todas as matérias.'}
           </p>
         </div>
 
@@ -700,32 +702,32 @@ function Summary({
         </button>
       </div>
 
-      <div className="mb-2.5 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-cyan-50 p-3 text-emerald-950 shadow-sm ring-1 ring-emerald-100 dark:border-emerald-300/25 dark:from-emerald-300/10 dark:via-slate-800 dark:to-cyan-300/10 dark:text-emerald-100 dark:ring-emerald-300/10 md:mb-3 md:p-3.5">
+      <div className="mb-2.5 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-3 text-slate-950 shadow-sm dark:border-white/10 dark:bg-slate-800/80 dark:text-white md:mb-3 md:p-3.5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-300 bg-white text-emerald-700 shadow-sm dark:border-emerald-300/30 dark:bg-slate-950 dark:text-emerald-200">
-              <Sparkles className="h-5 w-5" strokeWidth={2.8} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-200 bg-white text-emerald-700 shadow-sm dark:border-emerald-300/30 dark:bg-slate-950 dark:text-emerald-200">
+              <ChevronDown className="h-5 w-5" strokeWidth={2.8} />
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-200 md:text-xs">
-                Roteiro recomendado
+              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 md:text-xs">
+                Trocar matéria
               </p>
               <p className="mt-1 text-sm font-black leading-snug text-slate-950 dark:text-white">
-                Comece por Ética e avance pelas matérias de maior peso.
+                A lista abaixo é o seletor de matérias.
               </p>
               <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                É a ordem mais prática para ganhar tração sem se perder no treino.
+                Toque no nome de uma matéria para abrir. A opção com borda verde é a matéria atual.
               </p>
             </div>
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-1.5 text-[11px] font-black">
-            <span className="rounded-full border border-emerald-300 bg-white px-2.5 py-1 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
-              1. Ética
+            <span className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
+              Atual = borda verde
             </span>
             <span className="rounded-full border border-cyan-200 bg-white px-2.5 py-1 text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100">
-              2. Maior peso
+              📚 mistura tudo
             </span>
           </div>
         </div>
@@ -795,9 +797,15 @@ function Summary({
                     {item.materia} · {item.total}
                   </span>
 
-                  <span className="ml-auto hidden rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[11px] font-black text-slate-900 md:inline-flex dark:border-white/10 dark:bg-slate-950 dark:text-slate-200">
-                    Peso {item.peso || '-'}
-                  </span>
+                  {isActive ? (
+                    <span className="ml-auto rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-black text-emerald-900 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
+                      Atual
+                    </span>
+                  ) : (
+                    <span className="ml-auto hidden rounded-full border border-slate-300 bg-slate-100 px-2 py-0.5 text-[11px] font-black text-slate-900 md:inline-flex dark:border-white/10 dark:bg-slate-950 dark:text-slate-200">
+                      Peso {item.peso || '-'}
+                    </span>
+                  )}
                 </button>
 
                 <div className="flex shrink-0 gap-1.5 md:gap-2">
