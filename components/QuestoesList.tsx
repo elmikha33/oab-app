@@ -24,6 +24,7 @@ const TODOS_OS_EXAMES = '__TODOS_OS_EXAMES__';
 
 type AbaQuestoes = 'todas' | 'naoRespondidas' | 'feitas';
 type RespostasState = Record<string, number>;
+type RespondidasState = Record<string, true>;
 
 type Questao = {
   id: number | string;
@@ -111,6 +112,15 @@ function getTemaNome(questao: Questao) {
 
 function getKey(questao: Questao) {
   return String(questao.id);
+}
+
+function questaoFoiRespondida(
+  questao: Questao,
+  respostas: RespostasState,
+  respondidasSalvas: RespondidasState
+) {
+  const key = getKey(questao);
+  return respostas[key] !== undefined || Boolean(respondidasSalvas[key]);
 }
 
 function getConfigMateria(materia: string) {
@@ -489,6 +499,7 @@ function Summary({
   todasQuestoes,
   questoesDoExame,
   respostas,
+  respondidasSalvas,
   aba,
   activeMateria,
   activeExame,
@@ -505,6 +516,7 @@ function Summary({
   todasQuestoes: Questao[];
   questoesDoExame: Questao[];
   respostas: RespostasState;
+  respondidasSalvas: RespondidasState;
   aba: AbaQuestoes;
   activeMateria: string;
   activeExame: string;
@@ -531,8 +543,13 @@ function Summary({
     return base.filter((questao) => getTemaNome(questao) === activeTema);
   }, [questoesDoExame, activeMateria, activeTema]);
 
-  const totalFeitas = questoesDoModoAtual.filter((questao) => respostas[getKey(questao)] !== undefined).length;
+  const totalFeitas = questoesDoModoAtual.filter((questao) =>
+    questaoFoiRespondida(questao, respostas, respondidasSalvas)
+  ).length;
   const totalNaoRespondidas = questoesDoModoAtual.length - totalFeitas;
+  const totalFeitasExame = questoesDoExame.filter((questao) =>
+    questaoFoiRespondida(questao, respostas, respondidasSalvas)
+  ).length;
 
   const materias = useMemo<MateriaResumo[]>(() => {
     const map = new Map<
@@ -549,7 +566,7 @@ function Summary({
     for (const questao of questoesDoExame) {
       const materia = getMateriaNome(questao);
       const tema = getTemaNome(questao);
-      const respondida = respostas[getKey(questao)] !== undefined;
+      const respondida = questaoFoiRespondida(questao, respostas, respondidasSalvas);
 
       if (!map.has(materia)) {
         map.set(materia, { total: 0, feitas: 0, naoRespondidas: 0, firstId: questao.id, temas: new Map() });
@@ -597,7 +614,7 @@ function Summary({
         if (a.prioridade !== b.prioridade) return a.prioridade - b.prioridade;
         return b.total - a.total || a.materia.localeCompare(b.materia);
       });
-  }, [questoesDoExame, respostas]);
+  }, [questoesDoExame, respostas, respondidasSalvas]);
 
   return (
     <section id="resumo-rodada" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white/95 p-2.5 shadow-sm dark:border-white/10 dark:bg-slate-900/95 md:p-4">
@@ -725,7 +742,7 @@ function Summary({
             <div
               className="h-full rounded-full bg-emerald-500 transition-all dark:bg-emerald-300"
               style={{
-                width: `${questoesDoExame.length > 0 ? Math.round((questoesDoModoAtual.filter((questao) => respostas[getKey(questao)] !== undefined).length / questoesDoExame.length) * 100) : 0}%`,
+                width: `${questoesDoExame.length > 0 ? Math.round((totalFeitasExame / questoesDoExame.length) * 100) : 0}%`,
               }}
             />
           </div>
@@ -991,7 +1008,7 @@ export default function QuestoesList() {
   const [showFreeLimitModal, setShowFreeLimitModal] = useState(false);
   const [respondidasSalvasAoCarregar, setRespondidasSalvasAoCarregar] = useState<Record<string, true>>({});
 
-  const { user, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
+  const { user, setUser, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
   const { playSuccess, playError } = useSoundEffects();
 
   const freeDailyCount = user?.freeDailyAnswers?.date === new Date().toISOString().split('T')[0]
@@ -999,6 +1016,23 @@ export default function QuestoesList() {
     : 0;
 
   const freeLimitReached = !user?.isPremium && freeDailyCount >= FREE_DAILY_LIMIT;
+
+  const respondidasConhecidas = useMemo<RespondidasState>(() => {
+    const ids = new Set<string>(Object.keys(respondidasSalvasAoCarregar));
+
+    if (Array.isArray(user?.questoesRespondidas)) {
+      user.questoesRespondidas.forEach((id: number | string) => ids.add(String(id)));
+    }
+
+    if (user?.respostasQuestoes && typeof user.respostasQuestoes === 'object') {
+      Object.keys(user.respostasQuestoes).forEach((id) => ids.add(String(id)));
+    }
+
+    return Array.from(ids).reduce<RespondidasState>((acc, id) => {
+      acc[id] = true;
+      return acc;
+    }, {});
+  }, [respondidasSalvasAoCarregar, user?.questoesRespondidas, user?.respostasQuestoes]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1127,7 +1161,9 @@ export default function QuestoesList() {
     let base = questoesDaMateria;
 
     if (aba === 'feitas') {
-      base = questoesDaMateria.filter((questao) => respostas[getKey(questao)] !== undefined);
+      base = questoesDaMateria.filter((questao) =>
+        questaoFoiRespondida(questao, respostas, respondidasConhecidas)
+      );
     } else if (aba === 'naoRespondidas') {
       base = questoesDaMateria.filter((questao) => {
         const key = getKey(questao);
@@ -1136,15 +1172,16 @@ export default function QuestoesList() {
         // aparecendo até ele clicar em "Continuar e remover da revisão".
         // Sem isso, a aba "Não respondidas" remove a questão assim que a resposta
         // é registrada e o usuário não consegue ver gabarito nem comentário.
-        return !respondidasSalvasAoCarregar[key] || Boolean(reviewSuccessPending[key]);
+        const respondidaNaSessao = respostas[key] !== undefined;
+        return respondidaNaSessao || !respondidasConhecidas[key] || Boolean(reviewSuccessPending[key]);
       });
     }
 
     return moverRespondidasSalvasParaFinal(
       ordenarEmbaralhado(base, shuffleSeed),
-      respondidasSalvasAoCarregar
+      respondidasConhecidas
     );
-  }, [aba, questoesDaMateria, respostas, respondidasSalvasAoCarregar, reviewSuccessPending, shuffleSeed]);
+  }, [aba, questoesDaMateria, respostas, respondidasConhecidas, reviewSuccessPending, shuffleSeed]);
 
   function responder(questao: Questao, alternativaIndex: number) {
     const key = getKey(questao);
@@ -1286,12 +1323,15 @@ export default function QuestoesList() {
 
 
   function resetarMateria(materia: string) {
+    const idsParaResetar = questoesDoExame
+      .filter((questao) => getMateriaNome(questao) === materia)
+      .map(getKey);
+    const idsSet = new Set(idsParaResetar);
+
     setRespostas((current) => {
       const next = { ...current };
 
-      for (const questao of questoesDoExame) {
-        if (getMateriaNome(questao) === materia) delete next[getKey(questao)];
-      }
+      for (const id of idsParaResetar) delete next[id];
 
       return next;
     });
@@ -1299,12 +1339,62 @@ export default function QuestoesList() {
     setReviewSuccessPending((current) => {
       const next = { ...current };
 
-      for (const questao of questoesDoExame) {
-        if (getMateriaNome(questao) === materia) delete next[getKey(questao)];
-      }
+      for (const id of idsParaResetar) delete next[id];
 
       return next;
     });
+
+    setRespondidasSalvasAoCarregar((current) => {
+      const next = { ...current };
+
+      for (const id of idsParaResetar) delete next[id];
+
+      return next;
+    });
+
+    setUser?.((prev: any) => {
+      if (!prev) return prev;
+
+      const respostasQuestoes =
+        prev.respostasQuestoes && typeof prev.respostasQuestoes === 'object'
+          ? { ...prev.respostasQuestoes }
+          : {};
+
+      for (const id of idsParaResetar) delete respostasQuestoes[id];
+
+      return {
+        ...prev,
+        questoesRespondidas: Array.isArray(prev.questoesRespondidas)
+          ? prev.questoesRespondidas.map(String).filter((id: string) => !idsSet.has(id))
+          : [],
+        respostasQuestoes,
+      };
+    });
+
+    try {
+      const current = lerUserGameDataLocal();
+      const respostasQuestoes =
+        current.respostasQuestoes && typeof current.respostasQuestoes === 'object'
+          ? { ...current.respostasQuestoes }
+          : {};
+
+      for (const id of idsParaResetar) delete respostasQuestoes[id];
+
+      localStorage.setItem(
+        'user-game-data',
+        JSON.stringify({
+          ...current,
+          questoesRespondidas: Array.isArray(current.questoesRespondidas)
+            ? current.questoesRespondidas.map(String).filter((id: string) => !idsSet.has(id))
+            : [],
+          respostasQuestoes,
+        })
+      );
+
+      window.dispatchEvent(new StorageEvent('storage', { key: 'user-game-data' }));
+    } catch {
+      // ignora falha de localStorage
+    }
 
     setActiveMateria(materia);
     setActiveTema(null);
@@ -1378,6 +1468,7 @@ export default function QuestoesList() {
         todasQuestoes={data}
         questoesDoExame={questoesDoExame}
         respostas={respostas}
+        respondidasSalvas={respondidasConhecidas}
         aba={aba}
         activeMateria={activeMateria}
         activeExame={activeExame}
@@ -1449,7 +1540,9 @@ export default function QuestoesList() {
           </div>
         ) : (
           <div className="rounded-xl border border-emerald-500 bg-emerald-50 p-4 text-sm font-black text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">
-            Nenhuma questão nesta seleção. Troque a edição do exame, a matéria ou a aba.
+            {aba === 'naoRespondidas'
+              ? 'Tudo concluído nesta seleção. Use a aba Feitas para revisar o que já respondeu ou escolha outra matéria.'
+              : 'Nenhuma questão nesta seleção. Troque a edição do exame, a matéria ou a aba.'}
           </div>
         )}
       </section>

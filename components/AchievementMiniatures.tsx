@@ -69,7 +69,7 @@ export default function AchievementMiniatures({ user }: AchievementMiniaturesPro
           return (
             <Link
               key={achievement.id}
-              href="/achievements"
+              href={`/achievements?achievement=${achievement.id}`}
               title={achievement.title}
               aria-label={achievement.title}
               className={

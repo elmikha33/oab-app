@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, CheckCircle2, Crown, Lock, Trophy } from 'lucide-react';
 import { useGameState } from '@/context/GameStateContext';
@@ -7,6 +8,33 @@ import { ACHIEVEMENTS, countUnlockedAchievements, isAchievementUnlocked } from '
 
 export default function AchievementsPage() {
   const { user } = useGameState() || {};
+  const [highlightedAchievementId, setHighlightedAchievementId] = useState('');
+  const hasUser = Boolean(user);
+
+  useEffect(() => {
+    if (!hasUser || typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const id = String(params.get('achievement') || window.location.hash.replace('#achievement-', '') || '');
+
+    if (!ACHIEVEMENTS.some((achievement) => achievement.id === id)) return;
+
+    setHighlightedAchievementId(id);
+
+    const scrollTimer = window.setTimeout(() => {
+      document.getElementById(`achievement-${id}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }, 140);
+
+    const highlightTimer = window.setTimeout(() => setHighlightedAchievementId(''), 3800);
+
+    return () => {
+      window.clearTimeout(scrollTimer);
+      window.clearTimeout(highlightTimer);
+    };
+  }, [hasUser]);
 
   if (!user) {
     return (
@@ -82,15 +110,20 @@ export default function AchievementsPage() {
           {ACHIEVEMENTS.map((achievement) => {
             const unlocked = isAchievementUnlocked(achievement.id, user);
             const Icon = achievement.icon;
+            const highlighted = highlightedAchievementId === achievement.id;
+            const cardClass = unlocked
+              ? 'relative overflow-hidden rounded-3xl border border-emerald-300/45 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-xl shadow-emerald-950/10 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 dark:shadow-emerald-950/20'
+              : 'relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 opacity-90 dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none';
 
             return (
               <article
                 key={achievement.id}
-                className={
-                  unlocked
-                    ? 'relative overflow-hidden rounded-3xl border border-emerald-300/45 bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-5 shadow-xl shadow-emerald-950/10 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950 dark:shadow-emerald-950/20'
-                    : 'relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/5 opacity-90 dark:border-white/10 dark:bg-slate-900/70 dark:shadow-none'
-                }
+                id={`achievement-${achievement.id}`}
+                className={`${cardClass} scroll-mt-24 transition-all duration-500 ${
+                  highlighted
+                    ? 'ring-4 ring-amber-300 shadow-2xl shadow-amber-950/20 dark:ring-amber-200'
+                    : ''
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div

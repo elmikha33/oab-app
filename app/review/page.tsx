@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Loader2, Trophy, XCircle } from 'lucide-react';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useGameState } from '@/context/GameStateContext';
 import useSoundEffects from '@/hooks/useSoundEffects';
 import { supabase } from '@/lib/supabase';
@@ -42,6 +43,10 @@ function lerRevisaoLocal() {
 
 function getMateriaNome(questao: any) {
   return String(questao?.materia || 'Sem matéria').trim();
+}
+
+function getTemaNome(questao: any) {
+  return String(questao?.tema || 'Sem tema').trim();
 }
 
 function scrollFeedbackIntoView(primaryId: string, fallbackId?: string) {
@@ -216,6 +221,11 @@ export default function ReviewPage() {
     });
   }
 
+  function irParaTema(tema: string) {
+    const primeiraQuestaoDoTema = questoesRevisao.find((questao) => getTemaNome(questao) === tema);
+    if (primeiraQuestaoDoTema) irParaQuestao(String(primeiraQuestaoDoTema.id));
+  }
+
   function responder(questao: any, alternativaIndex: number) {
     const key = String(questao.id);
     if (respostas[key] !== undefined) return;
@@ -308,6 +318,10 @@ export default function ReviewPage() {
   return (
     <main className="min-h-screen bg-emerald-50/40 px-4 py-6 text-slate-950 dark:bg-slate-950 dark:text-white md:px-8">
       <div className="mx-auto max-w-5xl">
+        <div className="mb-4 flex justify-start">
+          <ThemeToggle compact className="rounded-full" />
+        </div>
+
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
@@ -433,6 +447,7 @@ export default function ReviewPage() {
               const correct = normalizarGabarito(questao.gabarito);
               const answered = selected !== null;
               const acertou = answered && selected === correct;
+              const tema = getTemaNome(questao);
 
               return (
                 <article
@@ -441,6 +456,13 @@ export default function ReviewPage() {
                   className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-white/15 dark:bg-slate-900 md:p-6"
                 >
                   <div className="mb-4 flex flex-wrap gap-2 text-xs font-black uppercase">
+                    <button
+                      type="button"
+                      onClick={() => irParaTema(tema)}
+                      className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-left text-emerald-900 transition hover:border-emerald-500 hover:bg-emerald-100 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100 dark:hover:bg-emerald-300/20"
+                    >
+                      Tema: {tema}
+                    </button>
                     <span className="rounded-md border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">
                       Revisão {index + 1} de {questoesRevisao.length}
                     </span>
