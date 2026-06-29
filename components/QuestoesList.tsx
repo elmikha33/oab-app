@@ -717,7 +717,7 @@ function Summary({
                 A lista abaixo é o seletor de matérias.
               </p>
               <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
-                Toque no nome de uma matéria para abrir. A opção com borda verde é a matéria atual.
+                Toque no nome para abrir a matéria. Use a setinha para ver os temas e o reset para limpar só aquela matéria.
               </p>
             </div>
           </div>
@@ -725,6 +725,14 @@ function Summary({
           <div className="flex shrink-0 flex-wrap gap-1.5 text-[11px] font-black">
             <span className="rounded-full border border-emerald-200 bg-white px-2.5 py-1 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
               Atual = borda verde
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-slate-700 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200">
+              <ChevronDown className="h-3.5 w-3.5" strokeWidth={3} />
+              abre temas
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-white px-2.5 py-1 text-rose-700 dark:border-rose-300/25 dark:bg-rose-300/10 dark:text-rose-100">
+              <RotateCcw className="h-3.5 w-3.5" strokeWidth={3} />
+              reseta a matéria
             </span>
             <span className="rounded-full border border-cyan-200 bg-white px-2.5 py-1 text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100">
               📚 mistura tudo
