@@ -700,18 +700,33 @@ function Summary({
         </button>
       </div>
 
-      <div className="mb-2.5 rounded-2xl border border-emerald-300 bg-white p-2.5 text-emerald-950 dark:border-emerald-300/25 dark:bg-slate-800/80 dark:text-emerald-100 md:mb-3 md:p-3">
-        <div className="flex gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100 md:h-9 md:w-9">
-            <AlertTriangle className="h-5 w-5" strokeWidth={3} />
+      <div className="mb-2.5 overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-white to-cyan-50 p-3 text-emerald-950 shadow-sm ring-1 ring-emerald-100 dark:border-emerald-300/25 dark:from-emerald-300/10 dark:via-slate-800 dark:to-cyan-300/10 dark:text-emerald-100 dark:ring-emerald-300/10 md:mb-3 md:p-3.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-emerald-300 bg-white text-emerald-700 shadow-sm dark:border-emerald-300/30 dark:bg-slate-950 dark:text-emerald-200">
+              <Sparkles className="h-5 w-5" strokeWidth={2.8} />
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700 dark:text-emerald-200 md:text-xs">
+                Roteiro recomendado
+              </p>
+              <p className="mt-1 text-sm font-black leading-snug text-slate-950 dark:text-white">
+                Comece por Ética e avance pelas matérias de maior peso.
+              </p>
+              <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-600 dark:text-slate-300">
+                É a ordem mais prática para ganhar tração sem se perder no treino.
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.13em] md:text-xs md:tracking-[0.15em]">
-              Ordem sugerida na OAB
-            </p>
-            <p className="mt-0.5 text-xs font-semibold leading-relaxed text-emerald-900 dark:text-emerald-100 md:text-sm">
-              Ética primeiro, depois as matérias de maior peso.
-            </p>
+
+          <div className="flex shrink-0 flex-wrap gap-1.5 text-[11px] font-black">
+            <span className="rounded-full border border-emerald-300 bg-white px-2.5 py-1 text-emerald-800 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
+              1. Ética
+            </span>
+            <span className="rounded-full border border-cyan-200 bg-white px-2.5 py-1 text-cyan-800 dark:border-cyan-300/25 dark:bg-cyan-300/10 dark:text-cyan-100">
+              2. Maior peso
+            </span>
           </div>
         </div>
       </div>
@@ -727,10 +742,13 @@ function Summary({
           <button
             type="button"
             onClick={() => onSelectMateria(TODAS_AS_MATERIAS)}
-            className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-300 bg-white px-3 py-2.5 text-left text-sm font-black text-emerald-950 transition hover:bg-emerald-100 dark:border-emerald-300/25 dark:bg-slate-900 dark:text-emerald-100 dark:hover:bg-emerald-300/10"
+            className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-white to-cyan-50 px-3 py-2.5 text-left text-sm font-black text-emerald-950 shadow-sm shadow-emerald-950/5 ring-1 ring-emerald-100 transition hover:border-emerald-500 hover:from-emerald-100 hover:to-cyan-100 dark:border-emerald-300/25 dark:from-emerald-300/10 dark:via-slate-900 dark:to-cyan-300/10 dark:text-emerald-100 dark:ring-emerald-300/10 dark:hover:bg-emerald-300/10"
           >
-            <span className="min-w-0">
-              Todas as matérias · {questoesDoExame.length}
+            <span className="flex min-w-0 items-center gap-2">
+              <span aria-hidden="true" className="text-base leading-none">
+                📚
+              </span>
+              <span>Todas as matérias · {questoesDoExame.length}</span>
             </span>
 
             <span className="ml-auto rounded-full border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-black text-emerald-900 dark:border-emerald-300/30 dark:bg-emerald-300/10 dark:text-emerald-100">
