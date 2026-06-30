@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertTriangle,
   ArrowRight,
@@ -17,6 +17,7 @@ import {
 import { useGameState } from '@/context/GameStateContext';
 import useSoundEffects from '@/hooks/useSoundEffects';
 import { supabase } from '@/lib/supabase';
+import { trackDemoEvent } from '@/lib/demoTracking';
 
 const LIMIT_QUESTOES = 10000;
 const FREE_DAILY_LIMIT = 5;
@@ -1358,6 +1359,7 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
   const [showDemoSignupModal, setShowDemoSignupModal] = useState(false);
   const [demoSignupDismissed, setDemoSignupDismissed] = useState(false);
   const [respondidasSalvasAoCarregar, setRespondidasSalvasAoCarregar] = useState<Record<string, true>>({});
+  const demoCompletedTrackedRef = useRef(false);
 
   const { user, setUser, registrarAcerto, registrarErro, registrarRespostaFreeHoje, registrarQuestaoRevisada, resetarAcertos } = useGameState() || {};
   const { playSuccess, playError } = useSoundEffects();
@@ -1411,6 +1413,7 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
             setReviewSuccessPending({});
             setShowDemoSignupModal(false);
             setDemoSignupDismissed(false);
+            demoCompletedTrackedRef.current = false;
             setAba('naoRespondidas');
             setActiveExame(TODOS_OS_EXAMES);
             setActiveTema(null);
@@ -1652,6 +1655,27 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
     }
 
     if (isDemoGuest) {
+      trackDemoEvent('demo_answer', {
+        question_id: questao.id,
+        banco_id: questao.banco_id ?? null,
+        materia: getMateriaNome(questao),
+        tema: getTemaNome(questao),
+        selected_option: alternativaIndex,
+        correct: acertou,
+        answered_count: totalRespondidasAgora,
+        total_questions: data?.length ?? 0,
+      });
+
+      if (!demoCompletedTrackedRef.current && data?.length && totalRespondidasAgora >= data.length) {
+        demoCompletedTrackedRef.current = true;
+        trackDemoEvent('demo_completed', {
+          answered_count: totalRespondidasAgora,
+          total_questions: data.length,
+          correct_count: demoSummary.acertos + (acertou ? 1 : 0),
+          wrong_count: demoSummary.erros + (acertou ? 0 : 1),
+        });
+      }
+
       if (totalRespondidasAgora >= DEMO_SAVE_PROMPT_THRESHOLD && !demoSignupDismissed) {
         window.setTimeout(() => {
           setShowDemoSignupModal(true);
@@ -1935,6 +1959,13 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
 
               <a
                 href="/auth"
+                onClick={() =>
+                  trackDemoEvent('signup_cta_click', {
+                    location: 'demo_summary',
+                    answered_count: demoSummary.respondidas,
+                    total_questions: demoSummary.total,
+                  })
+                }
                 className="mt-4 inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
               >
                 Criar conta grátis
@@ -2156,6 +2187,13 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
               </p>
               <a
                 href="/auth"
+                onClick={() =>
+                  trackDemoEvent('signup_cta_click', {
+                    location: 'demo_achievements',
+                    answered_count: demoSummary.respondidas,
+                    total_questions: demoSummary.total,
+                  })
+                }
                 className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700 dark:bg-emerald-300 dark:text-emerald-950 dark:hover:bg-emerald-200"
               >
                 Salvar conquistas
@@ -2274,6 +2312,13 @@ export default function QuestoesList({ demoMode = false }: QuestoesListProps) {
               <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <a
                   href="/auth"
+                  onClick={() =>
+                    trackDemoEvent('signup_cta_click', {
+                      location: 'demo_save_prompt',
+                      answered_count: demoSummary.respondidas,
+                      total_questions: demoSummary.total,
+                    })
+                  }
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-4 py-3 text-sm font-black text-emerald-950 shadow-lg shadow-emerald-400/15 transition hover:-translate-y-0.5 hover:bg-emerald-200"
                 >
                   Criar conta grátis

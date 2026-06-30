@@ -1,13 +1,20 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpenCheck, Loader2, LogIn, UserPlus } from 'lucide-react';
 import QuestoesList from '@/components/QuestoesList';
 import SoundToggle from '@/components/SoundToggle';
 import ThemeToggle from '@/components/ThemeToggle';
+import { trackDemoEvent } from '@/lib/demoTracking';
 
 export default function DemoPage() {
+  useEffect(() => {
+    trackDemoEvent('demo_view', {
+      location: 'demo_page',
+    });
+  }, []);
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-slate-50/95 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-slate-950/95">

@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import {
-  ArrowRight,
   BookOpenCheck,
   CheckCircle2,
-  Gamepad2,
   LogIn,
   RotateCcw,
   Sparkles,
   Trophy,
 } from 'lucide-react';
+import { LandingDemoCta, LandingViewTracker } from '@/components/DemoLandingTracking';
 
 const benefits = [
   {
@@ -37,6 +36,8 @@ const proofPoints = [
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-slate-950 text-white">
+      <LandingViewTracker />
+
       <section className="relative min-h-[92svh] overflow-hidden">
         <img
           src="/oaplay-brand-hero.png"
@@ -91,14 +92,7 @@ export default function Home() {
               </p>
 
               <div className="mt-7 grid gap-3 sm:max-w-xl sm:grid-cols-[1.1fr_0.9fr]">
-                <Link
-                  href="/demo"
-                  className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-emerald-300 px-5 py-3 text-sm font-black text-emerald-950 shadow-xl shadow-emerald-950/30 transition hover:-translate-y-0.5 hover:bg-emerald-200"
-                >
-                  <Gamepad2 className="h-5 w-5" strokeWidth={2.7} />
-                  Testar questões grátis
-                  <ArrowRight className="h-4 w-4" strokeWidth={3} />
-                </Link>
+                <LandingDemoCta />
 
                 <Link
                   href="/auth"
